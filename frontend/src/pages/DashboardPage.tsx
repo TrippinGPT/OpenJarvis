@@ -3,9 +3,9 @@ const agents = [
   { name: 'Recon', role: 'Research Intel', status: 'Scanning sources', x: 18, y: 32 },
   { name: 'Patch', role: 'Engineering', status: 'Ready for builds', x: 82, y: 32 },
   { name: 'Redline', role: 'Risk Analyst', status: 'Checking limits', x: 22, y: 72 },
-  { name: 'Racket', role: 'Narrative Hunter', status: 'Watching signals', x: 50, y: 88 },
+  { name: 'Racket', role: 'Narrative Hunter', status: 'Watching signals', x: 38, y: 88 },
   { name: 'Veto', role: 'Review Gate', status: 'Approval queue clear', x: 78, y: 72 },
-  { name: 'Hermes', role: 'Local Scout', status: 'Standing by', x: 50, y: 50 },
+  { name: 'Hermes', role: 'Local Scout', status: 'Standing by', x: 62, y: 88 },
 ] as const;
 
 const lanes = [
@@ -36,7 +36,7 @@ export function DashboardPage() {
               </h1>
               <p className="text-sm mt-2 max-w-2xl" style={{ color: 'var(--color-text-secondary)' }}>
                 Relay is the switchboard between the user, OpenClaw Core, and the specialist agents.
-                User signal in. Coordinated project work out.
+                Signal in. Work out. Relay routes requests into coordinated OpenClaw project execution.
               </p>
             </div>
             <div
@@ -209,3 +209,4 @@ export function DashboardPage() {
     </div>
   );
 }
+
