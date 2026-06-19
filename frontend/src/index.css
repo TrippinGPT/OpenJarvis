@@ -4,8 +4,8 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * OpenJarvis design tokens.
- * Zinc/slate neutrals, blue accent. Light default, dark via class or system pref.
+ * Trippin AI Relay design tokens.
+ * Deep black, violet signal accents, cyan data highlights. Dark-first command UI.
  */
 
 @layer base {
@@ -23,10 +23,10 @@
     --color-text-tertiary: #a1a1aa;
     --color-text-inverse: #fafafa;
 
-    --color-accent: #0891b2;
-    --color-accent-hover: #0e7490;
-    --color-accent-subtle: rgba(8, 145, 178, 0.08);
-    --color-accent-glow: rgba(8, 145, 178, 0.25);
+    --color-accent: #8b5cf6;
+    --color-accent-hover: #a855f7;
+    --color-accent-subtle: rgba(139, 92, 246, 0.12);
+    --color-accent-glow: rgba(168, 85, 247, 0.34);
 
     --color-accent-amber: #f59e0b;
     --color-accent-amber-hover: #d97706;
@@ -44,7 +44,7 @@
     --color-input-bg: #ffffff;
     --color-input-border: #d4d4d8;
 
-    --color-user-bubble: #0891b2;
+    --color-user-bubble: #7c3aed;
     --color-user-bubble-text: #ffffff;
     --color-on-accent: #ffffff;
     --color-disabled-bg: #e4e4e7;
@@ -82,10 +82,10 @@
     --color-text-tertiary: #5c5c63;
     --color-text-inverse: #0a0a0b;
 
-    --color-accent: #22d3ee;
-    --color-accent-hover: #67e8f9;
-    --color-accent-subtle: rgba(34, 211, 238, 0.1);
-    --color-accent-glow: rgba(34, 211, 238, 0.3);
+    --color-accent: #a855f7;
+    --color-accent-hover: #c084fc;
+    --color-accent-subtle: rgba(168, 85, 247, 0.14);
+    --color-accent-glow: rgba(192, 132, 252, 0.38);
 
     --color-accent-amber: #f5a524;
     --color-accent-amber-hover: #fbbf24;
@@ -101,9 +101,9 @@
 
     --color-code-bg: #0c121a;
     --color-input-bg: #0c121a;
-    --color-input-border: rgba(79, 209, 255, 0.12);
+    --color-input-border: rgba(168, 85, 247, 0.18);
 
-    --color-user-bubble: rgba(79, 209, 255, 0.14);
+    --color-user-bubble: rgba(124, 58, 237, 0.22);
     --color-user-bubble-text: #e6f1ff;
     --color-on-accent: #070b11;
     --color-disabled-bg: #121a24;
@@ -130,10 +130,10 @@
       --color-text-tertiary: #5c5c63;
       --color-text-inverse: #0a0a0b;
 
-      --color-accent: #22d3ee;
-      --color-accent-hover: #67e8f9;
-      --color-accent-subtle: rgba(34, 211, 238, 0.1);
-      --color-accent-glow: rgba(34, 211, 238, 0.3);
+      --color-accent: #a855f7;
+      --color-accent-hover: #c084fc;
+      --color-accent-subtle: rgba(168, 85, 247, 0.14);
+      --color-accent-glow: rgba(192, 132, 252, 0.38);
 
       --color-accent-amber: #f5a524;
       --color-accent-amber-hover: #fbbf24;
@@ -149,9 +149,9 @@
 
       --color-code-bg: #0c121a;
       --color-input-bg: #0c121a;
-      --color-input-border: rgba(79, 209, 255, 0.12);
+      --color-input-border: rgba(168, 85, 247, 0.18);
 
-      --color-user-bubble: rgba(79, 209, 255, 0.14);
+      --color-user-bubble: rgba(124, 58, 237, 0.22);
       --color-user-bubble-text: #e6f1ff;
       --color-on-accent: #070b11;
       --color-disabled-bg: #121a24;

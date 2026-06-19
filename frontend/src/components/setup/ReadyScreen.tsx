@@ -113,7 +113,7 @@ export function ReadyScreen({
         <p className="text-sm max-w-sm" style={{ color: 'var(--color-text-secondary)' }}>
           {connectedCards.length > 0
             ? `Connected ${connectedCards.length} source${connectedCards.length !== 1 ? 's' : ''}: ${connectedCards.map((c) => c!.display_name).join(', ')}.`
-            : 'Your personal AI is ready to help.'}
+            : 'Relay is online and ready to route work.'}
           {' '}Ask anything about your work and life.
         </p>
       </div>
@@ -140,3 +140,4 @@ export function ReadyScreen({
     </div>
   );
 }
+
