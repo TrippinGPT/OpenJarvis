@@ -4,8 +4,8 @@ const agents = [
   { name: 'Patch', role: 'Engineering', status: 'Ready for builds', x: 82, y: 32 },
   { name: 'Redline', role: 'Risk Analyst', status: 'Checking limits', x: 22, y: 72 },
   { name: 'Racket', role: 'Narrative Hunter', status: 'Watching signals', x: 38, y: 88 },
-  { name: 'Veto', role: 'Review Gate', status: 'Approval queue clear', x: 78, y: 72 },
   { name: 'Hermes', role: 'Local Scout', status: 'Standing by', x: 62, y: 88 },
+  { name: 'Veto', role: 'Review Gate', status: 'Approval queue clear', x: 78, y: 72 },
 ] as const;
 
 const lanes = [
@@ -35,19 +35,32 @@ export function DashboardPage() {
                 Agent Network View
               </h1>
               <p className="text-sm mt-2 max-w-2xl" style={{ color: 'var(--color-text-secondary)' }}>
-                Relay is the switchboard between the user, OpenClaw Core, and the specialist agents.
-                Signal in. Work out. Relay routes requests into coordinated OpenClaw project execution.
+                Relay is the data switchboard between the user, OpenClaw Core, and the specialist agents.
+                Signal in. Work out.
               </p>
             </div>
-            <div
-              className="text-xs px-3 py-2 rounded-lg"
-              style={{
-                color: 'var(--color-text-tertiary)',
-                border: '1px solid var(--color-border)',
-                background: 'var(--color-bg-secondary)',
-              }}
-            >
-              {stamp}
+
+            <div className="flex flex-col gap-2 md:items-end">
+              <div
+                className="text-xs px-3 py-2 rounded-lg"
+                style={{
+                  color: 'var(--color-accent-hover)',
+                  border: '1px solid rgba(192, 132, 252, 0.28)',
+                  background: 'rgba(168, 85, 247, 0.10)',
+                }}
+              >
+                Powered by OpenClaw Core
+              </div>
+              <div
+                className="text-xs px-3 py-2 rounded-lg"
+                style={{
+                  color: 'var(--color-text-tertiary)',
+                  border: '1px solid var(--color-border)',
+                  background: 'var(--color-bg-secondary)',
+                }}
+              >
+                {stamp}
+              </div>
             </div>
           </div>
         </header>
@@ -58,8 +71,8 @@ export function DashboardPage() {
             style={{
               border: '1px solid var(--color-border)',
               background:
-                'radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.22), transparent 24%), radial-gradient(circle at 20% 20%, rgba(34, 211, 238, 0.10), transparent 22%), linear-gradient(135deg, rgba(10, 10, 15, 0.98), rgba(22, 10, 38, 0.94))',
-              boxShadow: '0 0 45px rgba(168, 85, 247, 0.10)',
+                'radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.24), transparent 24%), radial-gradient(circle at 20% 20%, rgba(34, 211, 238, 0.10), transparent 22%), linear-gradient(135deg, rgba(5, 5, 8, 0.98), rgba(22, 10, 38, 0.94))',
+              boxShadow: '0 0 45px rgba(168, 85, 247, 0.12)',
             }}
           >
             <div className="absolute inset-0 opacity-40">
@@ -86,6 +99,8 @@ export function DashboardPage() {
                   strokeWidth="0.28"
                 />
               ))}
+              <circle cx="50" cy="50" r="17" fill="none" stroke="var(--color-accent)" strokeOpacity="0.22" strokeWidth="0.22" />
+              <circle cx="50" cy="50" r="25" fill="none" stroke="var(--color-accent-hover)" strokeOpacity="0.12" strokeWidth="0.18" />
             </svg>
 
             <div
@@ -94,8 +109,8 @@ export function DashboardPage() {
                 transform: 'translate(-50%, -50%)',
                 border: '1px solid rgba(192, 132, 252, 0.48)',
                 background:
-                  'radial-gradient(circle, rgba(168, 85, 247, 0.28), rgba(12, 6, 24, 0.88) 62%, rgba(5, 5, 8, 0.92))',
-                boxShadow: '0 0 70px rgba(168, 85, 247, 0.32), inset 0 0 45px rgba(192, 132, 252, 0.15)',
+                  'radial-gradient(circle, rgba(168, 85, 247, 0.30), rgba(12, 6, 24, 0.88) 62%, rgba(5, 5, 8, 0.94))',
+                boxShadow: '0 0 80px rgba(168, 85, 247, 0.34), inset 0 0 45px rgba(192, 132, 252, 0.15)',
               }}
             >
               <div>
@@ -109,7 +124,7 @@ export function DashboardPage() {
                   Switchboard
                 </div>
                 <div className="text-xs mt-2 px-6" style={{ color: 'var(--color-text-secondary)' }}>
-                  Routes signals into coordinated agent work
+                  Routes requests into coordinated OpenClaw work
                 </div>
               </div>
             </div>
@@ -145,6 +160,23 @@ export function DashboardPage() {
                 </div>
               </div>
             ))}
+
+            <div
+              className="absolute bottom-4 left-4 right-4 rounded-xl px-4 py-3 text-xs flex items-center justify-between gap-3"
+              style={{
+                border: '1px solid rgba(192, 132, 252, 0.20)',
+                background: 'rgba(0, 0, 0, 0.30)',
+                color: 'var(--color-text-secondary)',
+              }}
+            >
+              <span>Signal In</span>
+              <span style={{ color: 'var(--color-accent)' }}>?</span>
+              <span>Relay Routes</span>
+              <span style={{ color: 'var(--color-accent)' }}>?</span>
+              <span>OpenClaw Executes</span>
+              <span style={{ color: 'var(--color-accent)' }}>?</span>
+              <span>Work Out</span>
+            </div>
           </section>
 
           <aside className="flex flex-col gap-4">
@@ -159,7 +191,7 @@ export function DashboardPage() {
                 Active Project Lanes
               </div>
               <p className="text-xs mb-4" style={{ color: 'var(--color-text-secondary)' }}>
-                Visual placeholders for the workflows Relay will route into later.
+                Visual placeholders for workflows Relay will route into.
               </p>
 
               <div className="flex flex-col gap-3">
@@ -209,5 +241,3 @@ export function DashboardPage() {
     </div>
   );
 }
-
-
