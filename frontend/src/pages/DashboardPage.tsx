@@ -3,8 +3,8 @@ const agents = [
   { name: 'Recon', role: 'Research Intel', status: 'Scanning sources', x: 18, y: 32 },
   { name: 'Patch', role: 'Engineering', status: 'Ready for builds', x: 82, y: 32 },
   { name: 'Redline', role: 'Risk Analyst', status: 'Checking limits', x: 22, y: 72 },
-  { name: 'Racket', role: 'Narrative Hunter', status: 'Watching signals', x: 38, y: 88 },
-  { name: 'Hermes', role: 'Local Scout', status: 'Standing by', x: 62, y: 88 },
+  { name: 'Racket', role: 'Narrative Hunter', status: 'Watching signals', x: 38, y: 82 },
+  { name: 'Hermes', role: 'Local Scout', status: 'Standing by', x: 62, y: 82 },
   { name: 'Veto', role: 'Review Gate', status: 'Approval queue clear', x: 78, y: 72 },
 ] as const;
 
@@ -170,11 +170,11 @@ export function DashboardPage() {
               }}
             >
               <span>Signal In</span>
-              <span style={{ color: 'var(--color-accent)' }}>?</span>
+              <span style={{ color: 'var(--color-accent)' }}>&rarr;</span>
               <span>Relay Routes</span>
-              <span style={{ color: 'var(--color-accent)' }}>?</span>
+              <span style={{ color: 'var(--color-accent)' }}>&rarr;</span>
               <span>OpenClaw Executes</span>
-              <span style={{ color: 'var(--color-accent)' }}>?</span>
+              <span style={{ color: 'var(--color-accent)' }}>&rarr;</span>
               <span>Work Out</span>
             </div>
           </section>
@@ -241,3 +241,4 @@ export function DashboardPage() {
     </div>
   );
 }
+
