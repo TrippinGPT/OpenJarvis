@@ -1,34 +1,210 @@
-import { EnergyDashboard } from '../components/Dashboard/EnergyDashboard';
-import { CostComparison } from '../components/Dashboard/CostComparison';
-import { TraceDebugger } from '../components/Dashboard/TraceDebugger';
+const agents = [
+  { name: 'Dispatch', role: 'Coordinator', status: 'Routing jobs', x: 50, y: 10 },
+  { name: 'Recon', role: 'Research Intel', status: 'Scanning sources', x: 18, y: 32 },
+  { name: 'Patch', role: 'Engineering', status: 'Ready for builds', x: 82, y: 32 },
+  { name: 'Redline', role: 'Risk Analyst', status: 'Checking limits', x: 22, y: 72 },
+  { name: 'Racket', role: 'Narrative Hunter', status: 'Watching signals', x: 50, y: 88 },
+  { name: 'Veto', role: 'Review Gate', status: 'Approval queue clear', x: 78, y: 72 },
+  { name: 'Hermes', role: 'Local Scout', status: 'Standing by', x: 50, y: 50 },
+] as const;
+
+const lanes = [
+  { name: 'SignalForge', state: 'Intel reports', note: 'Market and trend reporting lane' },
+  { name: 'VisualForge', state: 'Creative pipeline', note: 'Cover art and asset generation' },
+  { name: 'PaperForge', state: 'Simulation lab', note: 'Paper trading and education workflows' },
+  { name: 'SlapDesk', state: 'Music workflow', note: 'FL Studio to Pro Tools project assist' },
+] as const;
 
 export function DashboardPage() {
   const now = new Date();
   const stamp = now.toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
 
   return (
-    <div className="flex-1 overflow-y-auto px-6 py-10">
-      <div className="max-w-5xl mx-auto">
+    <div className="flex-1 overflow-y-auto px-6 py-8">
+      <div className="max-w-6xl mx-auto">
         <header className="mb-6">
-          <div className="flex items-center justify-between">
-            <h1 className="text-lg font-semibold" style={{ color: 'var(--color-text)' }}>
-              System Overview
-            </h1>
-            <div className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <div
+                className="text-xs tracking-[0.35em] uppercase mb-2"
+                style={{ color: 'var(--color-accent)' }}
+              >
+                Trippin AI Relay
+              </div>
+              <h1 className="text-2xl font-semibold" style={{ color: 'var(--color-text)' }}>
+                Agent Network View
+              </h1>
+              <p className="text-sm mt-2 max-w-2xl" style={{ color: 'var(--color-text-secondary)' }}>
+                Relay is the switchboard between the user, OpenClaw Core, and the specialist agents.
+                User signal in. Coordinated project work out.
+              </p>
+            </div>
+            <div
+              className="text-xs px-3 py-2 rounded-lg"
+              style={{
+                color: 'var(--color-text-tertiary)',
+                border: '1px solid var(--color-border)',
+                background: 'var(--color-bg-secondary)',
+              }}
+            >
               {stamp}
             </div>
           </div>
-          <p className="text-sm mt-2 max-w-2xl" style={{ color: 'var(--color-text-secondary)' }}>
-            Live telemetry for the on-device inference engine — power draw, token throughput, and cost savings versus cloud APIs.
-          </p>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-          <EnergyDashboard />
-          <CostComparison />
-        </div>
+        <div className="grid grid-cols-1 xl:grid-cols-[1.4fr_0.8fr] gap-5">
+          <section
+            className="relative min-h-[560px] rounded-2xl overflow-hidden"
+            style={{
+              border: '1px solid var(--color-border)',
+              background:
+                'radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.22), transparent 24%), radial-gradient(circle at 20% 20%, rgba(34, 211, 238, 0.10), transparent 22%), linear-gradient(135deg, rgba(10, 10, 15, 0.98), rgba(22, 10, 38, 0.94))',
+              boxShadow: '0 0 45px rgba(168, 85, 247, 0.10)',
+            }}
+          >
+            <div className="absolute inset-0 opacity-40">
+              <div
+                className="absolute inset-0"
+                style={{
+                  backgroundImage:
+                    'linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px)',
+                  backgroundSize: '36px 36px',
+                }}
+              />
+            </div>
 
-        <TraceDebugger />
+            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+              {agents.map((agent) => (
+                <line
+                  key={agent.name}
+                  x1="50"
+                  y1="50"
+                  x2={agent.x}
+                  y2={agent.y}
+                  stroke="var(--color-accent)"
+                  strokeOpacity="0.34"
+                  strokeWidth="0.28"
+                />
+              ))}
+            </svg>
+
+            <div
+              className="absolute left-1/2 top-1/2 w-56 h-56 rounded-full flex items-center justify-center text-center"
+              style={{
+                transform: 'translate(-50%, -50%)',
+                border: '1px solid rgba(192, 132, 252, 0.48)',
+                background:
+                  'radial-gradient(circle, rgba(168, 85, 247, 0.28), rgba(12, 6, 24, 0.88) 62%, rgba(5, 5, 8, 0.92))',
+                boxShadow: '0 0 70px rgba(168, 85, 247, 0.32), inset 0 0 45px rgba(192, 132, 252, 0.15)',
+              }}
+            >
+              <div>
+                <div
+                  className="text-xs tracking-[0.4em] uppercase mb-2"
+                  style={{ color: 'var(--color-accent-hover)' }}
+                >
+                  Relay
+                </div>
+                <div className="text-xl font-semibold" style={{ color: 'var(--color-text)' }}>
+                  Switchboard
+                </div>
+                <div className="text-xs mt-2 px-6" style={{ color: 'var(--color-text-secondary)' }}>
+                  Routes signals into coordinated agent work
+                </div>
+              </div>
+            </div>
+
+            {agents.map((agent) => (
+              <div
+                key={agent.name}
+                className="absolute w-44 rounded-xl p-3"
+                style={{
+                  left: `${agent.x}%`,
+                  top: `${agent.y}%`,
+                  transform: 'translate(-50%, -50%)',
+                  border: '1px solid rgba(192, 132, 252, 0.28)',
+                  background: 'rgba(8, 8, 13, 0.78)',
+                  backdropFilter: 'blur(16px)',
+                  boxShadow: '0 0 24px rgba(168, 85, 247, 0.12)',
+                }}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="font-semibold text-sm" style={{ color: 'var(--color-text)' }}>
+                    {agent.name}
+                  </div>
+                  <span
+                    className="w-2 h-2 rounded-full"
+                    style={{ background: 'var(--color-accent)', boxShadow: '0 0 12px var(--color-accent)' }}
+                  />
+                </div>
+                <div className="text-xs mt-1" style={{ color: 'var(--color-accent-hover)' }}>
+                  {agent.role}
+                </div>
+                <div className="text-[11px] mt-2" style={{ color: 'var(--color-text-secondary)' }}>
+                  {agent.status}
+                </div>
+              </div>
+            ))}
+          </section>
+
+          <aside className="flex flex-col gap-4">
+            <section
+              className="rounded-2xl p-5"
+              style={{
+                border: '1px solid var(--color-border)',
+                background: 'var(--color-bg-secondary)',
+              }}
+            >
+              <div className="text-sm font-semibold mb-1" style={{ color: 'var(--color-text)' }}>
+                Active Project Lanes
+              </div>
+              <p className="text-xs mb-4" style={{ color: 'var(--color-text-secondary)' }}>
+                Visual placeholders for the workflows Relay will route into later.
+              </p>
+
+              <div className="flex flex-col gap-3">
+                {lanes.map((lane) => (
+                  <div
+                    key={lane.name}
+                    className="rounded-xl p-3"
+                    style={{
+                      border: '1px solid var(--color-border)',
+                      background: 'rgba(255,255,255,0.03)',
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="font-medium text-sm" style={{ color: 'var(--color-text)' }}>
+                        {lane.name}
+                      </div>
+                      <div className="text-[11px]" style={{ color: 'var(--color-accent)' }}>
+                        {lane.state}
+                      </div>
+                    </div>
+                    <div className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+                      {lane.note}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section
+              className="rounded-2xl p-5"
+              style={{
+                border: '1px solid var(--color-border)',
+                background: 'var(--color-bg-secondary)',
+              }}
+            >
+              <div className="text-sm font-semibold" style={{ color: 'var(--color-text)' }}>
+                Relay Definition
+              </div>
+              <p className="text-xs mt-2 leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+                Electrical relay logic applied to data and projects: a low-power user signal activates
+                a higher-power coordinated workflow. Relay routes the work. OpenClaw Core executes the system.
+              </p>
+            </section>
+          </aside>
+        </div>
       </div>
     </div>
   );
