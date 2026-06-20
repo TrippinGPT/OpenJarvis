@@ -1,4 +1,4 @@
-"""``jarvis serve`` — OpenAI-compatible API server."""
+﻿"""``jarvis serve`` â€” OpenAI-compatible API server."""
 
 from __future__ import annotations
 
@@ -269,7 +269,7 @@ def serve(
     agent = None
     agent_key = agent_name or config.server.agent
     # Tool instances resolved for the primary agent are reused below to build
-    # the scheduler's ToolExecutor — avoiding a second full SystemBuilder.build()
+    # the scheduler's ToolExecutor â€” avoiding a second full SystemBuilder.build()
     # (which would re-discover the engine, re-resolve tools, re-open the channel,
     # etc.). See the scheduler block near the bottom of this function (#263).
     resolved_tools: list = []
@@ -285,7 +285,7 @@ def serve(
                     agent_kwargs["capability_policy"] = sec.capability_policy
 
                 # MCP transports persisted on the agent at the bottom of
-                # this block — initialise here so the reference is valid
+                # this block â€” initialise here so the reference is valid
                 # even when accepts_tools is False (#461).
                 mcp_clients: list = []
 
@@ -324,7 +324,7 @@ def serve(
                             tools.append(tool_cls)
 
                     # MCP server tools from config.tools.mcp.servers
-                    # (#461 — these were silently dropped).
+                    # (#461 â€” these were silently dropped).
                     from openjarvis.mcp.loader import load_mcp_tools_from_config
 
                     mcp_tools, mcp_clients = load_mcp_tools_from_config(
@@ -376,7 +376,7 @@ def serve(
             console.print(f"[yellow]Channel failed to start: {exc}[/yellow]")
             channel_bridge = None
 
-    # Wire channel messages → agent / engine (per-chat session isolation)
+    # Wire channel messages â†’ agent / engine (per-chat session isolation)
     if channel_bridge is not None:
         from openjarvis.system import JarvisSystem
 
@@ -441,7 +441,7 @@ def serve(
                                 if t.spec.name not in _existing:
                                     _channel_tools.append(t)
                                     _existing.add(t.spec.name)
-                        # Hold a reference at module / function scope —
+                        # Hold a reference at module / function scope â€”
                         # the channel agent is constructed inside
                         # JarvisSystem below; we extend its lifetime by
                         # keeping the list bound here.
@@ -501,8 +501,8 @@ def serve(
 
             am_db = config.agent_manager.db_path or str(get_config_dir() / "agents.db")
             # The server owns the scheduler and is the authoritative tick
-            # runner — on boot it holds no locks, so it (and only it) sweeps
-            # any zombie running→idle left by a previous crash.
+            # runner â€” on boot it holds no locks, so it (and only it) sweeps
+            # any zombie runningâ†’idle left by a previous crash.
             agent_manager = AgentManager(db_path=am_db, clear_stale_running=True)
         except Exception as exc:
             logger.debug("Agent manager init failed: %s", exc)
@@ -529,7 +529,7 @@ def serve(
                 trace_store=_trace_store,
             )
             # Reuse the components already built inline above instead of a
-            # second full SystemBuilder.build() — the original double-build
+            # second full SystemBuilder.build() â€” the original double-build
             # re-discovered the engine, re-instrumented it, re-resolved tools,
             # re-opened the channel and re-created the agent manager, costing
             # ~30-40s on top of an already-paid startup (#263). The executor
@@ -626,7 +626,7 @@ def serve(
         if _set > 0:
             _cred_parts.append(f"{_tool_name}: {_set}/{_total} keys")
     if _cred_parts:
-        logger.info("Credentials loaded — %s", ", ".join(_cred_parts))
+        logger.info("Credentials loaded â€” %s", ", ".join(_cred_parts))
 
     webhook_config = {
         "twilio_auth_token": _os.environ.get("TWILIO_AUTH_TOKEN", ""),
@@ -676,7 +676,7 @@ def serve(
     )
 
     console.print(
-        f"[green]Starting OpenJarvis API server[/green]\n"
+        f"[green]Starting Trippin AI Relay API server[/green]\n"
         f"  Engine: [cyan]{engine_name}[/cyan]\n"
         f"  Model:  [cyan]{model_name}[/cyan]\n"
         f"  Agent:  [cyan]{agent_key or 'none'}[/cyan]\n"
@@ -701,3 +701,4 @@ def serve(
     import uvicorn
 
     uvicorn.run(app, host=bind_host, port=bind_port, log_level="info")
+
