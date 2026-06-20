@@ -152,6 +152,7 @@ Issues = "https://github.com/open-jarvis/OpenJarvis/issues"
 
 [project.scripts]
 jarvis = "openjarvis.cli:main"
+relay = "openjarvis.cli:main"
 openjarvis-eval = "openjarvis.evals.cli:main"
 
 # Version is derived from git tags by hatch-vcs (see #526). For source/editable
@@ -227,3 +228,4 @@ select = ["E", "F", "I", "W"]
 dev = [
     "maturin>=1.12.6",
 ]
+
