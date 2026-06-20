@@ -1,0 +1,60 @@
+{
+  "relay_name": "Trippin AI Relay",
+  "openclaw_root": "D:\\AI\\OPENCLAW",
+  "integration_mode": "read_only_bridge",
+  "safety_rules": [
+    "Relay may reference OpenClaw paths and safe commands.",
+    "Relay must not modify OpenClaw without explicit user approval.",
+    "Relay must not run destructive commands.",
+    "Market, crypto, equity, IPO, and business-trend workflows are research/reporting only.",
+    "No investment advice, buy/sell recommendations, guaranteed outcomes, or financial predictions.",
+    "PaperForge is fake money only: no wallet, no private keys, no swaps, no real money."
+  ],
+  "lanes": [
+    {
+      "name": "SignalForge",
+      "status": "active",
+      "purpose": "Intel reports and research products powered by OpenClaw Core.",
+      "openclaw_path": "D:\\AI\\OPENCLAW",
+      "boundary": "Research/reporting only. No investment advice, buy/sell recommendations, predictions, or guaranteed outcomes.",
+      "safe_commands": [
+        "cd D:\\AI\\OPENCLAW",
+        "git status --short",
+        "git --no-pager log --oneline -8"
+      ]
+    },
+    {
+      "name": "VisualForge",
+      "status": "active",
+      "purpose": "Report cover, visual asset, prompt export, and generation workflow testing.",
+      "openclaw_path": "D:\\AI\\OPENCLAW\\AGENTS\\VISUALFORGE",
+      "boundary": "Creative workflow only. Prompt and asset generation testing. No unrelated pipeline changes.",
+      "safe_commands": [
+        "cd D:\\AI\\OPENCLAW",
+        "git status --short"
+      ]
+    },
+    {
+      "name": "PaperForge",
+      "status": "concept_lab",
+      "purpose": "Paper-trading, risk education, and simulated strategy logging.",
+      "openclaw_path": "D:\\AI\\OPENCLAW",
+      "boundary": "Fake money only. No wallet connection. No private keys. No swaps. No real funds.",
+      "safe_commands": [
+        "cd D:\\AI\\OPENCLAW",
+        "git status --short"
+      ]
+    },
+    {
+      "name": "SlapDesk",
+      "status": "concept_lab",
+      "purpose": "FL Studio cookup support and Pro Tools mix-prep workflow assist.",
+      "openclaw_path": "D:\\AI\\OPENCLAW",
+      "boundary": "Music production workflow support only. No marketing lane changes in this pass.",
+      "safe_commands": [
+        "cd D:\\AI\\OPENCLAW",
+        "git status --short"
+      ]
+    }
+  ]
+}

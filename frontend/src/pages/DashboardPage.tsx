@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Check, Copy, Terminal } from 'lucide-react';
+import { Check, Copy, Link2, ShieldCheck, Terminal } from 'lucide-react';
+import relayProjectLanes from '../data/relayProjectLanes.json';
 
 const agents = [
   { name: 'Dispatch', role: 'Coordinator', status: 'Routing jobs', x: 50, y: 10 },
@@ -299,6 +300,207 @@ export function DashboardPage() {
             </section>
           </aside>
         </div>
+
+        <section
+          className="rounded-2xl p-5 md:p-6 mt-5"
+          style={{
+            border: '1px solid rgba(34, 211, 238, 0.22)',
+            background:
+              'linear-gradient(135deg, rgba(7, 18, 25, 0.96), rgba(17, 9, 29, 0.98))',
+            boxShadow: '0 0 36px rgba(34, 211, 238, 0.07)',
+          }}
+        >
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between mb-5">
+            <div className="flex items-start gap-3">
+              <div
+                className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                style={{
+                  color: 'rgb(103, 232, 249)',
+                  border: '1px solid rgba(34, 211, 238, 0.28)',
+                  background: 'rgba(34, 211, 238, 0.09)',
+                }}
+              >
+                <Link2 size={17} />
+              </div>
+              <div>
+                <h2 className="text-base font-semibold" style={{ color: 'var(--color-text)' }}>
+                  OpenClaw Bridge Status
+                </h2>
+                <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+                  Read-only integration metadata. No workflow execution is available from this panel.
+                </p>
+              </div>
+            </div>
+
+            <div
+              className="flex items-center gap-2 self-start rounded-lg px-3 py-2 text-xs"
+              style={{
+                color: 'var(--color-accent-hover)',
+                border: '1px solid rgba(192, 132, 252, 0.24)',
+                background: 'rgba(168, 85, 247, 0.08)',
+              }}
+            >
+              <ShieldCheck size={14} />
+              Manifest connected
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-5">
+            {[
+              { label: 'OpenClaw root', value: relayProjectLanes.openclaw_root },
+              { label: 'Integration mode', value: relayProjectLanes.integration_mode },
+              { label: 'Bridge status', value: 'Manifest connected' },
+              { label: 'Safety mode', value: 'Read-only / no workflow execution' },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="rounded-xl p-3 min-w-0"
+                style={{
+                  border: '1px solid var(--color-border)',
+                  background: 'rgba(255, 255, 255, 0.025)',
+                }}
+              >
+                <div
+                  className="text-[10px] uppercase tracking-[0.18em]"
+                  style={{ color: 'var(--color-text-tertiary)' }}
+                >
+                  {item.label}
+                </div>
+                <div
+                  className="text-xs font-mono mt-2 break-words"
+                  style={{ color: 'var(--color-text)' }}
+                >
+                  {item.value}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            {relayProjectLanes.lanes.map((lane) => (
+              <article
+                key={lane.name}
+                className="rounded-xl p-4 min-w-0"
+                style={{
+                  border: '1px solid rgba(192, 132, 252, 0.20)',
+                  background: 'rgba(6, 7, 12, 0.48)',
+                }}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="text-sm font-semibold" style={{ color: 'var(--color-text)' }}>
+                      {lane.name}
+                    </h3>
+                    <p
+                      className="text-xs mt-1 leading-relaxed"
+                      style={{ color: 'var(--color-text-secondary)' }}
+                    >
+                      {lane.purpose}
+                    </p>
+                  </div>
+                  <span
+                    className="text-[10px] uppercase tracking-[0.14em] px-2 py-1 rounded-md shrink-0"
+                    style={{
+                      color: 'var(--color-accent-hover)',
+                      border: '1px solid rgba(192, 132, 252, 0.22)',
+                      background: 'rgba(168, 85, 247, 0.08)',
+                    }}
+                  >
+                    {lane.status.replace('_', ' ')}
+                  </span>
+                </div>
+
+                <div className="mt-4 grid gap-3">
+                  <div>
+                    <div
+                      className="text-[10px] uppercase tracking-[0.16em]"
+                      style={{ color: 'var(--color-text-tertiary)' }}
+                    >
+                      Boundary
+                    </div>
+                    <p
+                      className="text-[11px] mt-1 leading-relaxed"
+                      style={{ color: 'rgb(253, 224, 71)' }}
+                    >
+                      {lane.boundary}
+                    </p>
+                  </div>
+
+                  <div>
+                    <div
+                      className="text-[10px] uppercase tracking-[0.16em]"
+                      style={{ color: 'var(--color-text-tertiary)' }}
+                    >
+                      OpenClaw path
+                    </div>
+                    <code
+                      className="block text-[11px] mt-1 break-all"
+                      style={{ color: 'rgb(103, 232, 249)' }}
+                    >
+                      {lane.openclaw_path}
+                    </code>
+                  </div>
+
+                  <div>
+                    <div
+                      className="text-[10px] uppercase tracking-[0.16em] mb-2"
+                      style={{ color: 'var(--color-text-tertiary)' }}
+                    >
+                      Safe command references
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      {lane.safe_commands.map((command, index) => {
+                        const copyKey = `bridge-${lane.name}-${index}`;
+                        const copied = copiedCommand === copyKey;
+
+                        return (
+                          <div
+                            key={command}
+                            className="flex items-center gap-2 rounded-lg px-3 py-2 min-w-0"
+                            style={{
+                              border: '1px solid rgba(192, 132, 252, 0.14)',
+                              background: 'rgba(0, 0, 0, 0.28)',
+                            }}
+                          >
+                            <code
+                              className="text-[11px] break-all flex-1"
+                              style={{ color: 'var(--color-accent-hover)' }}
+                            >
+                              {command}
+                            </code>
+                            <button
+                              type="button"
+                              onClick={() => copyCommand(copyKey, command)}
+                              className="rounded-md p-1.5 shrink-0 cursor-pointer"
+                              style={{
+                                color: copied
+                                  ? 'var(--color-accent-hover)'
+                                  : 'var(--color-text-tertiary)',
+                                border: '1px solid var(--color-border)',
+                                background: copied
+                                  ? 'rgba(168, 85, 247, 0.14)'
+                                  : 'var(--color-bg-secondary)',
+                              }}
+                              aria-label={`Copy ${lane.name} command reference`}
+                              title={copied ? 'Copied' : 'Copy reference'}
+                            >
+                              {copied ? <Check size={13} /> : <Copy size={13} />}
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <p className="text-[10px] mt-4" style={{ color: 'var(--color-text-tertiary)' }}>
+            Frontend data mirrors config/relay_project_lanes.json until a backend read-only bridge
+            endpoint is available.
+          </p>
+        </section>
 
         <section
           className="rounded-2xl p-5 md:p-6 mt-5"
