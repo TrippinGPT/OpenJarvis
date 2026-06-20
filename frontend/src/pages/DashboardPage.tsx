@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import { Check, Copy, Terminal } from 'lucide-react';
+
 const agents = [
   { name: 'Dispatch', role: 'Coordinator', status: 'Routing jobs', x: 50, y: 10 },
   { name: 'Recon', role: 'Research Intel', status: 'Scanning sources', x: 18, y: 32 },
@@ -15,9 +18,66 @@ const lanes = [
   { name: 'SlapDesk', state: 'Music workflow', note: 'FL Studio to Pro Tools project assist' },
 ] as const;
 
+const quickCommands = [
+  {
+    name: 'Start full stack',
+    purpose: 'Launch the Relay backend and frontend together.',
+    command:
+      'powershell -ExecutionPolicy Bypass -File D:\\AI\\TRIPPIN_AI_RELAY\\scripts\\start_relay_stack.ps1',
+  },
+  {
+    name: 'Backend only',
+    purpose: 'Start the local Relay API server.',
+    command: 'cd D:\\AI\\TRIPPIN_AI_RELAY\nuv run relay serve',
+  },
+  {
+    name: 'Frontend only',
+    purpose: 'Start the Vite development server.',
+    command: 'cd D:\\AI\\TRIPPIN_AI_RELAY\\frontend\nnpm run dev',
+  },
+  {
+    name: 'Build frontend',
+    purpose: 'Create a production frontend build.',
+    command: 'cd D:\\AI\\TRIPPIN_AI_RELAY\\frontend\nnpm run build',
+  },
+  {
+    name: 'Git status',
+    purpose: 'Check the working tree for local changes.',
+    command: 'cd D:\\AI\\TRIPPIN_AI_RELAY\ngit status --short',
+  },
+  {
+    name: 'Recent commits',
+    purpose: 'Review the latest Relay commit history.',
+    command: 'cd D:\\AI\\TRIPPIN_AI_RELAY\ngit --no-pager log --oneline -8',
+  },
+  {
+    name: 'Run doctor',
+    purpose: 'Check the local Relay environment.',
+    command: 'cd D:\\AI\\TRIPPIN_AI_RELAY\nuv run relay doctor',
+  },
+  {
+    name: 'Open quick docs',
+    purpose: 'Open the practical command reference.',
+    command: 'D:\\AI\\TRIPPIN_AI_RELAY\\docs\\RELAY_QUICK_COMMANDS.md',
+  },
+] as const;
+
 export function DashboardPage() {
+  const [copiedCommand, setCopiedCommand] = useState<string | null>(null);
   const now = new Date();
   const stamp = now.toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
+
+  const copyCommand = async (name: string, command: string) => {
+    try {
+      await navigator.clipboard.writeText(command);
+      setCopiedCommand(name);
+      window.setTimeout(() => {
+        setCopiedCommand((current) => (current === name ? null : current));
+      }, 1600);
+    } catch {
+      setCopiedCommand(null);
+    }
+  };
 
   return (
     <div className="flex-1 overflow-y-auto px-6 py-8">
@@ -237,6 +297,95 @@ export function DashboardPage() {
             </section>
           </aside>
         </div>
+
+        <section
+          className="rounded-2xl p-5 md:p-6 mt-5"
+          style={{
+            border: '1px solid rgba(192, 132, 252, 0.28)',
+            background:
+              'linear-gradient(135deg, rgba(17, 9, 29, 0.96), rgba(8, 8, 13, 0.98))',
+            boxShadow: '0 0 36px rgba(168, 85, 247, 0.10)',
+          }}
+        >
+          <div className="flex items-start gap-3 mb-5">
+            <div
+              className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+              style={{
+                color: 'var(--color-accent-hover)',
+                border: '1px solid rgba(192, 132, 252, 0.30)',
+                background: 'rgba(168, 85, 247, 0.12)',
+              }}
+            >
+              <Terminal size={17} />
+            </div>
+            <div>
+              <h2 className="text-base font-semibold" style={{ color: 'var(--color-text)' }}>
+                Relay Quick Commands
+              </h2>
+              <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+                Copy-safe operator references. Commands are never executed by the dashboard.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+            {quickCommands.map((item) => {
+              const copied = copiedCommand === item.name;
+
+              return (
+                <article
+                  key={item.name}
+                  className="rounded-xl p-4 min-w-0 flex flex-col"
+                  style={{
+                    border: '1px solid var(--color-border)',
+                    background: 'rgba(255, 255, 255, 0.025)',
+                  }}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="text-sm font-medium" style={{ color: 'var(--color-text)' }}>
+                        {item.name}
+                      </h3>
+                      <p
+                        className="text-[11px] mt-1 leading-relaxed"
+                        style={{ color: 'var(--color-text-secondary)' }}
+                      >
+                        {item.purpose}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => copyCommand(item.name, item.command)}
+                      className="rounded-md p-1.5 shrink-0 transition-colors cursor-pointer"
+                      style={{
+                        color: copied ? 'var(--color-accent-hover)' : 'var(--color-text-tertiary)',
+                        border: '1px solid var(--color-border)',
+                        background: copied
+                          ? 'rgba(168, 85, 247, 0.14)'
+                          : 'var(--color-bg-secondary)',
+                      }}
+                      aria-label={`Copy ${item.name} command`}
+                      title={copied ? 'Copied' : 'Copy command'}
+                    >
+                      {copied ? <Check size={14} /> : <Copy size={14} />}
+                    </button>
+                  </div>
+
+                  <pre
+                    className="text-[11px] leading-relaxed whitespace-pre-wrap break-words mt-4 rounded-lg p-3 overflow-x-auto flex-1"
+                    style={{
+                      color: 'var(--color-accent-hover)',
+                      border: '1px solid rgba(192, 132, 252, 0.16)',
+                      background: 'rgba(0, 0, 0, 0.32)',
+                    }}
+                  >
+                    <code>{item.command}</code>
+                  </pre>
+                </article>
+              );
+            })}
+          </div>
+        </section>
       </div>
     </div>
   );
