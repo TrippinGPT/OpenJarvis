@@ -3,12 +3,12 @@ import { Check, Copy, Terminal } from 'lucide-react';
 
 const agents = [
   { name: 'Dispatch', role: 'Coordinator', status: 'Routing jobs', x: 50, y: 10 },
-  { name: 'Recon', role: 'Research Intel', status: 'Scanning sources', x: 18, y: 32 },
-  { name: 'Patch', role: 'Engineering', status: 'Ready for builds', x: 82, y: 32 },
-  { name: 'Redline', role: 'Risk Analyst', status: 'Checking limits', x: 22, y: 72 },
-  { name: 'Racket', role: 'Narrative Hunter', status: 'Watching signals', x: 38, y: 82 },
-  { name: 'Hermes', role: 'Local Scout', status: 'Standing by', x: 62, y: 82 },
-  { name: 'Veto', role: 'Review Gate', status: 'Approval queue clear', x: 78, y: 72 },
+  { name: 'Recon', role: 'Research Intel', status: 'Scanning sources', x: 17, y: 30 },
+  { name: 'Patch', role: 'Engineering', status: 'Ready for builds', x: 83, y: 30 },
+  { name: 'Redline', role: 'Risk Analyst', status: 'Checking limits', x: 13, y: 64 },
+  { name: 'Racket', role: 'Narrative Hunter', status: 'Watching signals', x: 38, y: 75 },
+  { name: 'Hermes', role: 'Local Scout', status: 'Standing by', x: 62, y: 75 },
+  { name: 'Veto', role: 'Review Gate', status: 'Approval queue clear', x: 87, y: 64 },
 ] as const;
 
 const lanes = [
@@ -127,7 +127,7 @@ export function DashboardPage() {
 
         <div className="grid grid-cols-1 xl:grid-cols-[1.4fr_0.8fr] gap-5">
           <section
-            className="relative min-h-[560px] rounded-2xl overflow-hidden"
+            className="relative min-h-[680px] lg:min-h-[700px] rounded-2xl overflow-hidden"
             style={{
               border: '1px solid var(--color-border)',
               background:
@@ -192,7 +192,9 @@ export function DashboardPage() {
             {agents.map((agent) => (
               <div
                 key={agent.name}
-                className="absolute w-44 rounded-xl p-3"
+                className={`absolute ${
+                  agent.y >= 60 ? 'w-32 sm:w-36 md:w-40' : 'w-40 md:w-44'
+                } rounded-xl p-3`}
                 style={{
                   left: `${agent.x}%`,
                   top: `${agent.y}%`,
@@ -222,7 +224,7 @@ export function DashboardPage() {
             ))}
 
             <div
-              className="absolute bottom-4 left-4 right-4 rounded-xl px-4 py-3 text-xs flex items-center justify-between gap-3"
+              className="absolute bottom-5 left-4 right-4 rounded-xl px-4 py-3 text-xs flex items-center justify-between gap-3"
               style={{
                 border: '1px solid rgba(192, 132, 252, 0.20)',
                 background: 'rgba(0, 0, 0, 0.30)',
