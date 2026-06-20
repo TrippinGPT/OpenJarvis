@@ -31,4 +31,10 @@ git --no-pager log --oneline -8
 uv run relay doctor
 ```
 
+## OpenClaw bridge check
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_openclaw_bridge.ps1
+```
+
 > Do not run `jarvis self-update` on the Trippin AI Relay fork.
