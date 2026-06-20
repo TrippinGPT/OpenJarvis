@@ -132,7 +132,7 @@ def _do_check() -> None:
             cmd = detect_install().upgrade_command
             sys.stderr.write(
                 f"\033[33mA new upstream OpenJarvis version is available "
-                f"(v{current} â†’ v{latest})\n"
+                f"(v{current} -> v{latest})\n"
                 f"Update: {cmd}\n"
                 f"Do not run self-update on Relay without reviewing fork changes first.\033[0m\n\n"
             )
@@ -214,4 +214,5 @@ def _fetch_latest_stable() -> str | None:
     # projects that have only published dev releases).
     info_version = data.get("info", {}).get("version")
     return info_version or None
+
 
