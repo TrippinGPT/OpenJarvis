@@ -19,7 +19,7 @@ import {
 import { isTauri, checkHealth } from '../lib/api';
 
 const GITHUB_BASE =
-  'https://github.com/open-jarvis/Trippin AI Relay/releases/latest/download';
+  'https://github.com/TrippinGPT/OpenJarvis/releases/latest/download';
 
 interface Platform {
   id: string;
@@ -406,18 +406,18 @@ function SelfHostedView() {
           <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
             Clone and install (Python 3.10+ required):
           </p>
-          <CodeBlock code={"git clone https://github.com/open-jarvis/Trippin AI Relay.git\ncd Trippin AI Relay\nuv sync"} />
+          <CodeBlock code={"git clone https://github.com/TrippinGPT/OpenJarvis.git TRIPPIN_AI_RELAY\ncd TRIPPIN_AI_RELAY\nuv sync"} />
           <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
             Then get started:
           </p>
-          <CodeBlock code={"jarvis init\njarvis doctor\njarvis chat"} />
+          <CodeBlock code={"uv run relay init\nuv run relay doctor\nuv run relay chat"} />
         </Section>
 
         <Section icon={Globe} title="Browser App (Self-Hosted)">
           <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
             Launch the API server to get the full UI in your browser:
           </p>
-          <CodeBlock code={"git clone https://github.com/open-jarvis/Trippin AI Relay.git\ncd Trippin AI Relay\nuv sync --extra server\njarvis serve --port 8000"} />
+          <CodeBlock code={"git clone https://github.com/TrippinGPT/OpenJarvis.git TRIPPIN_AI_RELAY\ncd TRIPPIN_AI_RELAY\nuv sync --extra server\nuv run relay serve --port 8000"} />
           <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>
             The chat, dashboard, energy profiling, and cost comparison all run
             locally on your machine.
@@ -428,7 +428,7 @@ function SelfHostedView() {
           <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
             Deploy with Docker Compose for a zero-setup hosted instance:
           </p>
-          <CodeBlock code={"git clone https://github.com/open-jarvis/Trippin AI Relay.git\ncd Trippin AI Relay\ndocker compose -f deploy/docker/docker-compose.yml up -d"} />
+          <CodeBlock code={"git clone https://github.com/TrippinGPT/OpenJarvis.git TRIPPIN_AI_RELAY\ncd TRIPPIN_AI_RELAY\ndocker compose -f deploy/docker/docker-compose.yml up -d"} />
           <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>
             This starts both the API server and Ollama. The web UI is bundled and
             served automatically at port 8000.

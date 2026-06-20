@@ -16,9 +16,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'OpenJarvis',
-        short_name: 'Jarvis',
-        description: 'On-device AI assistant',
+        name: 'Trippin AI Relay',
+        short_name: 'Relay',
+        description: 'Local AI command center',
         theme_color: '#161618',
         background_color: '#161618',
         display: 'standalone',

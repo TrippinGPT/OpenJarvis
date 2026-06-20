@@ -212,7 +212,7 @@ export function SettingsPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `openjarvis-export-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `trippin-ai-relay-export-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -707,10 +707,10 @@ export function SettingsPage() {
           <Section title="About">
             <div className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
               <p className="mb-2">
-                <span className="font-semibold" style={{ color: 'var(--color-text)' }}>OpenJarvis</span> — Programming abstractions for on-device AI.
+                <span className="font-semibold" style={{ color: 'var(--color-text)' }}>Trippin AI Relay</span> — Your local AI command center.
               </p>
               <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>
-                Part of Intelligence Per Watt, a research initiative at Stanford SAIL.
+                Private, local-first AI with chat, tools, agents, and system visibility.
               </p>
               <div className="flex gap-3 mt-3 text-xs">
                 <a
@@ -719,7 +719,7 @@ export function SettingsPage() {
                   rel="noopener noreferrer"
                   style={{ color: 'var(--color-accent)' }}
                 >
-                  Project site
+                  Research background
                 </a>
                 <a
                   href="https://open-jarvis.github.io/OpenJarvis/"
@@ -727,7 +727,7 @@ export function SettingsPage() {
                   rel="noopener noreferrer"
                   style={{ color: 'var(--color-accent)' }}
                 >
-                  Documentation
+                  Framework documentation
                 </a>
               </div>
             </div>

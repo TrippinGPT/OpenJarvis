@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "OpenJarvis",
+  "productName": "Trippin AI Relay",
   "version": "1.0.1",
   "identifier": "com.openjarvis.desktop",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "OpenJarvis",
+        "title": "Trippin AI Relay",
         "width": 1280,
         "height": 800,
         "minWidth": 900,
@@ -40,8 +40,8 @@
       "icons/icon.png"
     ],
     "category": "Utility",
-    "shortDescription": "On-device AI assistant with energy monitoring and trace debugging",
-    "longDescription": "OpenJarvis Desktop wraps the OpenJarvis research framework in a native desktop application with real-time energy monitoring, trace debugging, learning curve visualization, and memory browsing.",
+    "shortDescription": "Local AI command center with energy monitoring and trace debugging",
+    "longDescription": "Trippin AI Relay provides a native local AI command center with real-time energy monitoring, trace debugging, learning curve visualization, and memory browsing.",
     "macOS": {
       "entitlements": "Entitlements.plist",
       "minimumSystemVersion": "10.15",

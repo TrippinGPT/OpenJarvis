@@ -727,7 +727,7 @@ fn prepare_subprocess_for_appimage(cmd: &mut tokio::process::Command) {
 fn format_uv_sync_spawn_error(root: &std::path::Path, uv_bin: &str, err: &str) -> String {
     format!(
         "Could not run `uv sync`: {}. Verify uv is installed at \
-         `{}` and the OpenJarvis repo is at `{}`.",
+         `{}` and the Trippin AI Relay repo is at `{}`.",
         err,
         uv_bin,
         root.display(),
@@ -953,7 +953,7 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
         if target_path.exists() && !target_path.join("pyproject.toml").exists() {
             let mut s = status.lock().await;
             s.error = Some(format!(
-                "{} exists but is not a valid OpenJarvis project. \
+                "{} exists but is not a valid Trippin AI Relay project. \
                  Remove it and relaunch, or set OPENJARVIS_ROOT to the correct path.",
                 clone_target,
             ));
@@ -962,7 +962,7 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
 
         {
             let mut s = status.lock().await;
-            s.detail = "Downloading OpenJarvis (first launch)...".into();
+            s.detail = "Downloading Trippin AI Relay (first launch)...".into();
         }
 
         let clone_result = tokio::process::Command::new(&git_bin)
@@ -986,7 +986,7 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
                     let stderr = String::from_utf8_lossy(&output.stderr);
                     let mut s = status.lock().await;
                     s.error = Some(format!(
-                        "Failed to download OpenJarvis: {}. \
+                        "Failed to download Trippin AI Relay: {}. \
                          Clone manually: git clone https://github.com/open-jarvis/OpenJarvis.git {}",
                         stderr.trim(),
                         clone_target,
@@ -996,7 +996,7 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
                 Err(e) => {
                     let mut s = status.lock().await;
                     s.error = Some(format!(
-                        "Failed to download OpenJarvis: {}. \
+                        "Failed to download Trippin AI Relay: {}. \
                          Clone manually: git clone https://github.com/open-jarvis/OpenJarvis.git {}",
                         e, clone_target,
                     ));
@@ -1087,7 +1087,7 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
                 s.error = Some(format!(
                     "An API server is already running on port {} but its \
                      inference engine isn't ready (HTTP 503). If this is your \
-                     `jarvis serve`, wait for it to finish loading and relaunch. \
+                     `relay serve`, wait for it to finish loading and relaunch. \
                      Otherwise, stop that service or change the port.",
                     JARVIS_PORT,
                 ));
@@ -1106,7 +1106,7 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
                 s.error = Some(format!(
                     "Port {} is already in use by another service (it answered \
                      /health with HTTP {}). Stop that service or change the \
-                     OpenJarvis port, then relaunch.\n\nTo identify it:\n  {}",
+                     Relay backend port, then relaunch.\n\nTo identify it:\n  {}",
                     JARVIS_PORT,
                     resp.status(),
                     lsof_hint,
@@ -1228,8 +1228,8 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
         Err(e) => {
             let mut s = status.lock().await;
             s.error = Some(format!(
-                "Could not start jarvis server: {}. \
-                 Make sure uv is installed (https://astral.sh/uv) and the OpenJarvis repo is cloned at {}",
+                "Could not start the Relay server: {}. \
+                 Make sure uv is installed (https://astral.sh/uv) and the Trippin AI Relay repo is cloned at {}",
                 e,
                 root.display(),
             ));
@@ -1243,9 +1243,9 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
         JarvisStartResult::ServiceUnavailable(body) => {
             let mut s = status.lock().await;
             s.error = Some(format!(
-                "Jarvis server is running but the inference engine is not available \
+                "The Relay server is running but the inference engine is not available \
                  (HTTP 503). This usually means the configured model couldn't be loaded.\n\n\
-                 Check the server logs, or run 'uv run jarvis serve --port {}{}' \
+                 Check the server logs, or run 'uv run relay serve --port {}{}' \
                  from {} to see the engine error.\n\n\
                  Server response:\n{}",
                 JARVIS_PORT,
@@ -1271,10 +1271,10 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
             let mut s = status.lock().await;
             s.error = Some(if stderr.is_empty() {
                 format!(
-                    "Jarvis server exited (code {}) before becoming ready.\n\n\
+                    "The Relay server exited (code {}) before becoming ready.\n\n\
                      No stderr output. Check that:\n\
                      1. uv is installed ({})\n\
-                     2. The OpenJarvis repo is at {}\n\
+                     2. The Trippin AI Relay repo is at {}\n\
                      3. 'uv sync' completes in that directory",
                     code_str,
                     uv_bin,
@@ -1282,7 +1282,7 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
                 )
             } else {
                 format!(
-                    "Jarvis server exited (code {}) before becoming ready.\n\nStderr:\n{}",
+                    "The Relay server exited (code {}) before becoming ready.\n\nStderr:\n{}",
                     code_str, stderr,
                 )
             });
@@ -1293,16 +1293,16 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
             let mut s = status.lock().await;
             s.error = Some(if stderr.is_empty() {
                 format!(
-                    "Jarvis server did not become ready within 10 minutes. Check that:\n\
+                    "The Relay server did not become ready within 10 minutes. Check that:\n\
                      1. uv is installed ({})\n\
-                     2. The OpenJarvis repo is at {}\n\
+                     2. The Trippin AI Relay repo is at {}\n\
                      3. Run 'uv sync' in that directory",
                     uv_bin,
                     root.display(),
                 )
             } else {
                 format!(
-                    "Jarvis server did not become ready within 10 minutes.\n\nStderr:\n{}",
+                    "The Relay server did not become ready within 10 minutes.\n\nStderr:\n{}",
                     stderr,
                 )
             });
@@ -1564,7 +1564,7 @@ async fn run_jarvis_command(args: Vec<String>) -> Result<String, String> {
         let output = cmd
             .output()
             .await
-            .map_err(|e| format!("Failed to launch jarvis: {}", e))?;
+            .map_err(|e| format!("Failed to launch the Relay command: {}", e))?;
         return if output.status.success() {
             Ok(String::from_utf8_lossy(&output.stdout).to_string())
         } else {
@@ -1581,7 +1581,7 @@ async fn run_jarvis_command(args: Vec<String>) -> Result<String, String> {
         .stderr(std::process::Stdio::piped());
     let mut child = cmd
         .spawn()
-        .map_err(|e| format!("Failed to launch jarvis serve: {}", e))?;
+        .map_err(|e| format!("Failed to launch the Relay server: {}", e))?;
 
     let tail: StderrTail = Arc::new(Mutex::new(Vec::new()));
     if let Some(stderr) = child.stderr.take() {
@@ -1601,7 +1601,7 @@ async fn run_jarvis_command(args: Vec<String>) -> Result<String, String> {
         if let Ok(Some(status)) = child.try_wait() {
             let stderr = String::from_utf8_lossy(tail.lock().await.as_slice()).into_owned();
             return Err(format!(
-                "jarvis serve exited (code {:?}) before becoming healthy:\n{}",
+                "The Relay server exited (code {:?}) before becoming healthy:\n{}",
                 status.code(),
                 stderr.trim()
             ));
@@ -1611,14 +1611,14 @@ async fn run_jarvis_command(args: Vec<String>) -> Result<String, String> {
                 // Leave the server running (the Child is detached on drop —
                 // kill_on_drop defaults to false); `stop` tears it down.
                 return Ok(format!(
-                    "jarvis serve is ready on http://127.0.0.1:{}",
+                    "The Relay server is ready on http://127.0.0.1:{}",
                     JARVIS_PORT
                 ));
             }
         }
         if tokio::time::Instant::now() >= deadline {
             return Err(format!(
-                "jarvis serve did not become healthy on port {} within 120s.",
+                "The Relay server did not become healthy on port {} within 120s.",
                 JARVIS_PORT
             ));
         }
@@ -2399,7 +2399,7 @@ pub fn run() {
             let health = MenuItemBuilder::with_id("health", "Health: starting...")
                 .enabled(false)
                 .build(app)?;
-            let quit = MenuItemBuilder::with_id("quit", "Quit OpenJarvis").build(app)?;
+            let quit = MenuItemBuilder::with_id("quit", "Quit Trippin AI Relay").build(app)?;
 
             let menu = MenuBuilder::new(app)
                 .item(&show)
@@ -2411,7 +2411,7 @@ pub fn run() {
 
             let _tray = TrayIconBuilder::with_id("main")
                 .icon(app.default_window_icon().unwrap().clone())
-                .tooltip("OpenJarvis")
+                .tooltip("Trippin AI Relay")
                 .menu(&menu)
                 .on_menu_event(move |app, event| match event.id().as_ref() {
                     "show" => {
@@ -2492,7 +2492,7 @@ pub fn run() {
             get_overlay_conversation,
         ])
         .build(tauri::generate_context!())
-        .expect("error while building OpenJarvis Desktop")
+        .expect("error while building Trippin AI Relay Desktop")
         .run(move |_app, event| {
             if let tauri::RunEvent::ExitRequested { .. } = event {
                 let b = backend.clone();
