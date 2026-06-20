@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+﻿import { create } from 'zustand';
 import type {
   Conversation,
   ChatMessage,
@@ -29,7 +29,7 @@ export interface AgentEvent {
   data: Record<string, unknown>;
 }
 
-// ── localStorage persistence ──────────────────────────────────────────
+// â”€â”€ localStorage persistence â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const CONVERSATIONS_KEY = 'openjarvis-conversations';
 const SETTINGS_KEY = 'openjarvis-settings';
@@ -88,7 +88,7 @@ function loadSettings(): Settings {
     apiUrl: '',
     apiKey: '',
     fontSize: 'default',
-    defaultModel: '',
+    defaultModel: 'relay-qwen:latest',
     defaultAgent: '',
     temperature: 0.7,
     maxTokens: 4096,
@@ -107,7 +107,7 @@ function saveSettings(settings: Settings): void {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
 }
 
-// ── Store ─────────────────────────────────────────────────────────────
+// â”€â”€ Store â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const INITIAL_STREAM: StreamState = {
   isStreaming: false,
@@ -184,7 +184,7 @@ interface AppState {
   setSavings: (data: SavingsData | null) => void;
   incrementSavings: (usage: TokenUsage) => void;
 
-  // Live GPU metrics — streamed from /api/research system_metrics events.
+  // Live GPU metrics â€” streamed from /api/research system_metrics events.
   // When non-null, the System panel renders this instead of polled values
   // so Power (W) and Energy (kJ) update in real time during a research run.
   liveEnergy: LiveEnergyMetrics | null;
@@ -268,7 +268,7 @@ export const useAppStore = create<AppState>((set, get) => {
     optInModalSeen: localStorage.getItem(OPTIN_SEEN_KEY) === 'true',
     optInModalOpen: false,
 
-    // ── Conversations ───────────────────────────────────────────────
+    // â”€â”€ Conversations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     loadConversations: () => {
       const store = loadConversations();
@@ -437,11 +437,11 @@ export const useAppStore = create<AppState>((set, get) => {
       set({ streamState: INITIAL_STREAM });
     },
 
-    // ── Deep Research ─────────────────────────────────────────────
+    // â”€â”€ Deep Research â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     deepResearch: false,
     setDeepResearch: (on: boolean) => set({ deepResearch: on }),
 
-    // ── Models & server ────────────────────────────────────────────
+    // â”€â”€ Models & server â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     setModels: (models: ModelInfo[]) =>
       set((state) =>
@@ -477,7 +477,7 @@ export const useAppStore = create<AppState>((set, get) => {
     cachedConnectors: null,
     setCachedConnectors: (list) => set({ cachedConnectors: list }),
 
-    // ── Settings ───────────────────────────────────────────────────
+    // â”€â”€ Settings â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     updateSettings: (partial: Partial<Settings>) => {
       const updated = { ...get().settings, ...partial };
@@ -485,7 +485,7 @@ export const useAppStore = create<AppState>((set, get) => {
       set({ settings: updated });
     },
 
-    // ── UI ──────────────────────────────────────────────────────────
+    // â”€â”€ UI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     setCommandPaletteOpen: (open: boolean) => set({ commandPaletteOpen: open }),
     toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
@@ -493,7 +493,7 @@ export const useAppStore = create<AppState>((set, get) => {
     toggleSystemPanel: () => set((s) => ({ systemPanelOpen: !s.systemPanelOpen })),
     setSystemPanelOpen: (open: boolean) => set({ systemPanelOpen: open }),
 
-    // ── Agents ─────────────────────────────────────────────────────
+    // â”€â”€ Agents â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     managedAgents: [],
     managedAgentsLoading: false,
@@ -509,18 +509,18 @@ export const useAppStore = create<AppState>((set, get) => {
     })),
     clearAgentEvents: () => set({ agentEvents: [] }),
 
-    // ── Logs ────────────────────────────────────────────────────────
+    // â”€â”€ Logs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     logEntries: [],
     addLogEntry: (entry) => set((s) => ({
       logEntries: [...s.logEntries.slice(-499), entry],
     })),
     clearLogs: () => set({ logEntries: [] }),
 
-    // ── Model loading ───────────────────────────────────────────────
+    // â”€â”€ Model loading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     modelLoading: false,
     setModelLoading: (loading) => set({ modelLoading: loading }),
 
-    // ── Opt-in sharing ──────────────────────────────────────────────
+    // â”€â”€ Opt-in sharing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     setOptIn: (enabled: boolean, displayName: string, email: string) => {
       const anonId = get().optInAnonId;
@@ -539,3 +539,4 @@ export const useAppStore = create<AppState>((set, get) => {
 });
 
 export { generateId };
+

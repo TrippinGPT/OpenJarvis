@@ -1,4 +1,4 @@
-"""Configuration loading, hardware detection, and engine recommendation.
+﻿"""Configuration loading, hardware detection, and engine recommendation.
 
 User configuration lives at ``~/.openjarvis/config.toml``.  ``load_config()``
 detects hardware, fills sensible defaults, then overlays any user overrides
@@ -44,7 +44,7 @@ except ModuleNotFoundError:
 # Legacy names, kept for the ~45 modules that import them. They are resolved
 # once at import via the env-aware resolver in ``openjarvis.core.paths`` (the
 # install-script model: ``OPENJARVIS_HOME`` / ``XDG_DATA_HOME`` are set before
-# the process starts). They are real module attributes — not computed lazily —
+# the process starts). They are real module attributes â€” not computed lazily â€”
 # so existing tests can ``monkeypatch.setattr`` them and so dataclass-instance
 # defaults stay consistent. Code that must react to a mid-process env change
 # (or wants the override regardless of import order) should call
@@ -173,7 +173,7 @@ def _detect_apple_gpu() -> Optional[GpuInfo]:
     raw = _run_cmd(["system_profiler", "SPDisplaysDataType"])
     if "Apple" not in raw:
         return None
-    # Rough extraction — "Apple M2 Max" etc.
+    # Rough extraction â€” "Apple M2 Max" etc.
     ram_gb = _total_ram_gb()
     for line in raw.splitlines():
         line = line.strip()
@@ -262,13 +262,13 @@ def recommend_engine(hw: HardwareInfo) -> str:
     if gpu.vendor == "apple":
         return "mlx"
     if gpu.vendor == "nvidia":
-        # Datacenter cards (A100, H100, L40, etc.) → vllm; consumer → ollama
+        # Datacenter cards (A100, H100, L40, etc.) â†’ vllm; consumer â†’ ollama
         datacenter_keywords = ("A100", "H100", "H200", "L40", "A10", "A30")
         if any(kw in gpu.name for kw in datacenter_keywords):
             return "vllm"
         return "ollama"
     if gpu.vendor == "amd":
-        # Datacenter cards (MI300, MI325, MI350, MI355) → vllm; consumer → lemonade
+        # Datacenter cards (MI300, MI325, MI350, MI355) â†’ vllm; consumer â†’ lemonade
         amd_datacenter_keywords = ("MI300", "MI325", "MI350", "MI355")
         if any(kw in gpu.name for kw in amd_datacenter_keywords):
             return "vllm"
@@ -287,8 +287,8 @@ def _available_memory_gb(hw: HardwareInfo) -> float:
 
 
 # Explicit tier table: (max_ram_gb, model_id).
-# Walked in order — first tier where available_gb <= max_ram is chosen.
-# Uses Qwen3.5 MoE models — better quality per GB than dense models since
+# Walked in order â€” first tier where available_gb <= max_ram is chosen.
+# Uses Qwen3.5 MoE models â€” better quality per GB than dense models since
 # only a fraction of parameters are active per token.
 _MODEL_TIERS = [
     (8, "qwen3.5:2b"),
@@ -575,9 +575,9 @@ class EngineConfig:
 
 @dataclass(slots=True)
 class IntelligenceConfig:
-    """The model — identity, paths, quantization, and generation defaults."""
+    """The model â€” identity, paths, quantization, and generation defaults."""
 
-    default_model: str = ""
+    default_model: str = "relay-qwen:latest"
     fallback_model: str = ""
     model_path: str = ""  # Local weights (HF repo, GGUF file, etc.)
     checkpoint_path: str = ""  # Checkpoint/adapter path
@@ -690,9 +690,9 @@ class GEPAOptimizerConfig:
 class ACEOptimizerConfig:
     """ACE agent optimizer config. Maps to ``[learning.agent.ace]``.
 
-    ACE (Agentic Context Engineering) evolves a *playbook* — annotated
+    ACE (Agentic Context Engineering) evolves a *playbook* â€” annotated
     natural-language strategies that get prepended to the agent's
-    context — using a Generator / Reflector / Curator triad. Unlike
+    context â€” using a Generator / Reflector / Curator triad. Unlike
     DSPy (few-shot bootstrapping) or GEPA (Pareto-evolutionary prompt
     mutation), ACE writes a textual playbook that the agent reads at
     inference time.
@@ -789,7 +789,7 @@ class SpecSearchCompositeRewardConfig:
 
 @dataclass(slots=True)
 class SpecSearchLearningConfig:
-    """LLM-guided spec search config (paper §3.3, Algorithm 1).
+    """LLM-guided spec search config (paper Â§3.3, Algorithm 1).
 
     Maps to ``[learning.spec_search]`` and is consumed by
     ``SpecSearchOrchestrator.from_config`` and ``SpecSearchLoop``.
@@ -945,7 +945,7 @@ class BrowserConfig:
 
 @dataclass(slots=True)
 class ToolsConfig:
-    """Tools primitive settings — wraps storage and MCP configuration."""
+    """Tools primitive settings â€” wraps storage and MCP configuration."""
 
     storage: StorageConfig = field(default_factory=StorageConfig)
     mcp: MCPConfig = field(default_factory=MCPConfig)
@@ -955,7 +955,7 @@ class ToolsConfig:
 
 @dataclass
 class AgentConfig:
-    """Agent harness settings — orchestration, tools, system prompt."""
+    """Agent harness settings â€” orchestration, tools, system prompt."""
 
     default_agent: str = "simple"
     max_turns: int = 10
@@ -1058,7 +1058,7 @@ class TracesConfig:
 
 @dataclass(slots=True)
 class ProactiveConfig:
-    """Proactive agent — autonomous action scheduling and approval routing."""
+    """Proactive agent â€” autonomous action scheduling and approval routing."""
 
     enabled: bool = False
     schedule: str = "0 5 * * *"  # cron expression (default: 5am daily)
@@ -1591,7 +1591,7 @@ class JarvisConfig:
 
     @property
     def memory(self) -> StorageConfig:
-        """Backward-compatible accessor — canonical location is tools.storage."""
+        """Backward-compatible accessor â€” canonical location is tools.storage."""
         return self.tools.storage
 
     @memory.setter
@@ -1651,7 +1651,7 @@ def validate_config_key(dotted_key: str) -> type:
                 f"valid fields: {sorted(field_map.keys())})"
             )
         fld = field_map[part]
-        # Resolve the type — unwrap Optional, etc.
+        # Resolve the type â€” unwrap Optional, etc.
         fld_type = fld.type
         if isinstance(fld_type, str):
             # Evaluate forward references in the config module namespace
@@ -1660,7 +1660,7 @@ def validate_config_key(dotted_key: str) -> type:
             fld_type = eval(fld_type, vars(_cfg_mod))  # noqa: S307
 
         if i == len(parts) - 1:
-            # Leaf — return the primitive type
+            # Leaf â€” return the primitive type
             return fld_type
         else:
             # Must be a nested dataclass
@@ -1686,7 +1686,7 @@ def _apply_toml_section(target: Any, section: Dict[str, Any]) -> None:
     """Overlay TOML key/value pairs onto a dataclass instance.
 
     Recursively handles nested dicts when the target attribute is itself
-    a dataclass.  Normalises TOML arrays to comma-separated strings — both
+    a dataclass.  Normalises TOML arrays to comma-separated strings â€” both
     for dataclass fields annotated as ``str`` and for backward-compat
     property setters that expect string input.
     """
@@ -1699,7 +1699,7 @@ def _apply_toml_section(target: Any, section: Dict[str, Any]) -> None:
                 else:
                     setattr(target, key, value)
             else:
-                # Normalise TOML arrays → comma-separated string.
+                # Normalise TOML arrays â†’ comma-separated string.
                 # Covers both real dataclass fields and backward-compat
                 # property setters (e.g. reward_weights, default_tools).
                 if isinstance(value, list):
@@ -1709,7 +1709,7 @@ def _apply_toml_section(target: Any, section: Dict[str, Any]) -> None:
                         if field_obj is not None and field_obj.type in ("str", str):
                             is_str_field = True
                         elif field_obj is None:
-                            # Property, not a real field — normalise to string
+                            # Property, not a real field â€” normalise to string
                             is_str_field = True
                     if is_str_field:
                         value = ",".join(str(v) for v in value)
@@ -1720,9 +1720,9 @@ def _migrate_toml_data(data: Dict[str, Any], cfg: "JarvisConfig") -> None:
     """Migrate old-format TOML keys to new structure in-place.
 
     Handles cross-section moves that can't be solved by backward-compat
-    properties alone (e.g. ``agent.temperature`` → ``intelligence.temperature``).
+    properties alone (e.g. ``agent.temperature`` â†’ ``intelligence.temperature``).
     """
-    # agent.temperature / agent.max_tokens → intelligence.*
+    # agent.temperature / agent.max_tokens â†’ intelligence.*
     if "agent" in data:
         agent_data = data["agent"]
         intel_data = data.setdefault("intelligence", {})
@@ -1730,7 +1730,7 @@ def _migrate_toml_data(data: Dict[str, Any], cfg: "JarvisConfig") -> None:
             if moved_key in agent_data:
                 intel_data.setdefault(moved_key, agent_data.pop(moved_key))
 
-    # context_injection from memory / tools.storage → agent.context_from_memory
+    # context_injection from memory / tools.storage â†’ agent.context_from_memory
     for src_section in ("memory",):
         src = data.get(src_section, {})
         if isinstance(src, dict) and "context_injection" in src:
@@ -1819,7 +1819,7 @@ def load_config(path: Optional[Path] = None) -> JarvisConfig:
         # Run backward-compat migrations before applying
         _migrate_toml_data(data, cfg)
 
-        # All top-level sections — recursive _apply_toml_section handles
+        # All top-level sections â€” recursive _apply_toml_section handles
         # nested sub-configs (engine.ollama, learning.routing, channel.*, etc.)
         top_sections = (
             "engine",
@@ -1856,7 +1856,7 @@ def load_config(path: Optional[Path] = None) -> JarvisConfig:
                     data[section_name],
                 )
 
-        # Memory: accept [memory] (old) → maps to tools.storage
+        # Memory: accept [memory] (old) â†’ maps to tools.storage
         if "memory" in data:
             _apply_toml_section(cfg.tools.storage, data["memory"])
 
@@ -2208,6 +2208,7 @@ __all__ = [
     "recommend_model",
     "validate_config_key",
 ]
+
 
 
 
