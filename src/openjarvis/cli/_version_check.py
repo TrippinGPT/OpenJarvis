@@ -1,4 +1,4 @@
-"""Check for newer OpenJarvis releases on PyPI."""
+﻿"""Check for newer OpenJarvis releases on PyPI."""
 
 from __future__ import annotations
 
@@ -50,8 +50,8 @@ _CHECK_COMMANDS = {
 }
 
 # Environment opt-outs (any truthy value disables the check):
-# - ``OPENJARVIS_NO_UPDATE_CHECK=1`` — project-specific
-# - ``CI=true`` — set by every major CI provider, suppresses by default
+# - ``OPENJARVIS_NO_UPDATE_CHECK=1`` â€” project-specific
+# - ``CI=true`` â€” set by every major CI provider, suppresses by default
 _OPT_OUT_ENV_VARS = ("OPENJARVIS_NO_UPDATE_CHECK",)
 
 
@@ -71,7 +71,7 @@ def _check_disabled() -> bool:
 def _config_disabled() -> bool:
     """Return True if config.toml has ``[updates] auto_update = false``.
 
-    On a malformed config we conservatively return ``True`` — if the user
+    On a malformed config we conservatively return ``True`` â€” if the user
     tried to express an opt-out and the file has a typo, we should not
     silently flip back to auto-checking against their intent.
     """
@@ -93,7 +93,7 @@ def _config_disabled() -> bool:
         logger.debug("config read failed: %s", exc)
         return False
     except tomllib.TOMLDecodeError as exc:
-        logger.debug("config malformed at %s: %s — treating as opt-out", path, exc)
+        logger.debug("config malformed at %s: %s â€” treating as opt-out", path, exc)
         return True
     return not config.get("updates", {}).get("auto_update", True)
 
@@ -101,7 +101,7 @@ def _config_disabled() -> bool:
 def check_for_updates(command_name: str) -> None:
     """Print a message if a newer version is available. Best-effort, never raises.
 
-    Honors ``OPENJARVIS_NO_UPDATE_CHECK=1`` and ``CI=true`` — any
+    Honors ``OPENJARVIS_NO_UPDATE_CHECK=1`` and ``CI=true`` â€” any
     truthy value (``1``, ``true``, ``yes``, ``on``) disables both the
     PyPI poll and the banner. See ``_check_disabled`` for the full list.
     """
@@ -131,10 +131,10 @@ def _do_check() -> None:
 
             cmd = detect_install().upgrade_command
             sys.stderr.write(
-                f"\033[33mA new version of OpenJarvis is available "
-                f"(v{current} → v{latest})\n"
+                f"\033[33mA new upstream OpenJarvis version is available "
+                f"(v{current} â†’ v{latest})\n"
                 f"Update: {cmd}\n"
-                f"Or run: jarvis self-update\033[0m\n\n"
+                f"Do not run self-update on Relay without reviewing fork changes first.\033[0m\n\n"
             )
     except InvalidVersion:
         pass
@@ -146,7 +146,7 @@ def _get_latest_version(current: str) -> str | None:
     Returns ``None`` on network/parse failures rather than caching a stale
     or empty result. Dev/pre-release versions (``.devN``, ``aN``, ``bN``,
     ``rcN``) are filtered out so users on a stable release are not nudged
-    to a rolling autotag build — they can still opt in via ``--pre``.
+    to a rolling autotag build â€” they can still opt in via ``--pre``.
     """
     try:
         if _CACHE_PATH.exists():
@@ -210,7 +210,8 @@ def _fetch_latest_stable() -> str | None:
     if stable:
         return str(max(stable))
 
-    # No stable releases yet — fall back to info.version (handles brand-new
+    # No stable releases yet â€” fall back to info.version (handles brand-new
     # projects that have only published dev releases).
     info_version = data.get("info", {}).get("version")
     return info_version or None
+
