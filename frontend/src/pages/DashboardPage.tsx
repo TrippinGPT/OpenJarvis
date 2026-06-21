@@ -1,5 +1,20 @@
-import { useEffect, useState } from 'react';
-import { Check, Copy, Link2, ShieldCheck, Terminal } from 'lucide-react';
+import { useEffect, useState, type ReactNode } from 'react';
+import {
+  Activity,
+  Bot,
+  Check,
+  Copy,
+  Cpu,
+  FolderKanban,
+  GitBranch,
+  Link2,
+  Network,
+  Radio,
+  ShieldCheck,
+  Sparkles,
+  Terminal,
+  Zap,
+} from 'lucide-react';
 import relayProjectLanes from '../data/relayProjectLanes.json';
 import {
   fetchOpenClawBridgeStatus,
@@ -7,20 +22,13 @@ import {
 } from '../lib/api';
 
 const agents = [
-  { name: 'Dispatch', role: 'Coordinator', status: 'Routing jobs', x: 50, y: 10 },
-  { name: 'Recon', role: 'Research Intel', status: 'Scanning sources', x: 17, y: 30 },
-  { name: 'Patch', role: 'Engineering', status: 'Ready for builds', x: 83, y: 30 },
-  { name: 'Redline', role: 'Risk Analyst', status: 'Checking limits', x: 13, y: 64 },
-  { name: 'Racket', role: 'Narrative Hunter', status: 'Watching signals', x: 38, y: 75 },
-  { name: 'Hermes', role: 'Local Scout', status: 'Standing by', x: 62, y: 75 },
-  { name: 'Veto', role: 'Review Gate', status: 'Approval queue clear', x: 87, y: 64 },
-] as const;
-
-const lanes = [
-  { name: 'SignalForge', state: 'Intel reports', note: 'Market and trend reporting lane' },
-  { name: 'VisualForge', state: 'Creative pipeline', note: 'Cover art and asset generation' },
-  { name: 'PaperForge', state: 'Simulation lab', note: 'Paper trading and education workflows' },
-  { name: 'SlapDesk', state: 'Music workflow', note: 'FL Studio to Pro Tools project assist' },
+  { name: 'Dispatch', role: 'Coordinator', status: 'Online', x: 50, y: 14 },
+  { name: 'Recon', role: 'Research Intel', status: 'Scanning', x: 17, y: 32 },
+  { name: 'Patch', role: 'Engineering', status: 'Ready', x: 83, y: 32 },
+  { name: 'Redline', role: 'Risk Analyst', status: 'Monitoring', x: 14, y: 65 },
+  { name: 'Racket', role: 'Narrative Hunter', status: 'Hunting', x: 38, y: 76 },
+  { name: 'Hermes', role: 'Local Scout', status: 'Standing by', x: 62, y: 76 },
+  { name: 'Veto', role: 'Review Gate', status: 'Clear', x: 86, y: 65 },
 ] as const;
 
 const quickCommands = [
@@ -67,6 +75,90 @@ const quickCommands = [
   },
 ] as const;
 
+function Panel({
+  children,
+  className = '',
+  cyan = false,
+}: {
+  children: ReactNode;
+  className?: string;
+  cyan?: boolean;
+}) {
+  return (
+    <section
+      className={`relative overflow-hidden rounded-2xl ${className}`}
+      style={{
+        border: cyan
+          ? '1px solid rgba(34, 211, 238, 0.20)'
+          : '1px solid rgba(192, 132, 252, 0.20)',
+        background: cyan
+          ? 'linear-gradient(145deg, rgba(6, 18, 25, 0.95), rgba(10, 8, 18, 0.97))'
+          : 'linear-gradient(145deg, rgba(18, 10, 31, 0.94), rgba(7, 7, 12, 0.98))',
+        boxShadow: cyan
+          ? '0 18px 60px rgba(8, 145, 178, 0.07)'
+          : '0 18px 60px rgba(126, 34, 206, 0.09)',
+      }}
+    >
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-px"
+        style={{
+          background: cyan
+            ? 'linear-gradient(90deg, transparent, rgba(103, 232, 249, 0.55), transparent)'
+            : 'linear-gradient(90deg, transparent, rgba(216, 180, 254, 0.55), transparent)',
+        }}
+      />
+      {children}
+    </section>
+  );
+}
+
+function SectionTitle({
+  icon: Icon,
+  eyebrow,
+  title,
+  description,
+  cyan = false,
+}: {
+  icon: typeof Activity;
+  eyebrow: string;
+  title: string;
+  description?: string;
+  cyan?: boolean;
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      <div
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+        style={{
+          color: cyan ? 'rgb(103, 232, 249)' : 'var(--color-accent-hover)',
+          border: cyan
+            ? '1px solid rgba(34, 211, 238, 0.24)'
+            : '1px solid rgba(192, 132, 252, 0.24)',
+          background: cyan ? 'rgba(34, 211, 238, 0.08)' : 'rgba(168, 85, 247, 0.10)',
+        }}
+      >
+        <Icon size={17} />
+      </div>
+      <div>
+        <div
+          className="text-[10px] font-medium uppercase tracking-[0.24em]"
+          style={{ color: cyan ? 'rgb(103, 232, 249)' : 'var(--color-accent-hover)' }}
+        >
+          {eyebrow}
+        </div>
+        <h2 className="mt-1 text-base font-semibold" style={{ color: 'var(--color-text)' }}>
+          {title}
+        </h2>
+        {description && (
+          <p className="mt-1 text-xs leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+            {description}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function DashboardPage() {
   const [copiedCommand, setCopiedCommand] = useState<string | null>(null);
   const [bridgeStatus, setBridgeStatus] = useState<OpenClawBridgeStatus | null>(null);
@@ -76,6 +168,9 @@ export function DashboardPage() {
   const now = new Date();
   const stamp = now.toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
   const bridgeData = bridgeStatus ?? relayProjectLanes;
+  const safeReferences = Array.from(
+    new Set(bridgeData.lanes.flatMap((lane) => lane.safe_commands)),
+  ).slice(0, 5);
 
   useEffect(() => {
     let cancelled = false;
@@ -109,61 +204,187 @@ export function DashboardPage() {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto px-6 py-8">
-      <div className="max-w-6xl mx-auto">
-        <header className="mb-6">
-          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div>
-              <div
-                className="text-xs tracking-[0.35em] uppercase mb-2"
-                style={{ color: 'var(--color-accent)' }}
-              >
-                Trippin AI Relay
-              </div>
-              <h1 className="text-2xl font-semibold" style={{ color: 'var(--color-text)' }}>
-                Agent Network View
-              </h1>
-              <p className="text-sm mt-2 max-w-2xl" style={{ color: 'var(--color-text-secondary)' }}>
-                Relay is the data switchboard between the user, OpenClaw Core, and the specialist agents.
-                Signal in. Work out.
-              </p>
-            </div>
+    <div
+      className="relative flex-1 overflow-y-auto px-4 py-5 sm:px-6 lg:px-8 lg:py-7"
+      style={{ background: '#050508' }}
+    >
+      <div
+        className="pointer-events-none fixed inset-0 opacity-50"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(168,85,247,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.025) 1px, transparent 1px)',
+          backgroundSize: '42px 42px',
+          maskImage: 'linear-gradient(to bottom, black, transparent 78%)',
+        }}
+      />
+      <div
+        className="pointer-events-none fixed -left-40 -top-48 h-[520px] w-[520px] rounded-full blur-3xl"
+        style={{ background: 'rgba(126, 34, 206, 0.12)' }}
+      />
+      <div
+        className="pointer-events-none fixed -right-40 top-1/3 h-[440px] w-[440px] rounded-full blur-3xl"
+        style={{ background: 'rgba(8, 145, 178, 0.07)' }}
+      />
 
-            <div className="flex flex-col gap-2 md:items-end">
+      <div className="relative mx-auto max-w-[1480px]">
+        <header className="mb-5 grid gap-4 xl:grid-cols-[230px_minmax(0,1fr)_auto] xl:items-center">
+          <div
+            className="rounded-2xl px-5 py-4"
+            style={{
+              border: '1px solid rgba(192, 132, 252, 0.24)',
+              background:
+                'linear-gradient(135deg, rgba(168,85,247,0.14), rgba(8,8,13,0.78))',
+              boxShadow: 'inset 0 0 30px rgba(168,85,247,0.06)',
+            }}
+          >
+            <div className="flex items-center gap-3">
               <div
-                className="text-xs px-3 py-2 rounded-lg"
+                className="flex h-10 w-10 items-center justify-center rounded-xl"
                 style={{
                   color: 'var(--color-accent-hover)',
-                  border: '1px solid rgba(192, 132, 252, 0.28)',
-                  background: 'rgba(168, 85, 247, 0.10)',
+                  background: 'rgba(168,85,247,0.16)',
+                  boxShadow: '0 0 24px rgba(168,85,247,0.22)',
                 }}
               >
-                Powered by OpenClaw Core
+                <Sparkles size={19} />
               </div>
-              <div
-                className="text-xs px-3 py-2 rounded-lg"
+              <div>
+                <div
+                  className="text-sm font-semibold tracking-[0.22em]"
+                  style={{ color: 'var(--color-text)' }}
+                >
+                  TRIPPIN AI
+                </div>
+                <div
+                  className="mt-1 text-[9px] font-semibold tracking-[0.32em]"
+                  style={{ color: 'var(--color-accent-hover)' }}
+                >
+                  BUILT DIFFERENT
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="min-w-0 px-1">
+            <div className="flex flex-wrap items-center gap-3">
+              <h1
+                className="text-3xl font-semibold tracking-[0.18em] sm:text-4xl"
+                style={{ color: 'var(--color-text)' }}
+              >
+                RELAY
+              </h1>
+              <span
+                className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[10px] font-medium uppercase tracking-[0.18em]"
                 style={{
-                  color: 'var(--color-text-tertiary)',
-                  border: '1px solid var(--color-border)',
-                  background: 'var(--color-bg-secondary)',
+                  color: 'rgb(134, 239, 172)',
+                  border: '1px solid rgba(74, 222, 128, 0.22)',
+                  background: 'rgba(74, 222, 128, 0.07)',
                 }}
               >
-                {stamp}
-              </div>
+                <span
+                  className="h-1.5 w-1.5 rounded-full"
+                  style={{
+                    background: 'rgb(74, 222, 128)',
+                    boxShadow: '0 0 10px rgb(74, 222, 128)',
+                  }}
+                />
+                Online
+              </span>
+            </div>
+            <p className="mt-1 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+              Relay AI Command Assistant
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-2 xl:justify-end">
+            <div
+              className="rounded-xl px-3 py-2 text-[11px]"
+              style={{
+                color:
+                  bridgeBackendState === 'connected'
+                    ? 'rgb(103, 232, 249)'
+                    : 'var(--color-text-secondary)',
+                border: '1px solid rgba(34, 211, 238, 0.18)',
+                background: 'rgba(34, 211, 238, 0.05)',
+              }}
+            >
+              <span className="mr-2 opacity-60">BRIDGE</span>
+              {bridgeBackendState === 'connected'
+                ? 'CONNECTED'
+                : bridgeBackendState === 'fallback'
+                  ? 'MANIFEST FALLBACK'
+                  : 'CHECKING'}
+            </div>
+            <div
+              className="rounded-xl px-3 py-2 font-mono text-[11px]"
+              style={{
+                color: 'var(--color-text-tertiary)',
+                border: '1px solid var(--color-border)',
+                background: 'rgba(255,255,255,0.025)',
+              }}
+            >
+              {stamp}
             </div>
           </div>
         </header>
 
-        <div className="grid grid-cols-1 xl:grid-cols-[1.4fr_0.8fr] gap-5">
-          <section
-            className="relative min-h-[680px] lg:min-h-[700px] rounded-2xl overflow-hidden"
-            style={{
-              border: '1px solid var(--color-border)',
-              background:
-                'radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.24), transparent 24%), radial-gradient(circle at 20% 20%, rgba(34, 211, 238, 0.10), transparent 22%), linear-gradient(135deg, rgba(5, 5, 8, 0.98), rgba(22, 10, 38, 0.94))',
-              boxShadow: '0 0 45px rgba(168, 85, 247, 0.12)',
-            }}
-          >
+        <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {[
+            {
+              icon: Bot,
+              label: 'Agent Mesh',
+              value: '7 / 7 Online',
+              detail: 'All specialists responsive',
+              color: 'rgb(216, 180, 254)',
+            },
+            {
+              icon: Link2,
+              label: 'OpenClaw Bridge',
+              value: bridgeBackendState === 'connected' ? 'Connected' : 'Read-only',
+              detail: bridgeStatus?.openclaw_git_branch || 'Manifest fallback ready',
+              color: 'rgb(103, 232, 249)',
+            },
+            {
+              icon: FolderKanban,
+              label: 'Project Lanes',
+              value: `${bridgeData.lanes.length} Active`,
+              detail: 'Scoped workflow boundaries',
+              color: 'rgb(196, 181, 253)',
+            },
+            {
+              icon: ShieldCheck,
+              label: 'Safety Mode',
+              value: 'Read-only',
+              detail: 'No workflow execution',
+              color: 'rgb(134, 239, 172)',
+            },
+          ].map(({ icon: Icon, label, value, detail, color }) => (
+            <div
+              key={label}
+              className="rounded-2xl p-4"
+              style={{
+                border: '1px solid rgba(255,255,255,0.07)',
+                background: 'linear-gradient(145deg, rgba(255,255,255,0.035), rgba(8,8,13,0.62))',
+              }}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-[10px] uppercase tracking-[0.18em]" style={{ color: 'var(--color-text-tertiary)' }}>
+                  {label}
+                </div>
+                <Icon size={15} style={{ color }} />
+              </div>
+              <div className="mt-2 text-sm font-semibold" style={{ color: 'var(--color-text)' }}>
+                {value}
+              </div>
+              <div className="mt-1 truncate text-[10px]" style={{ color: 'var(--color-text-secondary)' }}>
+                {detail}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(300px,0.65fr)]">
+          <Panel className="min-h-[620px]">
             <div className="absolute inset-0 opacity-40">
               <div
                 className="absolute inset-0"
@@ -174,8 +395,31 @@ export function DashboardPage() {
                 }}
               />
             </div>
+            <div className="relative z-10 flex items-start justify-between gap-4 px-5 pt-5">
+              <SectionTitle
+                icon={Network}
+                eyebrow="System Overview"
+                title="Agent Network"
+                description="Live command routing topology"
+              />
+              <div
+                className="hidden items-center gap-2 rounded-lg px-3 py-2 text-[10px] uppercase tracking-[0.16em] sm:flex"
+                style={{
+                  color: 'rgb(134, 239, 172)',
+                  border: '1px solid rgba(74, 222, 128, 0.18)',
+                  background: 'rgba(74, 222, 128, 0.05)',
+                }}
+              >
+                <Radio size={12} />
+                Mesh Stable
+              </div>
+            </div>
 
-            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <svg
+              className="absolute inset-0 h-full w-full"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+            >
               {agents.map((agent) => (
                 <line
                   key={agent.name}
@@ -184,36 +428,37 @@ export function DashboardPage() {
                   x2={agent.x}
                   y2={agent.y}
                   stroke="var(--color-accent)"
-                  strokeOpacity="0.34"
-                  strokeWidth="0.28"
+                  strokeOpacity="0.28"
+                  strokeWidth="0.22"
                 />
               ))}
-              <circle cx="50" cy="50" r="17" fill="none" stroke="var(--color-accent)" strokeOpacity="0.22" strokeWidth="0.22" />
-              <circle cx="50" cy="50" r="25" fill="none" stroke="var(--color-accent-hover)" strokeOpacity="0.12" strokeWidth="0.18" />
+              <circle cx="50" cy="50" r="15" fill="none" stroke="var(--color-accent)" strokeOpacity="0.24" strokeWidth="0.2" />
+              <circle cx="50" cy="50" r="23" fill="none" stroke="rgb(103,232,249)" strokeOpacity="0.08" strokeWidth="0.16" />
             </svg>
 
             <div
-              className="absolute left-1/2 top-1/2 w-56 h-56 rounded-full flex items-center justify-center text-center"
+              className="absolute left-1/2 top-[50%] flex h-44 w-44 items-center justify-center rounded-full text-center sm:h-52 sm:w-52"
               style={{
                 transform: 'translate(-50%, -50%)',
                 border: '1px solid rgba(192, 132, 252, 0.48)',
                 background:
-                  'radial-gradient(circle, rgba(168, 85, 247, 0.30), rgba(12, 6, 24, 0.88) 62%, rgba(5, 5, 8, 0.94))',
-                boxShadow: '0 0 80px rgba(168, 85, 247, 0.34), inset 0 0 45px rgba(192, 132, 252, 0.15)',
+                  'radial-gradient(circle, rgba(168, 85, 247, 0.30), rgba(12, 6, 24, 0.90) 62%, rgba(5, 5, 8, 0.97))',
+                boxShadow:
+                  '0 0 72px rgba(168, 85, 247, 0.28), inset 0 0 42px rgba(192, 132, 252, 0.13)',
               }}
             >
               <div>
                 <div
-                  className="text-xs tracking-[0.4em] uppercase mb-2"
+                  className="mb-2 text-[10px] uppercase tracking-[0.4em]"
                   style={{ color: 'var(--color-accent-hover)' }}
                 >
                   Relay
                 </div>
-                <div className="text-xl font-semibold" style={{ color: 'var(--color-text)' }}>
-                  Switchboard
+                <div className="text-xl font-semibold tracking-wide" style={{ color: 'var(--color-text)' }}>
+                  CORE
                 </div>
-                <div className="text-xs mt-2 px-6" style={{ color: 'var(--color-text-secondary)' }}>
-                  Routes requests into coordinated OpenClaw work
+                <div className="mt-2 px-5 text-[10px]" style={{ color: 'var(--color-text-secondary)' }}>
+                  Intelligent routing switchboard
                 </div>
               </div>
             </div>
@@ -222,41 +467,44 @@ export function DashboardPage() {
               <div
                 key={agent.name}
                 className={`absolute ${
-                  agent.y >= 60 ? 'w-32 sm:w-36 md:w-40' : 'w-40 md:w-44'
-                } rounded-xl p-3`}
+                  agent.y >= 60 ? 'w-28 sm:w-32 md:w-36' : 'w-32 sm:w-36'
+                } rounded-xl px-3 py-2.5`}
                 style={{
                   left: `${agent.x}%`,
                   top: `${agent.y}%`,
                   transform: 'translate(-50%, -50%)',
-                  border: '1px solid rgba(192, 132, 252, 0.28)',
-                  background: 'rgba(8, 8, 13, 0.78)',
-                  backdropFilter: 'blur(16px)',
-                  boxShadow: '0 0 24px rgba(168, 85, 247, 0.12)',
+                  border: '1px solid rgba(192, 132, 252, 0.22)',
+                  background: 'rgba(7, 7, 12, 0.88)',
+                  backdropFilter: 'blur(14px)',
+                  boxShadow: '0 0 20px rgba(168, 85, 247, 0.10)',
                 }}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <div className="font-semibold text-sm" style={{ color: 'var(--color-text)' }}>
+                  <div className="truncate text-xs font-semibold" style={{ color: 'var(--color-text)' }}>
                     {agent.name}
                   </div>
                   <span
-                    className="w-2 h-2 rounded-full"
-                    style={{ background: 'var(--color-accent)', boxShadow: '0 0 12px var(--color-accent)' }}
+                    className="h-1.5 w-1.5 shrink-0 rounded-full"
+                    style={{
+                      background: 'rgb(74, 222, 128)',
+                      boxShadow: '0 0 8px rgba(74,222,128,0.75)',
+                    }}
                   />
                 </div>
-                <div className="text-xs mt-1" style={{ color: 'var(--color-accent-hover)' }}>
+                <div className="mt-1 truncate text-[10px]" style={{ color: 'var(--color-accent-hover)' }}>
                   {agent.role}
                 </div>
-                <div className="text-[11px] mt-2" style={{ color: 'var(--color-text-secondary)' }}>
+                <div className="mt-1.5 truncate text-[9px]" style={{ color: 'var(--color-text-secondary)' }}>
                   {agent.status}
                 </div>
               </div>
             ))}
 
             <div
-              className="absolute bottom-5 left-4 right-4 rounded-xl px-4 py-3 text-xs flex items-center justify-between gap-3"
+              className="absolute bottom-4 left-4 right-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 rounded-xl px-4 py-2.5 text-[9px] uppercase tracking-[0.12em] sm:justify-between"
               style={{
-                border: '1px solid rgba(192, 132, 252, 0.20)',
-                background: 'rgba(0, 0, 0, 0.30)',
+                border: '1px solid rgba(192, 132, 252, 0.15)',
+                background: 'rgba(0, 0, 0, 0.38)',
                 color: 'var(--color-text-secondary)',
               }}
             >
@@ -268,431 +516,450 @@ export function DashboardPage() {
               <span style={{ color: 'var(--color-accent)' }}>&rarr;</span>
               <span>Work Out</span>
             </div>
-          </section>
+          </Panel>
 
-          <aside className="flex flex-col gap-4">
-            <section
-              className="rounded-2xl p-5"
-              style={{
-                border: '1px solid var(--color-border)',
-                background: 'var(--color-bg-secondary)',
-              }}
-            >
-              <div className="text-sm font-semibold mb-1" style={{ color: 'var(--color-text)' }}>
-                Active Project Lanes
+          <Panel className="p-5">
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <SectionTitle
+                icon={Activity}
+                eyebrow="Operations"
+                title="Agent Status"
+                description="Specialist availability and current posture"
+                cyan
+              />
+              <div className="text-right">
+                <div className="text-lg font-semibold" style={{ color: 'rgb(134, 239, 172)' }}>
+                  7/7
+                </div>
+                <div className="text-[9px] uppercase tracking-[0.18em]" style={{ color: 'var(--color-text-tertiary)' }}>
+                  Online
+                </div>
               </div>
-              <p className="text-xs mb-4" style={{ color: 'var(--color-text-secondary)' }}>
-                Visual placeholders for workflows Relay will route into.
-              </p>
-
-              <div className="flex flex-col gap-3">
-                {lanes.map((lane) => (
+            </div>
+            <div className="flex flex-col gap-2">
+              {agents.map((agent, index) => (
+                <div
+                  key={agent.name}
+                  className="group flex items-center gap-3 rounded-xl px-3 py-3"
+                  style={{
+                    border: '1px solid rgba(255,255,255,0.065)',
+                    background:
+                      index === 0
+                        ? 'linear-gradient(90deg, rgba(168,85,247,0.11), rgba(255,255,255,0.02))'
+                        : 'rgba(255,255,255,0.022)',
+                  }}
+                >
                   <div
-                    key={lane.name}
-                    className="rounded-xl p-3"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[10px] font-semibold"
                     style={{
-                      border: '1px solid var(--color-border)',
-                      background: 'rgba(255,255,255,0.03)',
+                      color: index === 0 ? 'var(--color-accent-hover)' : 'rgb(103, 232, 249)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      background: 'rgba(0,0,0,0.24)',
                     }}
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="font-medium text-sm" style={{ color: 'var(--color-text)' }}>
-                        {lane.name}
+                    {agent.name.slice(0, 2).toUpperCase()}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="truncate text-xs font-semibold" style={{ color: 'var(--color-text)' }}>
+                        {agent.name}
                       </div>
-                      <div className="text-[11px]" style={{ color: 'var(--color-accent)' }}>
-                        {lane.state}
+                      <div
+                        className="shrink-0 text-[9px] uppercase tracking-[0.12em]"
+                        style={{ color: 'rgb(134, 239, 172)' }}
+                      >
+                        {agent.status}
                       </div>
                     </div>
-                    <div className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-                      {lane.note}
+                    <div className="mt-1 truncate text-[10px]" style={{ color: 'var(--color-text-secondary)' }}>
+                      {agent.role}
                     </div>
                   </div>
-                ))}
-              </div>
-            </section>
-
-            <section
-              className="rounded-2xl p-5"
+                </div>
+              ))}
+            </div>
+            <div
+              className="mt-4 rounded-xl px-3 py-3 text-[10px] leading-relaxed"
               style={{
-                border: '1px solid var(--color-border)',
-                background: 'var(--color-bg-secondary)',
+                color: 'var(--color-text-secondary)',
+                border: '1px solid rgba(34,211,238,0.12)',
+                background: 'rgba(34,211,238,0.035)',
               }}
             >
-              <div className="text-sm font-semibold" style={{ color: 'var(--color-text)' }}>
-                Relay Definition
-              </div>
-              <p className="text-xs mt-2 leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
-                Electrical relay logic applied to data and projects: a low-power user signal activates
-                a higher-power coordinated workflow. Relay routes the work. OpenClaw Core executes the system.
-              </p>
-            </section>
-          </aside>
+              Dispatch coordinates the mesh. Veto remains the final review gate before work leaves
+              the command center.
+            </div>
+          </Panel>
         </div>
 
-        <section
-          className="rounded-2xl p-5 md:p-6 mt-5"
-          style={{
-            border: '1px solid rgba(34, 211, 238, 0.22)',
-            background:
-              'linear-gradient(135deg, rgba(7, 18, 25, 0.96), rgba(17, 9, 29, 0.98))',
-            boxShadow: '0 0 36px rgba(34, 211, 238, 0.07)',
-          }}
-        >
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between mb-5">
-            <div className="flex items-start gap-3">
-              <div
-                className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-                style={{
-                  color: 'rgb(103, 232, 249)',
-                  border: '1px solid rgba(34, 211, 238, 0.28)',
-                  background: 'rgba(34, 211, 238, 0.09)',
-                }}
-              >
-                <Link2 size={17} />
-              </div>
-              <div>
-                <h2 className="text-base font-semibold" style={{ color: 'var(--color-text)' }}>
-                  OpenClaw Bridge Status
-                </h2>
-                <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-                  Read-only integration metadata. No workflow execution is available from this panel.
-                </p>
-              </div>
-            </div>
-
+        <Panel className="mt-5 p-5 md:p-6" cyan>
+          <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <SectionTitle
+              icon={Link2}
+              eyebrow="Engine Link"
+              title="OpenClaw Bridge Status"
+              description="Live read-only integration state with manifest fallback"
+              cyan
+            />
             <div
-              className="flex items-center gap-2 self-start rounded-lg px-3 py-2 text-xs"
+              className="flex items-center gap-2 self-start rounded-xl px-3 py-2 text-[10px] uppercase tracking-[0.12em]"
               style={{
-                color: 'var(--color-accent-hover)',
-                border: '1px solid rgba(192, 132, 252, 0.24)',
-                background: 'rgba(168, 85, 247, 0.08)',
+                color:
+                  bridgeBackendState === 'connected'
+                    ? 'rgb(103, 232, 249)'
+                    : 'var(--color-text-secondary)',
+                border: '1px solid rgba(34, 211, 238, 0.18)',
+                background: 'rgba(34, 211, 238, 0.05)',
               }}
             >
-              <ShieldCheck size={14} />
+              <ShieldCheck size={13} />
               {bridgeBackendState === 'connected'
-                ? 'Backend bridge: connected'
+                ? 'Backend Connected'
                 : bridgeBackendState === 'fallback'
-                  ? 'Backend bridge: unavailable, showing manifest fallback'
-                  : 'Backend bridge: checking'}
+                  ? 'Manifest Fallback'
+                  : 'Checking Bridge'}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-5">
-            {[
-              { label: 'OpenClaw root', value: bridgeData.openclaw_root },
-              { label: 'Integration mode', value: bridgeData.integration_mode },
-              { label: 'Bridge status', value: 'Manifest connected' },
-              { label: 'Safety mode', value: 'Read-only / no workflow execution' },
-            ].map((item) => (
-              <div
-                key={item.label}
-                className="rounded-xl p-3 min-w-0"
-                style={{
-                  border: '1px solid var(--color-border)',
-                  background: 'rgba(255, 255, 255, 0.025)',
-                }}
-              >
+          <div className="grid gap-4 xl:grid-cols-[0.72fr_1.28fr]">
+            <div className="grid content-start gap-3 sm:grid-cols-2 xl:grid-cols-1">
+              {[
+                { label: 'OpenClaw root', value: bridgeData.openclaw_root, icon: Cpu },
+                { label: 'Integration mode', value: bridgeData.integration_mode, icon: Link2 },
+                {
+                  label: 'Live branch',
+                  value: bridgeStatus?.openclaw_git_branch || 'Unavailable',
+                  icon: GitBranch,
+                },
+                {
+                  label: 'Working tree',
+                  value: bridgeStatus
+                    ? bridgeStatus.openclaw_git_status_short.length === 0
+                      ? 'Clean'
+                      : `${bridgeStatus.openclaw_git_status_short.length} change line(s)`
+                    : 'Manifest only',
+                  icon: Activity,
+                },
+              ].map(({ label, value, icon: Icon }) => (
                 <div
-                  className="text-[10px] uppercase tracking-[0.18em]"
-                  style={{ color: 'var(--color-text-tertiary)' }}
+                  key={label}
+                  className="rounded-xl p-3"
+                  style={{
+                    border: '1px solid rgba(34,211,238,0.13)',
+                    background: 'rgba(34,211,238,0.03)',
+                  }}
                 >
-                  {item.label}
-                </div>
-                <div
-                  className="text-xs font-mono mt-2 break-words"
-                  style={{ color: 'var(--color-text)' }}
-                >
-                  {item.value}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {bridgeStatus && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
-              <div
-                className="rounded-xl p-3"
-                style={{
-                  border: '1px solid rgba(34, 211, 238, 0.16)',
-                  background: 'rgba(34, 211, 238, 0.035)',
-                }}
-              >
-                <div
-                  className="text-[10px] uppercase tracking-[0.18em]"
-                  style={{ color: 'var(--color-text-tertiary)' }}
-                >
-                  Live branch
-                </div>
-                <div className="text-xs font-mono mt-2" style={{ color: 'rgb(103, 232, 249)' }}>
-                  {bridgeStatus.openclaw_git_branch || 'Unavailable'}
-                </div>
-              </div>
-              <div
-                className="rounded-xl p-3"
-                style={{
-                  border: '1px solid rgba(34, 211, 238, 0.16)',
-                  background: 'rgba(34, 211, 238, 0.035)',
-                }}
-              >
-                <div
-                  className="text-[10px] uppercase tracking-[0.18em]"
-                  style={{ color: 'var(--color-text-tertiary)' }}
-                >
-                  Working tree
-                </div>
-                <div className="text-xs mt-2" style={{ color: 'var(--color-text)' }}>
-                  {bridgeStatus.openclaw_git_status_short.length === 0
-                    ? 'Clean'
-                    : `${bridgeStatus.openclaw_git_status_short.length} change line(s)`}
-                </div>
-              </div>
-              <div
-                className="rounded-xl p-3"
-                style={{
-                  border: '1px solid rgba(34, 211, 238, 0.16)',
-                  background: 'rgba(34, 211, 238, 0.035)',
-                }}
-              >
-                <div
-                  className="text-[10px] uppercase tracking-[0.18em]"
-                  style={{ color: 'var(--color-text-tertiary)' }}
-                >
-                  Checked
-                </div>
-                <div className="text-xs font-mono mt-2" style={{ color: 'var(--color-text)' }}>
-                  {bridgeStatus.checked_at}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {bridgeStatus?.warning && (
-            <div
-              className="rounded-xl px-4 py-3 text-xs mb-5"
-              style={{
-                color: 'rgb(253, 224, 71)',
-                border: '1px solid rgba(253, 224, 71, 0.20)',
-                background: 'rgba(253, 224, 71, 0.05)',
-              }}
-            >
-              {bridgeStatus.warning}
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-            {bridgeData.lanes.map((lane) => (
-              <article
-                key={lane.name}
-                className="rounded-xl p-4 min-w-0"
-                style={{
-                  border: '1px solid rgba(192, 132, 252, 0.20)',
-                  background: 'rgba(6, 7, 12, 0.48)',
-                }}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="text-sm font-semibold" style={{ color: 'var(--color-text)' }}>
-                      {lane.name}
-                    </h3>
-                    <p
-                      className="text-xs mt-1 leading-relaxed"
-                      style={{ color: 'var(--color-text-secondary)' }}
-                    >
-                      {lane.purpose}
-                    </p>
+                  <div className="flex items-center gap-2">
+                    <Icon size={13} style={{ color: 'rgb(103,232,249)' }} />
+                    <div className="text-[9px] uppercase tracking-[0.16em]" style={{ color: 'var(--color-text-tertiary)' }}>
+                      {label}
+                    </div>
                   </div>
-                  <span
-                    className="text-[10px] uppercase tracking-[0.14em] px-2 py-1 rounded-md shrink-0"
+                  <div className="mt-2 break-all font-mono text-[11px]" style={{ color: 'var(--color-text)' }}>
+                    {value}
+                  </div>
+                </div>
+              ))}
+              <div
+                className="rounded-xl p-3 sm:col-span-2 xl:col-span-1"
+                style={{
+                  border: '1px solid rgba(74,222,128,0.16)',
+                  background: 'rgba(74,222,128,0.035)',
+                }}
+              >
+                <div className="flex items-center gap-2 text-[9px] uppercase tracking-[0.16em]" style={{ color: 'rgb(134,239,172)' }}>
+                  <ShieldCheck size={13} />
+                  Safety Mode
+                </div>
+                <div className="mt-2 text-[11px]" style={{ color: 'var(--color-text)' }}>
+                  Read-only / no workflow execution
+                </div>
+              </div>
+              {bridgeStatus?.warning && (
+                <div
+                  className="rounded-xl p-3 text-[10px] sm:col-span-2 xl:col-span-1"
+                  style={{
+                    color: 'rgb(253,224,71)',
+                    border: '1px solid rgba(253,224,71,0.18)',
+                    background: 'rgba(253,224,71,0.04)',
+                  }}
+                >
+                  {bridgeStatus.warning}
+                </div>
+              )}
+            </div>
+
+            <div>
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: 'rgb(103,232,249)' }}>
+                    Active Projects
+                  </div>
+                  <div className="mt-1 text-sm font-semibold" style={{ color: 'var(--color-text)' }}>
+                    OpenClaw Project Lanes
+                  </div>
+                </div>
+                <div className="text-[10px]" style={{ color: 'var(--color-text-tertiary)' }}>
+                  {bridgeData.lanes.length} lanes declared
+                </div>
+              </div>
+              <div className="grid gap-3 md:grid-cols-2">
+                {bridgeData.lanes.map((lane) => (
+                  <article
+                    key={lane.name}
+                    className="rounded-xl p-4"
                     style={{
-                      color: 'var(--color-accent-hover)',
-                      border: '1px solid rgba(192, 132, 252, 0.22)',
-                      background: 'rgba(168, 85, 247, 0.08)',
+                      border: '1px solid rgba(192,132,252,0.16)',
+                      background: 'rgba(8,8,13,0.55)',
                     }}
                   >
-                    {lane.status.replace('_', ' ')}
-                  </span>
-                </div>
-
-                <div className="mt-4 grid gap-3">
-                  <div>
-                    <div
-                      className="text-[10px] uppercase tracking-[0.16em]"
-                      style={{ color: 'var(--color-text-tertiary)' }}
-                    >
-                      Boundary
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-xs font-semibold" style={{ color: 'var(--color-text)' }}>
+                          {lane.name}
+                        </h3>
+                        <p className="mt-1 text-[10px] leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+                          {lane.purpose}
+                        </p>
+                      </div>
+                      <span
+                        className="shrink-0 rounded-md px-2 py-1 text-[8px] uppercase tracking-[0.12em]"
+                        style={{
+                          color: 'var(--color-accent-hover)',
+                          background: 'rgba(168,85,247,0.09)',
+                        }}
+                      >
+                        {lane.status.replace('_', ' ')}
+                      </span>
                     </div>
-                    <p
-                      className="text-[11px] mt-1 leading-relaxed"
-                      style={{ color: 'rgb(253, 224, 71)' }}
+                    <div
+                      className="mt-3 rounded-lg px-3 py-2 text-[9px] leading-relaxed"
+                      style={{
+                        color: 'rgb(253,224,71)',
+                        border: '1px solid rgba(253,224,71,0.10)',
+                        background: 'rgba(253,224,71,0.025)',
+                      }}
                     >
                       {lane.boundary}
-                    </p>
-                  </div>
-
-                  <div>
-                    <div
-                      className="text-[10px] uppercase tracking-[0.16em]"
-                      style={{ color: 'var(--color-text-tertiary)' }}
-                    >
-                      OpenClaw path
                     </div>
-                    <code
-                      className="block text-[11px] mt-1 break-all"
-                      style={{ color: 'rgb(103, 232, 249)' }}
-                    >
+                    <code className="mt-3 block break-all text-[9px]" style={{ color: 'rgb(103,232,249)' }}>
                       {lane.openclaw_path}
                     </code>
-                  </div>
-
-                  <div>
-                    <div
-                      className="text-[10px] uppercase tracking-[0.16em] mb-2"
-                      style={{ color: 'var(--color-text-tertiary)' }}
-                    >
-                      Safe command references
-                    </div>
-                    <div className="flex flex-col gap-2">
+                    <div className="mt-3 flex flex-col gap-1.5">
                       {lane.safe_commands.map((command, index) => {
                         const copyKey = `bridge-${lane.name}-${index}`;
                         const copied = copiedCommand === copyKey;
-
                         return (
                           <div
                             key={command}
-                            className="flex items-center gap-2 rounded-lg px-3 py-2 min-w-0"
+                            className="flex items-center gap-2 rounded-lg px-2.5 py-2"
                             style={{
-                              border: '1px solid rgba(192, 132, 252, 0.14)',
-                              background: 'rgba(0, 0, 0, 0.28)',
+                              border: '1px solid rgba(255,255,255,0.055)',
+                              background: 'rgba(0,0,0,0.25)',
                             }}
                           >
-                            <code
-                              className="text-[11px] break-all flex-1"
-                              style={{ color: 'var(--color-accent-hover)' }}
-                            >
+                            <code className="min-w-0 flex-1 break-all text-[9px]" style={{ color: 'var(--color-text-secondary)' }}>
                               {command}
                             </code>
                             <button
                               type="button"
                               onClick={() => copyCommand(copyKey, command)}
-                              className="rounded-md p-1.5 shrink-0 cursor-pointer"
+                              className="shrink-0 cursor-pointer rounded-md p-1.5"
                               style={{
-                                color: copied
-                                  ? 'var(--color-accent-hover)'
-                                  : 'var(--color-text-tertiary)',
-                                border: '1px solid var(--color-border)',
-                                background: copied
-                                  ? 'rgba(168, 85, 247, 0.14)'
-                                  : 'var(--color-bg-secondary)',
+                                color: copied ? 'var(--color-accent-hover)' : 'var(--color-text-tertiary)',
+                                background: copied ? 'rgba(168,85,247,0.12)' : 'rgba(255,255,255,0.035)',
                               }}
                               aria-label={`Copy ${lane.name} command reference`}
                               title={copied ? 'Copied' : 'Copy reference'}
                             >
-                              {copied ? <Check size={13} /> : <Copy size={13} />}
+                              {copied ? <Check size={12} /> : <Copy size={12} />}
                             </button>
                           </div>
                         );
                       })}
                     </div>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-
-          <p className="text-[10px] mt-4" style={{ color: 'var(--color-text-tertiary)' }}>
-            Frontend data mirrors config/relay_project_lanes.json until a backend read-only bridge
-            endpoint is available.
-          </p>
-        </section>
-
-        <section
-          className="rounded-2xl p-5 md:p-6 mt-5"
-          style={{
-            border: '1px solid rgba(192, 132, 252, 0.28)',
-            background:
-              'linear-gradient(135deg, rgba(17, 9, 29, 0.96), rgba(8, 8, 13, 0.98))',
-            boxShadow: '0 0 36px rgba(168, 85, 247, 0.10)',
-          }}
-        >
-          <div className="flex items-start gap-3 mb-5">
-            <div
-              className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-              style={{
-                color: 'var(--color-accent-hover)',
-                border: '1px solid rgba(192, 132, 252, 0.30)',
-                background: 'rgba(168, 85, 247, 0.12)',
-              }}
-            >
-              <Terminal size={17} />
-            </div>
-            <div>
-              <h2 className="text-base font-semibold" style={{ color: 'var(--color-text)' }}>
-                Relay Quick Commands
-              </h2>
-              <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-                Copy-safe operator references. Commands are never executed by the dashboard.
-              </p>
+                  </article>
+                ))}
+              </div>
             </div>
           </div>
+        </Panel>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
-            {quickCommands.map((item) => {
-              const copied = copiedCommand === item.name;
-
-              return (
-                <article
-                  key={item.name}
-                  className="rounded-xl p-4 min-w-0 flex flex-col"
-                  style={{
-                    border: '1px solid var(--color-border)',
-                    background: 'rgba(255, 255, 255, 0.025)',
-                  }}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="text-sm font-medium" style={{ color: 'var(--color-text)' }}>
-                        {item.name}
-                      </h3>
-                      <p
-                        className="text-[11px] mt-1 leading-relaxed"
-                        style={{ color: 'var(--color-text-secondary)' }}
-                      >
-                        {item.purpose}
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => copyCommand(item.name, item.command)}
-                      className="rounded-md p-1.5 shrink-0 transition-colors cursor-pointer"
-                      style={{
-                        color: copied ? 'var(--color-accent-hover)' : 'var(--color-text-tertiary)',
-                        border: '1px solid var(--color-border)',
-                        background: copied
-                          ? 'rgba(168, 85, 247, 0.14)'
-                          : 'var(--color-bg-secondary)',
-                      }}
-                      aria-label={`Copy ${item.name} command`}
-                      title={copied ? 'Copied' : 'Copy command'}
-                    >
-                      {copied ? <Check size={14} /> : <Copy size={14} />}
-                    </button>
-                  </div>
-
-                  <pre
-                    className="text-[11px] leading-relaxed whitespace-pre-wrap break-words mt-4 rounded-lg p-3 overflow-x-auto flex-1"
+        <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(300px,0.55fr)]">
+          <Panel className="p-5 md:p-6">
+            <div className="mb-5 flex items-start justify-between gap-3">
+              <SectionTitle
+                icon={Zap}
+                eyebrow="Operator Controls"
+                title="Relay Quick Commands"
+                description="Copy-safe references for local operation"
+              />
+              <div
+                className="hidden rounded-lg px-3 py-2 text-[9px] uppercase tracking-[0.16em] sm:block"
+                style={{
+                  color: 'var(--color-text-tertiary)',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  background: 'rgba(255,255,255,0.025)',
+                }}
+              >
+                Copy Only
+              </div>
+            </div>
+            <div className="grid gap-2.5 md:grid-cols-2">
+              {quickCommands.map((item) => {
+                const copied = copiedCommand === item.name;
+                return (
+                  <article
+                    key={item.name}
+                    className="flex min-w-0 items-start gap-3 rounded-xl p-3"
                     style={{
-                      color: 'var(--color-accent-hover)',
-                      border: '1px solid rgba(192, 132, 252, 0.16)',
-                      background: 'rgba(0, 0, 0, 0.32)',
+                      border: '1px solid rgba(255,255,255,0.065)',
+                      background: 'rgba(255,255,255,0.022)',
                     }}
                   >
-                    <code>{item.command}</code>
-                  </pre>
-                </article>
-              );
-            })}
-          </div>
-        </section>
+                    <div
+                      className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+                      style={{
+                        color: 'var(--color-accent-hover)',
+                        background: 'rgba(168,85,247,0.09)',
+                      }}
+                    >
+                      <Terminal size={14} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <h3 className="text-[11px] font-semibold" style={{ color: 'var(--color-text)' }}>
+                            {item.name}
+                          </h3>
+                          <p className="mt-1 text-[9px]" style={{ color: 'var(--color-text-secondary)' }}>
+                            {item.purpose}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => copyCommand(item.name, item.command)}
+                          className="shrink-0 cursor-pointer rounded-md p-1.5"
+                          style={{
+                            color: copied ? 'var(--color-accent-hover)' : 'var(--color-text-tertiary)',
+                            background: copied ? 'rgba(168,85,247,0.13)' : 'rgba(255,255,255,0.035)',
+                          }}
+                          aria-label={`Copy ${item.name} command`}
+                          title={copied ? 'Copied' : 'Copy command'}
+                        >
+                          {copied ? <Check size={13} /> : <Copy size={13} />}
+                        </button>
+                      </div>
+                      <pre
+                        className="mt-2 overflow-x-auto whitespace-pre-wrap break-words rounded-lg px-2.5 py-2 text-[9px] leading-relaxed"
+                        style={{
+                          color: 'var(--color-accent-hover)',
+                          background: 'rgba(0,0,0,0.30)',
+                        }}
+                      >
+                        <code>{item.command}</code>
+                      </pre>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </Panel>
+
+          <Panel className="p-5" cyan>
+            <SectionTitle
+              icon={Terminal}
+              eyebrow="Safe Reference"
+              title="Command Terminal"
+              description="Visual reference only — execution disabled"
+              cyan
+            />
+            <div
+              className="mt-5 overflow-hidden rounded-xl font-mono text-[10px]"
+              style={{
+                border: '1px solid rgba(34,211,238,0.16)',
+                background: 'rgba(0,0,0,0.48)',
+              }}
+            >
+              <div
+                className="flex items-center gap-2 border-b px-3 py-2"
+                style={{ borderColor: 'rgba(34,211,238,0.10)' }}
+              >
+                <span className="h-2 w-2 rounded-full" style={{ background: '#fb7185' }} />
+                <span className="h-2 w-2 rounded-full" style={{ background: '#facc15' }} />
+                <span className="h-2 w-2 rounded-full" style={{ background: '#4ade80' }} />
+                <span className="ml-2 text-[8px] uppercase tracking-[0.16em]" style={{ color: 'var(--color-text-tertiary)' }}>
+                  relay-reference
+                </span>
+              </div>
+              <div className="p-4">
+                <div style={{ color: 'rgb(103,232,249)' }}>
+                  $ relay bridge status
+                </div>
+                <div className="mt-1" style={{ color: 'rgb(134,239,172)' }}>
+                  connected :: read_only_bridge
+                </div>
+                <div className="mt-4 space-y-3">
+                  {safeReferences.map((command, index) => {
+                    const key = `terminal-${index}`;
+                    const copied = copiedCommand === key;
+                    return (
+                      <div key={command} className="flex items-start gap-2">
+                        <span style={{ color: 'var(--color-accent)' }}>&gt;</span>
+                        <code className="min-w-0 flex-1 break-all" style={{ color: 'var(--color-text-secondary)' }}>
+                          {command}
+                        </code>
+                        <button
+                          type="button"
+                          onClick={() => copyCommand(key, command)}
+                          className="shrink-0 cursor-pointer rounded p-1"
+                          style={{ color: copied ? 'rgb(103,232,249)' : 'var(--color-text-tertiary)' }}
+                          aria-label="Copy safe command reference"
+                          title={copied ? 'Copied' : 'Copy reference'}
+                        >
+                          {copied ? <Check size={11} /> : <Copy size={11} />}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="mt-5 border-t pt-3 text-[9px]" style={{ color: 'rgb(253,224,71)', borderColor: 'rgba(255,255,255,0.06)' }}>
+                  EXECUTION LOCKED — COPY / REFERENCE MODE
+                </div>
+              </div>
+            </div>
+            {bridgeStatus?.openclaw_recent_commits?.length ? (
+              <div className="mt-4">
+                <div className="mb-2 text-[9px] uppercase tracking-[0.16em]" style={{ color: 'var(--color-text-tertiary)' }}>
+                  Recent Engine Activity
+                </div>
+                <div className="space-y-1.5">
+                  {bridgeStatus.openclaw_recent_commits.slice(0, 3).map((commit) => (
+                    <div
+                      key={commit}
+                      className="truncate rounded-lg px-2.5 py-2 font-mono text-[9px]"
+                      style={{ color: 'var(--color-text-secondary)', background: 'rgba(255,255,255,0.022)' }}
+                    >
+                      {commit}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </Panel>
+        </div>
+
+        <div
+          className="mt-5 flex flex-col gap-2 rounded-xl px-4 py-3 text-[9px] uppercase tracking-[0.14em] sm:flex-row sm:items-center sm:justify-between"
+          style={{
+            color: 'var(--color-text-tertiary)',
+            border: '1px solid rgba(255,255,255,0.05)',
+            background: 'rgba(255,255,255,0.018)',
+          }}
+        >
+          <span>Relay cockpit // OpenClaw engine</span>
+          <span>Read-only bridge // No workflow execution</span>
+        </div>
       </div>
     </div>
   );
