@@ -15,6 +15,7 @@ import {
   Terminal,
   Zap,
 } from 'lucide-react';
+import { useNavigate } from 'react-router';
 import relayProjectLanes from '../data/relayProjectLanes.json';
 import {
   fetchOpenClawBridgeStatus,
@@ -33,6 +34,52 @@ const agents = [
 ] as const;
 
 type AgentRouteTarget = Lowercase<(typeof agents)[number]['name']>;
+
+const agentDetails: Record<
+  AgentRouteTarget,
+  {
+    purpose: string;
+    boundary: string;
+    nextAction: string;
+  }
+> = {
+  dispatch: {
+    purpose: 'Routes requests and coordinates specialist agents.',
+    boundary: 'Coordination only. No destructive actions.',
+    nextAction: 'Review the request and choose the safest specialist route.',
+  },
+  recon: {
+    purpose: 'Scans sources, gathers context, and supports research/reporting.',
+    boundary: 'Research only. Verify sources before publishing.',
+    nextAction: 'Define the research question and list the sources that need verification.',
+  },
+  patch: {
+    purpose: 'Build, fix, test, and repo workflow support.',
+    boundary: 'No destructive file operations without explicit approval.',
+    nextAction: 'Identify the smallest safe code change and its validation command.',
+  },
+  redline: {
+    purpose: 'Checks safety, scope, boundaries, and operational risk.',
+    boundary: 'Does not approve live financial actions.',
+    nextAction: 'Review the proposed action for scope, safety, and approval requirements.',
+  },
+  racket: {
+    purpose: 'Tracks hype, trend language, narrative shifts, and signal patterns.',
+    boundary: 'Reporting only. No predictions or guaranteed outcomes.',
+    nextAction: 'Summarize the current narrative signals without forecasting outcomes.',
+  },
+  hermes: {
+    purpose: 'Local preflight, readiness checks, launcher/logging support.',
+    boundary:
+      'No registry edits, overclocking, risky service changes, or destructive cleanup.',
+    nextAction: 'Run a read-only local readiness check and report blockers.',
+  },
+  veto: {
+    purpose: 'Final review, cleanup, approval/rejection, and incident quality control.',
+    boundary: 'Review only unless user explicitly approves next action.',
+    nextAction: 'Perform a final review and return an approve, revise, or reject recommendation.',
+  },
+};
 
 const meshNodeAccents = [
   { color: 'rgb(192, 132, 252)', glow: 'rgba(168, 85, 247, 0.46)' },
@@ -169,6 +216,7 @@ function SectionTitle({
 }
 
 export function DashboardPage() {
+  const navigate = useNavigate();
   const [copiedCommand, setCopiedCommand] = useState<string | null>(null);
   const [bridgeStatus, setBridgeStatus] = useState<OpenClawBridgeStatus | null>(null);
   const [previewUntil, setPreviewUntil] = useState(0);
@@ -176,6 +224,7 @@ export function DashboardPage() {
     target: AgentRouteTarget | null;
     until: number;
   }>({ target: null, until: 0 });
+  const [selectedAgent, setSelectedAgent] = useState<AgentRouteTarget>('dispatch');
   const [activityClock, setActivityClock] = useState(() => Date.now());
   const [bridgeBackendState, setBridgeBackendState] = useState<
     'loading' | 'connected' | 'fallback'
@@ -217,6 +266,16 @@ export function DashboardPage() {
   const now = new Date();
   const stamp = now.toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
   const bridgeData = bridgeStatus ?? relayProjectLanes;
+  const selectedAgentSummary =
+    agents.find((agent) => agent.name.toLowerCase() === selectedAgent) ?? agents[0];
+  const selectedAgentDetails = agentDetails[selectedAgent];
+  const selectedAgentAccent =
+    meshNodeAccents[
+      Math.max(
+        0,
+        agents.findIndex((agent) => agent.name.toLowerCase() === selectedAgent),
+      ) % meshNodeAccents.length
+    ];
   const safeReferences = Array.from(
     new Set(bridgeData.lanes.flatMap((lane) => lane.safe_commands)),
   ).slice(0, 5);
@@ -274,6 +333,7 @@ export function DashboardPage() {
   const previewAgentRoute = (target: AgentRouteTarget | null) => {
     const currentTime = Date.now();
     setActivityClock(currentTime);
+    if (target) setSelectedAgent(target);
     setRoutePreview({
       target,
       until: target ? currentTime + 6000 : 0,
@@ -471,6 +531,15 @@ export function DashboardPage() {
           animation-duration: 0.65s !important;
           opacity: 1;
           filter: brightness(1.45);
+        }
+
+        .relay-agent-node:hover {
+          filter: brightness(1.14);
+        }
+
+        .relay-agent-node:focus-visible {
+          outline: 1px solid rgba(103, 232, 249, 0.72);
+          outline-offset: 3px;
         }
 
         .relay-core-glyph {
@@ -1033,20 +1102,32 @@ export function DashboardPage() {
                 isRoutePreviewActive && routePreview.target === agentRoute;
               const isMutedRoute =
                 isRoutePreviewActive && routePreview.target !== agentRoute;
+              const isSelectedAgent = selectedAgent === agentRoute;
 
               return (
-                <div
+                <button
+                  type="button"
                   key={agent.name}
+                  onClick={() => previewAgentRoute(agentRoute)}
+                  aria-pressed={isSelectedRoute}
+                  aria-label={`Preview route to ${agent.name}`}
                   className={`absolute ${
                     agent.y >= 60 ? 'w-28 sm:w-32 md:w-36' : 'w-32 sm:w-36'
-                  } rounded-xl px-2.5 py-2 transition-[opacity,box-shadow,border-color] duration-300`}
+                  } relay-agent-node cursor-pointer rounded-xl px-2.5 py-2 text-left transition-[opacity,box-shadow,border-color,filter] duration-300`}
                   style={{
                     left: `${agent.x}%`,
                     top: `${agent.y}%`,
                     transform: 'translate(-50%, -50%)',
                     border: `1px solid ${accent.color
                       .replace('rgb', 'rgba')
-                      .replace(')', isSelectedRoute ? ', 0.76)' : ', 0.26)')}`,
+                      .replace(
+                        ')',
+                        isSelectedRoute
+                          ? ', 0.76)'
+                          : isSelectedAgent
+                            ? ', 0.42)'
+                            : ', 0.26)',
+                      )}`,
                     background:
                       'linear-gradient(135deg, rgba(15, 10, 25, 0.95), rgba(5, 8, 13, 0.92))',
                     backdropFilter: 'blur(14px)',
@@ -1055,6 +1136,11 @@ export function DashboardPage() {
                           /0\.\d+\)/,
                           '0.18)',
                         )}, inset 0 0 22px ${accent.glow.replace(/0\.\d+\)/, '0.12)')}`
+                      : isSelectedAgent
+                        ? `0 0 24px ${accent.glow.replace(
+                            /0\.\d+\)/,
+                            '0.18)',
+                          )}, inset 0 0 18px rgba(255,255,255,0.025)`
                       : `0 0 20px ${accent.glow.replace(
                           /0\.\d+\)/,
                           '0.12)',
@@ -1117,7 +1203,7 @@ export function DashboardPage() {
                     <span className="h-px w-3" style={{ background: accent.color, opacity: 0.5 }} />
                     {agent.status}
                   </div>
-                </div>
+                </button>
               );
             })}
 
@@ -1212,6 +1298,166 @@ export function DashboardPage() {
             </div>
           </Panel>
         </div>
+
+        <Panel className="mt-5 p-5 md:p-6">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div className="flex items-start gap-3">
+              <div
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xs font-semibold"
+                style={{
+                  color: selectedAgentAccent.color,
+                  border: `1px solid ${selectedAgentAccent.color
+                    .replace('rgb', 'rgba')
+                    .replace(')', ', 0.34)')}`,
+                  background: selectedAgentAccent.glow.replace(/0\.\d+\)/, '0.10)'),
+                  boxShadow: `0 0 20px ${selectedAgentAccent.glow.replace(
+                    /0\.\d+\)/,
+                    '0.13)',
+                  )}`,
+                }}
+              >
+                {selectedAgentSummary.name.slice(0, 2).toUpperCase()}
+              </div>
+              <div>
+                <div
+                  className="text-[9px] font-medium uppercase tracking-[0.22em]"
+                  style={{ color: selectedAgentAccent.color }}
+                >
+                  Selected Agent
+                </div>
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                  <h3 className="text-base font-semibold" style={{ color: 'var(--color-text)' }}>
+                    {selectedAgentSummary.name}
+                  </h3>
+                  <span
+                    className="rounded-full px-2 py-0.5 text-[8px] uppercase tracking-[0.12em]"
+                    style={{
+                      color: 'rgb(134, 239, 172)',
+                      border: '1px solid rgba(74, 222, 128, 0.18)',
+                      background: 'rgba(74, 222, 128, 0.05)',
+                    }}
+                  >
+                    {selectedAgentSummary.status}
+                  </span>
+                </div>
+                <div className="mt-1 text-[11px]" style={{ color: 'var(--color-text-secondary)' }}>
+                  {selectedAgentSummary.role}
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => previewAgentRoute(selectedAgent)}
+                className="rounded-lg px-3 py-2 text-[9px] font-medium uppercase tracking-[0.12em]"
+                style={{
+                  color: 'rgb(103, 232, 249)',
+                  border: '1px solid rgba(34, 211, 238, 0.22)',
+                  background: 'rgba(34, 211, 238, 0.06)',
+                }}
+              >
+                Preview Route
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/agents')}
+                className="rounded-lg px-3 py-2 text-[9px] font-medium uppercase tracking-[0.12em]"
+                style={{
+                  color: 'var(--color-accent-hover)',
+                  border: '1px solid rgba(192, 132, 252, 0.22)',
+                  background: 'rgba(168, 85, 247, 0.07)',
+                }}
+              >
+                Open Agents Tab
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {[
+              {
+                label: 'Purpose',
+                value: selectedAgentDetails.purpose,
+              },
+              {
+                label: 'Safe boundary',
+                value: selectedAgentDetails.boundary,
+              },
+            ].map((detail) => (
+              <div
+                key={detail.label}
+                className="rounded-xl p-3.5"
+                style={{
+                  border: '1px solid rgba(255,255,255,0.065)',
+                  background: 'rgba(255,255,255,0.022)',
+                }}
+              >
+                <div
+                  className="text-[9px] uppercase tracking-[0.16em]"
+                  style={{ color: 'var(--color-text-tertiary)' }}
+                >
+                  {detail.label}
+                </div>
+                <div
+                  className="mt-2 text-[11px] leading-relaxed"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  {detail.value}
+                </div>
+              </div>
+            ))}
+            <div
+              className="rounded-xl p-3.5 md:col-span-2 xl:col-span-1"
+              style={{
+                border: '1px solid rgba(34, 211, 238, 0.12)',
+                background: 'rgba(34, 211, 238, 0.035)',
+              }}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div
+                    className="text-[9px] uppercase tracking-[0.16em]"
+                    style={{ color: 'rgb(103, 232, 249)' }}
+                  >
+                    Suggested next action
+                  </div>
+                  <div
+                    className="mt-2 text-[11px] leading-relaxed"
+                    style={{ color: 'var(--color-text-secondary)' }}
+                  >
+                    {selectedAgentDetails.nextAction}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    copyCommand(
+                      `agent-${selectedAgent}`,
+                      selectedAgentDetails.nextAction,
+                    )
+                  }
+                  className="flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1.5 text-[8px] uppercase tracking-[0.1em]"
+                  style={{
+                    color:
+                      copiedCommand === `agent-${selectedAgent}`
+                        ? 'rgb(134, 239, 172)'
+                        : 'rgb(103, 232, 249)',
+                    border: '1px solid rgba(34, 211, 238, 0.16)',
+                    background: 'rgba(0,0,0,0.24)',
+                  }}
+                  title="Copy reference text"
+                >
+                  {copiedCommand === `agent-${selectedAgent}` ? (
+                    <Check size={11} />
+                  ) : (
+                    <Copy size={11} />
+                  )}
+                  {copiedCommand === `agent-${selectedAgent}` ? 'Copied' : 'Copy'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </Panel>
 
         <Panel className="mt-5 p-5 md:p-6" cyan>
           <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
