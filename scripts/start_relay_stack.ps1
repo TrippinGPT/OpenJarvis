@@ -1,4 +1,4 @@
-$Root = "D:\AI\TRIPPIN_AI_RELAY"
+﻿$Root = "D:\AI\TRIPPIN_AI_RELAY"
 
 Write-Host "Starting Trippin AI Relay stack..." -ForegroundColor Magenta
 
@@ -15,9 +15,14 @@ Start-Process powershell -ArgumentList @(
   "-NoExit",
   "-ExecutionPolicy", "Bypass",
   "-Command",
-  "cd `"$Root\frontend`"; npm run dev"
+  "cd `"$Root\frontend`"; npm run dev -- --host 127.0.0.1 --port 5173"
 )
 
 Write-Host "Relay backend and frontend launch commands sent." -ForegroundColor Green
 Write-Host "Backend:  http://127.0.0.1:8000" -ForegroundColor Cyan
-Write-Host "Frontend: use the Vite URL shown in the frontend window." -ForegroundColor Cyan
+Write-Host "Frontend: http://localhost:5173/" -ForegroundColor Cyan
+Start-Sleep -Seconds 5
+
+Write-Host "Opening Relay browser..." -ForegroundColor Magenta
+Start-Process "http://localhost:5173/"
+
