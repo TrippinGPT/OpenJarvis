@@ -92,6 +92,7 @@ export function InputArea() {
   const updateLastAssistant = useAppStore((s) => s.updateLastAssistant);
   const setStreamState = useAppStore((s) => s.setStreamState);
   const resetStream = useAppStore((s) => s.resetStream);
+  const holdRelayActivity = useAppStore((s) => s.holdRelayActivity);
   const modelLoading = useAppStore((s) => s.modelLoading);
   const deepResearch = useAppStore((s) => s.deepResearch);
   const setDeepResearch = useAppStore((s) => s.setDeepResearch);
@@ -220,6 +221,7 @@ export function InputArea() {
       activeToolCalls: [],
       content: '',
     });
+    holdRelayActivity();
     useAppStore.getState().addLogEntry({
       timestamp: Date.now(),
       level: 'info',
@@ -518,6 +520,7 @@ export function InputArea() {
     updateLastAssistant,
     setStreamState,
     resetStream,
+    holdRelayActivity,
     deepResearch,
     temperature,
     maxTokens,

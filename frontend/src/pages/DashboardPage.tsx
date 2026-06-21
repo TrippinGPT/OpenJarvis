@@ -169,11 +169,18 @@ function SectionTitle({
 export function DashboardPage() {
   const [copiedCommand, setCopiedCommand] = useState<string | null>(null);
   const [bridgeStatus, setBridgeStatus] = useState<OpenClawBridgeStatus | null>(null);
+  const [previewUntil, setPreviewUntil] = useState(0);
+  const [activityClock, setActivityClock] = useState(() => Date.now());
   const [bridgeBackendState, setBridgeBackendState] = useState<
     'loading' | 'connected' | 'fallback'
   >('loading');
   const isRelayResponding = useAppStore((state) => state.streamState.isStreaming);
   const relayStreamPhase = useAppStore((state) => state.streamState.phase);
+  const relayActivityUntil = useAppStore((state) => state.relayActivityUntil);
+  const isRelayActivityHeld = activityClock < relayActivityUntil;
+  const isPreviewActive = activityClock < previewUntil;
+  const isRelayMeshActive =
+    isRelayResponding || isRelayActivityHeld || isPreviewActive;
   const isRelayRouting =
     isRelayResponding &&
     /research|search|agent thinking|calling/i.test(relayStreamPhase);
@@ -181,13 +188,19 @@ export function DashboardPage() {
     ? 'routing'
     : isRelayResponding
       ? 'responding'
-      : 'idle';
+      : isPreviewActive
+        ? 'preview'
+        : isRelayActivityHeld
+          ? 'responding'
+          : 'idle';
   const relayActivityLabel =
     relayActivityState === 'routing'
       ? 'Relay Routing'
       : relayActivityState === 'responding'
         ? 'Relay Responding'
-        : 'Mesh Stable';
+        : relayActivityState === 'preview'
+          ? 'Relay Routing Preview'
+          : 'Mesh Stable';
   const now = new Date();
   const stamp = now.toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
   const bridgeData = bridgeStatus ?? relayProjectLanes;
@@ -213,6 +226,35 @@ export function DashboardPage() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    const currentTime = Date.now();
+    setActivityClock(currentTime);
+
+    const nextExpiry = [relayActivityUntil, previewUntil]
+      .filter((expiry) => expiry > currentTime)
+      .sort((a, b) => a - b)[0];
+
+    if (!nextExpiry) return;
+
+    const timeout = window.setTimeout(() => {
+      setActivityClock(Date.now());
+    }, nextExpiry - currentTime + 25);
+
+    return () => window.clearTimeout(timeout);
+  }, [relayActivityUntil, previewUntil]);
+
+  useEffect(() => {
+    if (isRelayResponding && previewUntil > 0) {
+      setPreviewUntil(0);
+    }
+  }, [isRelayResponding, previewUntil]);
+
+  const previewActiveMesh = () => {
+    const currentTime = Date.now();
+    setActivityClock(currentTime);
+    setPreviewUntil(currentTime + 8000);
+  };
 
   const copyCommand = async (name: string, command: string) => {
     try {
@@ -593,13 +635,14 @@ export function DashboardPage() {
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(300px,0.65fr)]">
           <Panel
             className={`min-h-[640px] relay-mesh ${
-              isRelayResponding ? 'relay-mesh--responding' : ''
+              isRelayMeshActive ? 'relay-mesh--responding' : ''
             }`}
           >
             <div
               className="sr-only"
               aria-live="polite"
               data-relay-activity={relayActivityState}
+              data-preview-active={isPreviewActive}
             >
               {relayActivityLabel}
             </div>
@@ -627,20 +670,46 @@ export function DashboardPage() {
                 title="Agent Network"
                 description="Live command routing topology"
               />
-              <div
-                className="hidden items-center gap-2 rounded-lg px-3 py-2 text-[10px] uppercase tracking-[0.16em] sm:flex"
-                style={{
-                  color: isRelayResponding ? 'rgb(103, 232, 249)' : 'rgb(134, 239, 172)',
-                  border: isRelayResponding
-                    ? '1px solid rgba(34, 211, 238, 0.26)'
-                    : '1px solid rgba(74, 222, 128, 0.18)',
-                  background: isRelayResponding
-                    ? 'rgba(34, 211, 238, 0.07)'
-                    : 'rgba(74, 222, 128, 0.05)',
-                }}
-              >
-                <Radio size={12} />
-                {relayActivityLabel}
+              <div className="flex flex-col items-end gap-2">
+                <div
+                  className="hidden items-center gap-2 rounded-lg px-3 py-2 text-[10px] uppercase tracking-[0.16em] sm:flex"
+                  style={{
+                    color: isRelayMeshActive ? 'rgb(103, 232, 249)' : 'rgb(134, 239, 172)',
+                    border: isRelayMeshActive
+                      ? '1px solid rgba(34, 211, 238, 0.26)'
+                      : '1px solid rgba(74, 222, 128, 0.18)',
+                    background: isRelayMeshActive
+                      ? 'rgba(34, 211, 238, 0.07)'
+                      : 'rgba(74, 222, 128, 0.05)',
+                  }}
+                >
+                  <Radio size={12} />
+                  {relayActivityLabel}
+                </div>
+                <button
+                  type="button"
+                  onClick={previewActiveMesh}
+                  disabled={isRelayResponding}
+                  aria-pressed={isPreviewActive}
+                  className="rounded-lg px-2.5 py-1.5 text-[9px] font-medium uppercase tracking-[0.12em] transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+                  style={{
+                    color: isPreviewActive
+                      ? 'rgb(233, 213, 255)'
+                      : 'var(--color-text-secondary)',
+                    border: isPreviewActive
+                      ? '1px solid rgba(192, 132, 252, 0.38)'
+                      : '1px solid rgba(255,255,255,0.08)',
+                    background: isPreviewActive
+                      ? 'rgba(168, 85, 247, 0.12)'
+                      : 'rgba(255,255,255,0.025)',
+                    boxShadow: isPreviewActive
+                      ? '0 0 18px rgba(168, 85, 247, 0.16)'
+                      : 'none',
+                  }}
+                  title="Run an eight-second visual preview. No command or request is sent."
+                >
+                  Preview Active Mesh
+                </button>
               </div>
             </div>
 
@@ -820,18 +889,20 @@ export function DashboardPage() {
                 </div>
                 <div
                   className={`mt-1.5 text-[8px] uppercase tracking-[0.16em] ${
-                    isRelayResponding
+                    isRelayMeshActive
                       ? 'relay-response-label bg-clip-text text-transparent'
                       : ''
                   }`}
                   style={{
-                    color: isRelayResponding ? undefined : 'rgba(103, 232, 249, 0.72)',
+                    color: isRelayMeshActive ? undefined : 'rgba(103, 232, 249, 0.72)',
                   }}
                 >
                   {relayActivityState === 'routing'
                     ? 'Routing'
                     : relayActivityState === 'responding'
                       ? 'Responding'
+                      : relayActivityState === 'preview'
+                        ? 'Routing Preview'
                       : 'Switchboard'}
                 </div>
               </div>

@@ -123,6 +123,7 @@ interface AppState {
   activeId: string | null;
   messages: ChatMessage[];
   streamState: StreamState;
+  relayActivityUntil: number;
 
   // Models & server
   models: ModelInfo[];
@@ -171,6 +172,7 @@ interface AppState {
   ) => void;
   setStreamState: (state: Partial<StreamState>) => void;
   resetStream: () => void;
+  holdRelayActivity: (durationMs?: number) => void;
 
   // Deep Research toggle
   deepResearch: boolean;
@@ -248,6 +250,7 @@ export const useAppStore = create<AppState>((set, get) => {
         ? initial.conversations[initial.activeId].messages
         : [],
     streamState: INITIAL_STREAM,
+    relayActivityUntil: 0,
 
     models: [],
     modelsLoading: true,
@@ -435,6 +438,13 @@ export const useAppStore = create<AppState>((set, get) => {
 
     resetStream: () => {
       set({ streamState: INITIAL_STREAM });
+    },
+
+    holdRelayActivity: (durationMs = 2500) => {
+      const requestedUntil = Date.now() + durationMs;
+      set((state) => ({
+        relayActivityUntil: Math.max(state.relayActivityUntil, requestedUntil),
+      }));
     },
 
     // â”€â”€ Deep Research â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
