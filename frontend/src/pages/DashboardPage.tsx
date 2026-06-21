@@ -24,16 +24,16 @@ import {
 import { useAppStore } from '../lib/store';
 
 const agents = [
-  { name: 'Dispatch', role: 'Coordinator', status: 'Online', x: 50, y: 14 },
-  { name: 'Recon', role: 'Research Intel', status: 'Scanning', x: 17, y: 32 },
-  { name: 'Patch', role: 'Engineering', status: 'Ready', x: 83, y: 32 },
-  { name: 'Redline', role: 'Risk Analyst', status: 'Monitoring', x: 14, y: 65 },
-  { name: 'Racket', role: 'Narrative Hunter', status: 'Hunting', x: 38, y: 76 },
-  { name: 'Hermes', role: 'Local Scout', status: 'Standing by', x: 62, y: 76 },
-  { name: 'Veto', role: 'Review Gate', status: 'Clear', x: 86, y: 65 },
+  { key: 'dispatch', name: 'Dispatch', role: 'Coordinator', status: 'Online', x: 50, y: 14 },
+  { key: 'recon', name: 'Recon', role: 'Research Intel', status: 'Scanning', x: 17, y: 32 },
+  { key: 'patch', name: 'Patch', role: 'Engineering', status: 'Ready', x: 83, y: 32 },
+  { key: 'redline', name: 'Redline', role: 'Risk Analyst', status: 'Monitoring', x: 14, y: 65 },
+  { key: 'racket', name: 'Racket', role: 'Narrative Hunter', status: 'Hunting', x: 38, y: 76 },
+  { key: 'hermes', name: 'Hermes', role: 'Local Scout', status: 'Standing by', x: 62, y: 76 },
+  { key: 'veto', name: 'Veto', role: 'Review Gate', status: 'Clear', x: 86, y: 65 },
 ] as const;
 
-type AgentRouteTarget = Lowercase<(typeof agents)[number]['name']>;
+type AgentRouteTarget = (typeof agents)[number]['key'];
 
 const agentDetails: Record<
   AgentRouteTarget,
@@ -267,13 +267,13 @@ export function DashboardPage() {
   const stamp = now.toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
   const bridgeData = bridgeStatus ?? relayProjectLanes;
   const selectedAgentSummary =
-    agents.find((agent) => agent.name.toLowerCase() === selectedAgent) ?? agents[0];
+    agents.find((agent) => agent.key === selectedAgent) ?? agents[0];
   const selectedAgentDetails = agentDetails[selectedAgent];
   const selectedAgentAccent =
     meshNodeAccents[
       Math.max(
         0,
-        agents.findIndex((agent) => agent.name.toLowerCase() === selectedAgent),
+        agents.findIndex((agent) => agent.key === selectedAgent),
       ) % meshNodeAccents.length
     ];
   const safeReferences = Array.from(
@@ -779,7 +779,7 @@ export function DashboardPage() {
             >
               {relayActivityLabel}
             </div>
-            <div className="absolute inset-0 opacity-40">
+            <div className="pointer-events-none absolute inset-0 opacity-40">
               <div
                 className="absolute inset-0"
                 style={{
@@ -796,14 +796,14 @@ export function DashboardPage() {
                   'radial-gradient(circle at 50% 50%, rgba(126, 34, 206, 0.16), transparent 34%), radial-gradient(circle at 52% 48%, rgba(34, 211, 238, 0.07), transparent 22%)',
               }}
             />
-            <div className="relative z-10 flex items-start justify-between gap-4 px-5 pt-5">
+            <div className="pointer-events-none relative z-10 flex items-start justify-between gap-4 px-5 pt-5">
               <SectionTitle
                 icon={Network}
                 eyebrow="System Overview"
                 title="Agent Network"
                 description="Live command routing topology"
               />
-              <div className="flex max-w-[260px] flex-col items-end gap-2">
+              <div className="pointer-events-auto flex max-w-[260px] flex-col items-end gap-2">
                 <div
                   className="hidden items-center gap-2 rounded-lg px-3 py-2 text-[10px] uppercase tracking-[0.16em] sm:flex"
                   style={{
@@ -876,7 +876,7 @@ export function DashboardPage() {
                   >
                     <option value="">Route Preview</option>
                     {agents.map((agent) => (
-                      <option key={agent.name} value={agent.name.toLowerCase()}>
+                      <option key={agent.key} value={agent.key}>
                         {agent.name}
                       </option>
                     ))}
@@ -933,7 +933,7 @@ export function DashboardPage() {
                 const accent = meshNodeAccents[index % meshNodeAccents.length];
                 const pulseX = 50 + (agent.x - 50) * 0.62;
                 const pulseY = 50 + (agent.y - 50) * 0.62;
-                const agentRoute = agent.name.toLowerCase() as AgentRouteTarget;
+                const agentRoute = agent.key;
                 const isSelectedRoute =
                   isRoutePreviewActive && routePreview.target === agentRoute;
                 const routeLinkClass = isRoutePreviewActive
@@ -1097,7 +1097,7 @@ export function DashboardPage() {
 
             {agents.map((agent, index) => {
               const accent = meshNodeAccents[index % meshNodeAccents.length];
-              const agentRoute = agent.name.toLowerCase() as AgentRouteTarget;
+              const agentRoute = agent.key;
               const isSelectedRoute =
                 isRoutePreviewActive && routePreview.target === agentRoute;
               const isMutedRoute =
@@ -1113,7 +1113,7 @@ export function DashboardPage() {
                   aria-label={`Preview route to ${agent.name}`}
                   className={`absolute ${
                     agent.y >= 60 ? 'w-28 sm:w-32 md:w-36' : 'w-32 sm:w-36'
-                  } relay-agent-node cursor-pointer rounded-xl px-2.5 py-2 text-left transition-[opacity,box-shadow,border-color,filter] duration-300`}
+                  } relay-agent-node z-[5] cursor-pointer rounded-xl px-2.5 py-2 text-left transition-[opacity,box-shadow,border-color,filter] duration-300`}
                   style={{
                     left: `${agent.x}%`,
                     top: `${agent.y}%`,
