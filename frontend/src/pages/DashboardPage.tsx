@@ -173,6 +173,21 @@ export function DashboardPage() {
     'loading' | 'connected' | 'fallback'
   >('loading');
   const isRelayResponding = useAppStore((state) => state.streamState.isStreaming);
+  const relayStreamPhase = useAppStore((state) => state.streamState.phase);
+  const isRelayRouting =
+    isRelayResponding &&
+    /research|search|agent thinking|calling/i.test(relayStreamPhase);
+  const relayActivityState = isRelayRouting
+    ? 'routing'
+    : isRelayResponding
+      ? 'responding'
+      : 'idle';
+  const relayActivityLabel =
+    relayActivityState === 'routing'
+      ? 'Relay Routing'
+      : relayActivityState === 'responding'
+        ? 'Relay Responding'
+        : 'Mesh Stable';
   const now = new Date();
   const stamp = now.toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
   const bridgeData = bridgeStatus ?? relayProjectLanes;
@@ -581,6 +596,13 @@ export function DashboardPage() {
               isRelayResponding ? 'relay-mesh--responding' : ''
             }`}
           >
+            <div
+              className="sr-only"
+              aria-live="polite"
+              data-relay-activity={relayActivityState}
+            >
+              {relayActivityLabel}
+            </div>
             <div className="absolute inset-0 opacity-40">
               <div
                 className="absolute inset-0"
@@ -618,7 +640,7 @@ export function DashboardPage() {
                 }}
               >
                 <Radio size={12} />
-                {isRelayResponding ? 'Relay Responding' : 'Mesh Stable'}
+                {relayActivityLabel}
               </div>
             </div>
 
@@ -806,7 +828,11 @@ export function DashboardPage() {
                     color: isRelayResponding ? undefined : 'rgba(103, 232, 249, 0.72)',
                   }}
                 >
-                  {isRelayResponding ? 'Responding' : 'Switchboard'}
+                  {relayActivityState === 'routing'
+                    ? 'Routing'
+                    : relayActivityState === 'responding'
+                      ? 'Responding'
+                      : 'Switchboard'}
                 </div>
               </div>
             </div>
