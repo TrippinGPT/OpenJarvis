@@ -31,6 +31,12 @@ const agents = [
   { name: 'Veto', role: 'Review Gate', status: 'Clear', x: 86, y: 65 },
 ] as const;
 
+const meshNodeAccents = [
+  { color: 'rgb(192, 132, 252)', glow: 'rgba(168, 85, 247, 0.46)' },
+  { color: 'rgb(103, 232, 249)', glow: 'rgba(34, 211, 238, 0.42)' },
+  { color: 'rgb(74, 222, 128)', glow: 'rgba(74, 222, 128, 0.38)' },
+] as const;
+
 const quickCommands = [
   {
     name: 'Start full stack',
@@ -384,7 +390,7 @@ export function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(300px,0.65fr)]">
-          <Panel className="min-h-[620px]">
+          <Panel className="min-h-[640px]">
             <div className="absolute inset-0 opacity-40">
               <div
                 className="absolute inset-0"
@@ -395,6 +401,13 @@ export function DashboardPage() {
                 }}
               />
             </div>
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background:
+                  'radial-gradient(circle at 50% 50%, rgba(126, 34, 206, 0.16), transparent 34%), radial-gradient(circle at 52% 48%, rgba(34, 211, 238, 0.07), transparent 22%)',
+              }}
+            />
             <div className="relative z-10 flex items-start justify-between gap-4 px-5 pt-5">
               <SectionTitle
                 icon={Network}
@@ -416,89 +429,223 @@ export function DashboardPage() {
             </div>
 
             <svg
-              className="absolute inset-0 h-full w-full"
+              className="pointer-events-none absolute inset-0 h-full w-full"
               viewBox="0 0 100 100"
               preserveAspectRatio="none"
             >
-              {agents.map((agent) => (
-                <line
-                  key={agent.name}
-                  x1="50"
-                  y1="50"
-                  x2={agent.x}
-                  y2={agent.y}
-                  stroke="var(--color-accent)"
-                  strokeOpacity="0.28"
-                  strokeWidth="0.22"
+              <defs>
+                <radialGradient id="relay-mesh-halo">
+                  <stop offset="0%" stopColor="rgb(168, 85, 247)" stopOpacity="0.18" />
+                  <stop offset="48%" stopColor="rgb(126, 34, 206)" stopOpacity="0.06" />
+                  <stop offset="100%" stopColor="rgb(34, 211, 238)" stopOpacity="0" />
+                </radialGradient>
+                <linearGradient id="relay-crosshair" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="rgb(103, 232, 249)" stopOpacity="0" />
+                  <stop offset="50%" stopColor="rgb(192, 132, 252)" stopOpacity="0.28" />
+                  <stop offset="100%" stopColor="rgb(103, 232, 249)" stopOpacity="0" />
+                </linearGradient>
+                <filter id="relay-link-glow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="0.65" />
+                </filter>
+              </defs>
+
+              <circle cx="50" cy="50" r="32" fill="url(#relay-mesh-halo)" />
+              <line x1="18" y1="50" x2="82" y2="50" stroke="url(#relay-crosshair)" strokeWidth="0.16" />
+              <line x1="50" y1="19" x2="50" y2="81" stroke="url(#relay-crosshair)" strokeWidth="0.16" />
+              <line x1="28" y1="28" x2="72" y2="72" stroke="url(#relay-crosshair)" strokeWidth="0.1" />
+              <line x1="72" y1="28" x2="28" y2="72" stroke="url(#relay-crosshair)" strokeWidth="0.1" />
+
+              {[10, 17, 25, 31].map((radius, index) => (
+                <circle
+                  key={radius}
+                  cx="50"
+                  cy="50"
+                  r={radius}
+                  fill="none"
+                  stroke={index % 2 === 0 ? 'rgb(192, 132, 252)' : 'rgb(103, 232, 249)'}
+                  strokeOpacity={index === 0 ? 0.32 : 0.1}
+                  strokeWidth={index === 0 ? 0.24 : 0.14}
+                  strokeDasharray={index > 1 ? '1.1 1.7' : undefined}
                 />
               ))}
-              <circle cx="50" cy="50" r="15" fill="none" stroke="var(--color-accent)" strokeOpacity="0.24" strokeWidth="0.2" />
-              <circle cx="50" cy="50" r="23" fill="none" stroke="rgb(103,232,249)" strokeOpacity="0.08" strokeWidth="0.16" />
+
+              {agents.map((agent, index) => {
+                const accent = meshNodeAccents[index % meshNodeAccents.length];
+                const pulseX = 50 + (agent.x - 50) * 0.62;
+                const pulseY = 50 + (agent.y - 50) * 0.62;
+
+                return (
+                  <g key={agent.name}>
+                    <line
+                      x1="50"
+                      y1="50"
+                      x2={agent.x}
+                      y2={agent.y}
+                      stroke={accent.color}
+                      strokeOpacity="0.19"
+                      strokeWidth="0.72"
+                      filter="url(#relay-link-glow)"
+                    />
+                    <line
+                      x1="50"
+                      y1="50"
+                      x2={agent.x}
+                      y2={agent.y}
+                      stroke={accent.color}
+                      strokeOpacity="0.54"
+                      strokeWidth="0.16"
+                      strokeDasharray="1.15 1.45"
+                    />
+                    <circle cx={pulseX} cy={pulseY} r="0.48" fill={accent.color} fillOpacity="0.86" />
+                    <circle
+                      cx={pulseX}
+                      cy={pulseY}
+                      r="1.15"
+                      fill="none"
+                      stroke={accent.color}
+                      strokeOpacity="0.22"
+                      strokeWidth="0.13"
+                    />
+                  </g>
+                );
+              })}
             </svg>
 
             <div
-              className="absolute left-1/2 top-[50%] flex h-44 w-44 items-center justify-center rounded-full text-center sm:h-52 sm:w-52"
+              className="absolute left-1/2 top-[50%] flex h-36 w-36 items-center justify-center rounded-full text-center sm:h-40 sm:w-40"
               style={{
                 transform: 'translate(-50%, -50%)',
-                border: '1px solid rgba(192, 132, 252, 0.48)',
+                border: '1px solid rgba(192, 132, 252, 0.58)',
                 background:
-                  'radial-gradient(circle, rgba(168, 85, 247, 0.30), rgba(12, 6, 24, 0.90) 62%, rgba(5, 5, 8, 0.97))',
+                  'radial-gradient(circle, rgba(192, 132, 252, 0.24), rgba(18, 7, 35, 0.94) 55%, rgba(5, 5, 10, 0.99) 76%)',
                 boxShadow:
-                  '0 0 72px rgba(168, 85, 247, 0.28), inset 0 0 42px rgba(192, 132, 252, 0.13)',
+                  '0 0 28px rgba(168, 85, 247, 0.42), 0 0 82px rgba(126, 34, 206, 0.26), inset 0 0 32px rgba(192, 132, 252, 0.18)',
               }}
             >
-              <div>
+              <div
+                className="absolute inset-2 rounded-full"
+                style={{
+                  border: '1px dashed rgba(103, 232, 249, 0.26)',
+                  transform: 'rotate(22deg)',
+                }}
+              />
+              <div
+                className="absolute inset-5 rounded-full"
+                style={{
+                  border: '1px solid rgba(192, 132, 252, 0.28)',
+                  boxShadow: 'inset 0 0 18px rgba(34, 211, 238, 0.08)',
+                }}
+              />
+              {[
+                'left-1/2 top-0 -translate-x-1/2 -translate-y-1/2',
+                'bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2',
+                'left-0 top-1/2 -translate-x-1/2 -translate-y-1/2',
+                'right-0 top-1/2 translate-x-1/2 -translate-y-1/2',
+              ].map((position) => (
+                <span
+                  key={position}
+                  className={`absolute h-1.5 w-1.5 rounded-full ${position}`}
+                  style={{
+                    background: 'rgb(103, 232, 249)',
+                    boxShadow: '0 0 10px rgba(34, 211, 238, 0.9)',
+                  }}
+                />
+              ))}
+              <div className="relative z-10">
                 <div
-                  className="mb-2 text-[10px] uppercase tracking-[0.4em]"
-                  style={{ color: 'var(--color-accent-hover)' }}
+                  className="font-mono text-2xl font-semibold tracking-[0.18em]"
+                  style={{
+                    color: 'rgb(233, 213, 255)',
+                    textShadow:
+                      '0 0 8px rgba(216, 180, 254, 0.9), 0 0 22px rgba(168, 85, 247, 0.75)',
+                  }}
+                >
+                  ///
+                </div>
+                <div
+                  className="mt-2 text-[9px] font-medium uppercase tracking-[0.36em]"
+                  style={{ color: 'rgb(216, 180, 254)' }}
                 >
                   Relay
                 </div>
-                <div className="text-xl font-semibold tracking-wide" style={{ color: 'var(--color-text)' }}>
-                  CORE
-                </div>
-                <div className="mt-2 px-5 text-[10px]" style={{ color: 'var(--color-text-secondary)' }}>
-                  Intelligent routing switchboard
+                <div
+                  className="mt-1.5 text-[8px] uppercase tracking-[0.16em]"
+                  style={{ color: 'rgba(103, 232, 249, 0.72)' }}
+                >
+                  Routing Core
                 </div>
               </div>
             </div>
 
-            {agents.map((agent) => (
-              <div
-                key={agent.name}
-                className={`absolute ${
-                  agent.y >= 60 ? 'w-28 sm:w-32 md:w-36' : 'w-32 sm:w-36'
-                } rounded-xl px-3 py-2.5`}
-                style={{
-                  left: `${agent.x}%`,
-                  top: `${agent.y}%`,
-                  transform: 'translate(-50%, -50%)',
-                  border: '1px solid rgba(192, 132, 252, 0.22)',
-                  background: 'rgba(7, 7, 12, 0.88)',
-                  backdropFilter: 'blur(14px)',
-                  boxShadow: '0 0 20px rgba(168, 85, 247, 0.10)',
-                }}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <div className="truncate text-xs font-semibold" style={{ color: 'var(--color-text)' }}>
-                    {agent.name}
+            {agents.map((agent, index) => {
+              const accent = meshNodeAccents[index % meshNodeAccents.length];
+
+              return (
+                <div
+                  key={agent.name}
+                  className={`absolute ${
+                    agent.y >= 60 ? 'w-28 sm:w-32 md:w-36' : 'w-32 sm:w-36'
+                  } rounded-xl px-2.5 py-2`}
+                  style={{
+                    left: `${agent.x}%`,
+                    top: `${agent.y}%`,
+                    transform: 'translate(-50%, -50%)',
+                    border: `1px solid ${accent.color.replace('rgb', 'rgba').replace(')', ', 0.26)')}`,
+                    background:
+                      'linear-gradient(135deg, rgba(15, 10, 25, 0.95), rgba(5, 8, 13, 0.92))',
+                    backdropFilter: 'blur(14px)',
+                    boxShadow: `0 0 20px ${accent.glow.replace(/0\.\d+\)/, '0.12)')}, inset 0 0 18px rgba(255,255,255,0.018)`,
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[8px] font-semibold"
+                      style={{
+                        color: accent.color,
+                        border: `1px solid ${accent.color.replace('rgb', 'rgba').replace(')', ', 0.24)')}`,
+                        background: accent.glow.replace(/0\.\d+\)/, '0.08)'),
+                        boxShadow: `0 0 12px ${accent.glow.replace(/0\.\d+\)/, '0.10)')}`,
+                      }}
+                    >
+                      {agent.name.slice(0, 2).toUpperCase()}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <div
+                          className="truncate text-[11px] font-medium"
+                          style={{ color: 'var(--color-text)' }}
+                        >
+                          {agent.name}
+                        </div>
+                        <span
+                          className="h-1.5 w-1.5 shrink-0 rounded-full"
+                          style={{
+                            background: accent.color,
+                            boxShadow: `0 0 8px ${accent.glow}`,
+                          }}
+                        />
+                      </div>
+                      <div
+                        className="mt-0.5 truncate text-[9px]"
+                        style={{ color: 'var(--color-text-secondary)' }}
+                      >
+                        {agent.role}
+                      </div>
+                    </div>
                   </div>
-                  <span
-                    className="h-1.5 w-1.5 shrink-0 rounded-full"
+                  <div
+                    className="mt-1.5 flex items-center gap-1.5 border-t pt-1 text-[8px] uppercase tracking-[0.12em]"
                     style={{
-                      background: 'rgb(74, 222, 128)',
-                      boxShadow: '0 0 8px rgba(74,222,128,0.75)',
+                      color: accent.color,
+                      borderColor: 'rgba(255,255,255,0.05)',
                     }}
-                  />
+                  >
+                    <span className="h-px w-3" style={{ background: accent.color, opacity: 0.5 }} />
+                    {agent.status}
+                  </div>
                 </div>
-                <div className="mt-1 truncate text-[10px]" style={{ color: 'var(--color-accent-hover)' }}>
-                  {agent.role}
-                </div>
-                <div className="mt-1.5 truncate text-[9px]" style={{ color: 'var(--color-text-secondary)' }}>
-                  {agent.status}
-                </div>
-              </div>
-            ))}
+              );
+            })}
 
             <div
               className="absolute bottom-4 left-4 right-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 rounded-xl px-4 py-2.5 text-[9px] uppercase tracking-[0.12em] sm:justify-between"
