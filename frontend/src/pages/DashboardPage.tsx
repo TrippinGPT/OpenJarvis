@@ -1,6 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Check, Copy, Link2, ShieldCheck, Terminal } from 'lucide-react';
 import relayProjectLanes from '../data/relayProjectLanes.json';
+import {
+  fetchOpenClawBridgeStatus,
+  type OpenClawBridgeStatus,
+} from '../lib/api';
 
 const agents = [
   { name: 'Dispatch', role: 'Coordinator', status: 'Routing jobs', x: 50, y: 10 },
@@ -65,8 +69,32 @@ const quickCommands = [
 
 export function DashboardPage() {
   const [copiedCommand, setCopiedCommand] = useState<string | null>(null);
+  const [bridgeStatus, setBridgeStatus] = useState<OpenClawBridgeStatus | null>(null);
+  const [bridgeBackendState, setBridgeBackendState] = useState<
+    'loading' | 'connected' | 'fallback'
+  >('loading');
   const now = new Date();
   const stamp = now.toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
+  const bridgeData = bridgeStatus ?? relayProjectLanes;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetchOpenClawBridgeStatus()
+      .then((status) => {
+        if (cancelled) return;
+        setBridgeStatus(status);
+        setBridgeBackendState('connected');
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setBridgeBackendState('fallback');
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const copyCommand = async (name: string, command: string) => {
     try {
@@ -341,14 +369,18 @@ export function DashboardPage() {
               }}
             >
               <ShieldCheck size={14} />
-              Manifest connected
+              {bridgeBackendState === 'connected'
+                ? 'Backend bridge: connected'
+                : bridgeBackendState === 'fallback'
+                  ? 'Backend bridge: unavailable, showing manifest fallback'
+                  : 'Backend bridge: checking'}
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-5">
             {[
-              { label: 'OpenClaw root', value: relayProjectLanes.openclaw_root },
-              { label: 'Integration mode', value: relayProjectLanes.integration_mode },
+              { label: 'OpenClaw root', value: bridgeData.openclaw_root },
+              { label: 'Integration mode', value: bridgeData.integration_mode },
               { label: 'Bridge status', value: 'Manifest connected' },
               { label: 'Safety mode', value: 'Read-only / no workflow execution' },
             ].map((item) => (
@@ -376,8 +408,79 @@ export function DashboardPage() {
             ))}
           </div>
 
+          {bridgeStatus && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+              <div
+                className="rounded-xl p-3"
+                style={{
+                  border: '1px solid rgba(34, 211, 238, 0.16)',
+                  background: 'rgba(34, 211, 238, 0.035)',
+                }}
+              >
+                <div
+                  className="text-[10px] uppercase tracking-[0.18em]"
+                  style={{ color: 'var(--color-text-tertiary)' }}
+                >
+                  Live branch
+                </div>
+                <div className="text-xs font-mono mt-2" style={{ color: 'rgb(103, 232, 249)' }}>
+                  {bridgeStatus.openclaw_git_branch || 'Unavailable'}
+                </div>
+              </div>
+              <div
+                className="rounded-xl p-3"
+                style={{
+                  border: '1px solid rgba(34, 211, 238, 0.16)',
+                  background: 'rgba(34, 211, 238, 0.035)',
+                }}
+              >
+                <div
+                  className="text-[10px] uppercase tracking-[0.18em]"
+                  style={{ color: 'var(--color-text-tertiary)' }}
+                >
+                  Working tree
+                </div>
+                <div className="text-xs mt-2" style={{ color: 'var(--color-text)' }}>
+                  {bridgeStatus.openclaw_git_status_short.length === 0
+                    ? 'Clean'
+                    : `${bridgeStatus.openclaw_git_status_short.length} change line(s)`}
+                </div>
+              </div>
+              <div
+                className="rounded-xl p-3"
+                style={{
+                  border: '1px solid rgba(34, 211, 238, 0.16)',
+                  background: 'rgba(34, 211, 238, 0.035)',
+                }}
+              >
+                <div
+                  className="text-[10px] uppercase tracking-[0.18em]"
+                  style={{ color: 'var(--color-text-tertiary)' }}
+                >
+                  Checked
+                </div>
+                <div className="text-xs font-mono mt-2" style={{ color: 'var(--color-text)' }}>
+                  {bridgeStatus.checked_at}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {bridgeStatus?.warning && (
+            <div
+              className="rounded-xl px-4 py-3 text-xs mb-5"
+              style={{
+                color: 'rgb(253, 224, 71)',
+                border: '1px solid rgba(253, 224, 71, 0.20)',
+                background: 'rgba(253, 224, 71, 0.05)',
+              }}
+            >
+              {bridgeStatus.warning}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-            {relayProjectLanes.lanes.map((lane) => (
+            {bridgeData.lanes.map((lane) => (
               <article
                 key={lane.name}
                 className="rounded-xl p-4 min-w-0"

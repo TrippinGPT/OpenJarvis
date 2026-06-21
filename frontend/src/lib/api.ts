@@ -228,6 +228,47 @@ export async function fetchServerInfo(): Promise<ServerInfo> {
   return res.json();
 }
 
+export interface OpenClawBridgeLane {
+  name: string;
+  status: string;
+  purpose: string;
+  openclaw_path: string;
+  boundary: string;
+  safe_commands: string[];
+}
+
+export interface OpenClawBridgeStatus {
+  relay_name: string;
+  openclaw_root: string;
+  integration_mode: string;
+  safety_rules: string[];
+  lanes: OpenClawBridgeLane[];
+  openclaw_exists: boolean;
+  openclaw_git_branch: string | null;
+  openclaw_git_status_short: string[];
+  openclaw_recent_commits: string[];
+  checked_at: string;
+  warning: string | null;
+}
+
+export async function fetchOpenClawBridgeStatus(): Promise<OpenClawBridgeStatus> {
+  const res = await apiFetch(`/api/relay/openclaw-bridge/status`, {
+    cache: 'no-store',
+    signal: AbortSignal.timeout(5_000),
+  });
+  if (!res.ok) throw new Error(`Failed to fetch OpenClaw bridge status: ${res.status}`);
+  const status = (await res.json()) as OpenClawBridgeStatus;
+  if (
+    status.integration_mode === 'unavailable'
+    || !status.openclaw_root
+    || !Array.isArray(status.lanes)
+    || status.lanes.length === 0
+  ) {
+    throw new Error(status.warning || 'OpenClaw bridge manifest is unavailable');
+  }
+  return status;
+}
+
 export async function checkHealth(): Promise<boolean> {
   if (isTauri()) {
     try {
