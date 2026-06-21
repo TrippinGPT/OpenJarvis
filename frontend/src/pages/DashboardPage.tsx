@@ -32,6 +32,8 @@ const agents = [
   { name: 'Veto', role: 'Review Gate', status: 'Clear', x: 86, y: 65 },
 ] as const;
 
+type AgentRouteTarget = Lowercase<(typeof agents)[number]['name']>;
+
 const meshNodeAccents = [
   { color: 'rgb(192, 132, 252)', glow: 'rgba(168, 85, 247, 0.46)' },
   { color: 'rgb(103, 232, 249)', glow: 'rgba(34, 211, 238, 0.42)' },
@@ -170,6 +172,10 @@ export function DashboardPage() {
   const [copiedCommand, setCopiedCommand] = useState<string | null>(null);
   const [bridgeStatus, setBridgeStatus] = useState<OpenClawBridgeStatus | null>(null);
   const [previewUntil, setPreviewUntil] = useState(0);
+  const [routePreview, setRoutePreview] = useState<{
+    target: AgentRouteTarget | null;
+    until: number;
+  }>({ target: null, until: 0 });
   const [activityClock, setActivityClock] = useState(() => Date.now());
   const [bridgeBackendState, setBridgeBackendState] = useState<
     'loading' | 'connected' | 'fallback'
@@ -179,12 +185,17 @@ export function DashboardPage() {
   const relayActivityUntil = useAppStore((state) => state.relayActivityUntil);
   const isRelayActivityHeld = activityClock < relayActivityUntil;
   const isPreviewActive = activityClock < previewUntil;
-  const isRelayMeshActive =
+  const isRoutePreviewActive =
+    routePreview.target !== null && activityClock < routePreview.until;
+  const isGlobalMeshActive =
     isRelayResponding || isRelayActivityHeld || isPreviewActive;
+  const isRelayMeshActive = isGlobalMeshActive || isRoutePreviewActive;
   const isRelayRouting =
     isRelayResponding &&
     /research|search|agent thinking|calling/i.test(relayStreamPhase);
-  const relayActivityState = isRelayRouting
+  const relayActivityState = isRoutePreviewActive
+    ? 'route-preview'
+    : isRelayRouting
     ? 'routing'
     : isRelayResponding
       ? 'responding'
@@ -194,7 +205,9 @@ export function DashboardPage() {
           ? 'responding'
           : 'idle';
   const relayActivityLabel =
-    relayActivityState === 'routing'
+    relayActivityState === 'route-preview'
+      ? `Routing to ${routePreview.target?.toUpperCase()}`
+      : relayActivityState === 'routing'
       ? 'Relay Routing'
       : relayActivityState === 'responding'
         ? 'Relay Responding'
@@ -229,20 +242,22 @@ export function DashboardPage() {
 
   useEffect(() => {
     const currentTime = Date.now();
-    setActivityClock(currentTime);
-
-    const nextExpiry = [relayActivityUntil, previewUntil]
+    const nextExpiry = [relayActivityUntil, previewUntil, routePreview.until]
       .filter((expiry) => expiry > currentTime)
       .sort((a, b) => a - b)[0];
 
     if (!nextExpiry) return;
 
     const timeout = window.setTimeout(() => {
-      setActivityClock(Date.now());
+      const expiredAt = Date.now();
+      setActivityClock(expiredAt);
+      setRoutePreview((current) =>
+        current.until <= expiredAt ? { target: null, until: 0 } : current,
+      );
     }, nextExpiry - currentTime + 25);
 
     return () => window.clearTimeout(timeout);
-  }, [relayActivityUntil, previewUntil]);
+  }, [relayActivityUntil, previewUntil, routePreview.until, activityClock]);
 
   useEffect(() => {
     if (isRelayResponding && previewUntil > 0) {
@@ -254,6 +269,15 @@ export function DashboardPage() {
     const currentTime = Date.now();
     setActivityClock(currentTime);
     setPreviewUntil(currentTime + 8000);
+  };
+
+  const previewAgentRoute = (target: AgentRouteTarget | null) => {
+    const currentTime = Date.now();
+    setActivityClock(currentTime);
+    setRoutePreview({
+      target,
+      until: target ? currentTime + 6000 : 0,
+    });
   };
 
   const copyCommand = async (name: string, command: string) => {
@@ -356,6 +380,10 @@ export function DashboardPage() {
           animation: relay-core-respond 1.35s ease-in-out infinite;
         }
 
+        .relay-mesh--route-preview .relay-core-shell {
+          animation: relay-core-respond 1.55s ease-in-out infinite;
+        }
+
         .relay-orbit {
           transform-box: view-box;
           transform-origin: 50px 50px;
@@ -399,6 +427,25 @@ export function DashboardPage() {
           animation-duration: 1.1s;
         }
 
+        .relay-mesh--route-preview .relay-route-link--muted {
+          animation-duration: 4.8s !important;
+          opacity: 0.16;
+        }
+
+        .relay-route-link--selected.relay-link-glow {
+          animation-duration: 0.7s !important;
+          opacity: 1;
+          stroke-opacity: 0.82;
+          stroke-width: 1.16;
+        }
+
+        .relay-route-link--selected.relay-link-trace {
+          animation-duration: 0.68s !important;
+          opacity: 1;
+          stroke-opacity: 1;
+          stroke-width: 0.34;
+        }
+
         .relay-connection-point,
         .relay-agent-dot,
         .relay-core-port {
@@ -411,6 +458,19 @@ export function DashboardPage() {
         .relay-mesh--responding .relay-agent-dot,
         .relay-mesh--responding .relay-core-port {
           animation-duration: 1s;
+        }
+
+        .relay-mesh--route-preview .relay-route-point--muted,
+        .relay-mesh--route-preview .relay-route-dot--muted {
+          animation-duration: 2.8s !important;
+          opacity: 0.38;
+        }
+
+        .relay-mesh--route-preview .relay-route-point--selected,
+        .relay-mesh--route-preview .relay-route-dot--selected {
+          animation-duration: 0.65s !important;
+          opacity: 1;
+          filter: brightness(1.45);
         }
 
         .relay-core-glyph {
@@ -447,6 +507,7 @@ export function DashboardPage() {
           .relay-core-orbit,
           .relay-link-trace,
           .relay-link-glow,
+          .relay-route-link--selected,
           .relay-connection-point,
           .relay-agent-dot,
           .relay-core-port,
@@ -635,7 +696,9 @@ export function DashboardPage() {
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(300px,0.65fr)]">
           <Panel
             className={`min-h-[640px] relay-mesh ${
-              isRelayMeshActive ? 'relay-mesh--responding' : ''
+              isGlobalMeshActive ? 'relay-mesh--responding' : ''
+            } ${
+              isRoutePreviewActive ? 'relay-mesh--route-preview' : ''
             }`}
           >
             <div
@@ -643,6 +706,7 @@ export function DashboardPage() {
               aria-live="polite"
               data-relay-activity={relayActivityState}
               data-preview-active={isPreviewActive}
+              data-route-preview={isRoutePreviewActive ? routePreview.target : undefined}
             >
               {relayActivityLabel}
             </div>
@@ -670,7 +734,7 @@ export function DashboardPage() {
                 title="Agent Network"
                 description="Live command routing topology"
               />
-              <div className="flex flex-col items-end gap-2">
+              <div className="flex max-w-[260px] flex-col items-end gap-2">
                 <div
                   className="hidden items-center gap-2 rounded-lg px-3 py-2 text-[10px] uppercase tracking-[0.16em] sm:flex"
                   style={{
@@ -686,30 +750,69 @@ export function DashboardPage() {
                   <Radio size={12} />
                   {relayActivityLabel}
                 </div>
-                <button
-                  type="button"
-                  onClick={previewActiveMesh}
-                  disabled={isRelayResponding}
-                  aria-pressed={isPreviewActive}
-                  className="rounded-lg px-2.5 py-1.5 text-[9px] font-medium uppercase tracking-[0.12em] transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
-                  style={{
-                    color: isPreviewActive
-                      ? 'rgb(233, 213, 255)'
-                      : 'var(--color-text-secondary)',
-                    border: isPreviewActive
-                      ? '1px solid rgba(192, 132, 252, 0.38)'
-                      : '1px solid rgba(255,255,255,0.08)',
-                    background: isPreviewActive
-                      ? 'rgba(168, 85, 247, 0.12)'
-                      : 'rgba(255,255,255,0.025)',
-                    boxShadow: isPreviewActive
-                      ? '0 0 18px rgba(168, 85, 247, 0.16)'
-                      : 'none',
-                  }}
-                  title="Run an eight-second visual preview. No command or request is sent."
-                >
-                  Preview Active Mesh
-                </button>
+                <div className="flex flex-wrap justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={previewActiveMesh}
+                    disabled={isRelayResponding}
+                    aria-pressed={isPreviewActive}
+                    className="rounded-lg px-2.5 py-1.5 text-[9px] font-medium uppercase tracking-[0.12em] transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+                    style={{
+                      color: isPreviewActive
+                        ? 'rgb(233, 213, 255)'
+                        : 'var(--color-text-secondary)',
+                      border: isPreviewActive
+                        ? '1px solid rgba(192, 132, 252, 0.38)'
+                        : '1px solid rgba(255,255,255,0.08)',
+                      background: isPreviewActive
+                        ? 'rgba(168, 85, 247, 0.12)'
+                        : 'rgba(255,255,255,0.025)',
+                      boxShadow: isPreviewActive
+                        ? '0 0 18px rgba(168, 85, 247, 0.16)'
+                        : 'none',
+                    }}
+                    title="Run an eight-second visual preview. No command or request is sent."
+                  >
+                    Preview Active Mesh
+                  </button>
+                  <label className="sr-only" htmlFor="relay-route-preview">
+                    Preview an agent route
+                  </label>
+                  <select
+                    id="relay-route-preview"
+                    value={isRoutePreviewActive ? routePreview.target ?? '' : ''}
+                    onChange={(event) =>
+                      previewAgentRoute(
+                        event.target.value
+                          ? (event.target.value as AgentRouteTarget)
+                          : null,
+                      )
+                    }
+                    className="cursor-pointer rounded-lg px-2.5 py-1.5 text-[9px] font-medium uppercase tracking-[0.1em] outline-none"
+                    style={{
+                      color: isRoutePreviewActive
+                        ? 'rgb(103, 232, 249)'
+                        : 'var(--color-text-secondary)',
+                      border: isRoutePreviewActive
+                        ? '1px solid rgba(34, 211, 238, 0.36)'
+                        : '1px solid rgba(255,255,255,0.08)',
+                      background: isRoutePreviewActive
+                        ? 'rgba(34, 211, 238, 0.10)'
+                        : 'rgb(13, 12, 20)',
+                      boxShadow: isRoutePreviewActive
+                        ? '0 0 18px rgba(34, 211, 238, 0.13)'
+                        : 'none',
+                    }}
+                    title="Highlight one agent route for six seconds. Visual preview only."
+                  >
+                    <option value="">Route Preview</option>
+                    {agents.map((agent) => (
+                      <option key={agent.name} value={agent.name.toLowerCase()}>
+                        {agent.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -761,11 +864,24 @@ export function DashboardPage() {
                 const accent = meshNodeAccents[index % meshNodeAccents.length];
                 const pulseX = 50 + (agent.x - 50) * 0.62;
                 const pulseY = 50 + (agent.y - 50) * 0.62;
+                const agentRoute = agent.name.toLowerCase() as AgentRouteTarget;
+                const isSelectedRoute =
+                  isRoutePreviewActive && routePreview.target === agentRoute;
+                const routeLinkClass = isRoutePreviewActive
+                  ? isSelectedRoute
+                    ? 'relay-route-link--selected'
+                    : 'relay-route-link--muted'
+                  : '';
+                const routePointClass = isRoutePreviewActive
+                  ? isSelectedRoute
+                    ? 'relay-route-point--selected'
+                    : 'relay-route-point--muted'
+                  : '';
 
                 return (
                   <g key={agent.name}>
                     <line
-                      className="relay-link-glow"
+                      className={`relay-link-glow ${routeLinkClass}`}
                       x1="50"
                       y1="50"
                       x2={agent.x}
@@ -776,7 +892,7 @@ export function DashboardPage() {
                       filter="url(#relay-link-glow)"
                     />
                     <line
-                      className="relay-link-trace"
+                      className={`relay-link-trace ${routeLinkClass}`}
                       x1="50"
                       y1="50"
                       x2={agent.x}
@@ -787,7 +903,7 @@ export function DashboardPage() {
                       strokeDasharray="1.15 1.45"
                     />
                     <circle
-                      className="relay-connection-point"
+                      className={`relay-connection-point ${routePointClass}`}
                       cx={pulseX}
                       cy={pulseY}
                       r="0.48"
@@ -903,6 +1019,8 @@ export function DashboardPage() {
                       ? 'Responding'
                       : relayActivityState === 'preview'
                         ? 'Routing Preview'
+                        : relayActivityState === 'route-preview'
+                          ? `To ${routePreview.target?.toUpperCase()}`
                       : 'Switchboard'}
                 </div>
               </div>
@@ -910,22 +1028,38 @@ export function DashboardPage() {
 
             {agents.map((agent, index) => {
               const accent = meshNodeAccents[index % meshNodeAccents.length];
+              const agentRoute = agent.name.toLowerCase() as AgentRouteTarget;
+              const isSelectedRoute =
+                isRoutePreviewActive && routePreview.target === agentRoute;
+              const isMutedRoute =
+                isRoutePreviewActive && routePreview.target !== agentRoute;
 
               return (
                 <div
                   key={agent.name}
                   className={`absolute ${
                     agent.y >= 60 ? 'w-28 sm:w-32 md:w-36' : 'w-32 sm:w-36'
-                  } rounded-xl px-2.5 py-2`}
+                  } rounded-xl px-2.5 py-2 transition-[opacity,box-shadow,border-color] duration-300`}
                   style={{
                     left: `${agent.x}%`,
                     top: `${agent.y}%`,
                     transform: 'translate(-50%, -50%)',
-                    border: `1px solid ${accent.color.replace('rgb', 'rgba').replace(')', ', 0.26)')}`,
+                    border: `1px solid ${accent.color
+                      .replace('rgb', 'rgba')
+                      .replace(')', isSelectedRoute ? ', 0.76)' : ', 0.26)')}`,
                     background:
                       'linear-gradient(135deg, rgba(15, 10, 25, 0.95), rgba(5, 8, 13, 0.92))',
                     backdropFilter: 'blur(14px)',
-                    boxShadow: `0 0 20px ${accent.glow.replace(/0\.\d+\)/, '0.12)')}, inset 0 0 18px rgba(255,255,255,0.018)`,
+                    boxShadow: isSelectedRoute
+                      ? `0 0 22px ${accent.glow}, 0 0 48px ${accent.glow.replace(
+                          /0\.\d+\)/,
+                          '0.18)',
+                        )}, inset 0 0 22px ${accent.glow.replace(/0\.\d+\)/, '0.12)')}`
+                      : `0 0 20px ${accent.glow.replace(
+                          /0\.\d+\)/,
+                          '0.12)',
+                        )}, inset 0 0 18px rgba(255,255,255,0.018)`,
+                    opacity: isMutedRoute ? 0.58 : 1,
                   }}
                 >
                   <div className="flex items-center gap-2">
@@ -949,10 +1083,18 @@ export function DashboardPage() {
                           {agent.name}
                         </div>
                         <span
-                          className="relay-agent-dot h-1.5 w-1.5 shrink-0 rounded-full"
+                          className={`relay-agent-dot h-1.5 w-1.5 shrink-0 rounded-full ${
+                            isRoutePreviewActive
+                              ? isSelectedRoute
+                                ? 'relay-route-dot--selected'
+                                : 'relay-route-dot--muted'
+                              : ''
+                          }`}
                           style={{
                             background: accent.color,
-                            boxShadow: `0 0 8px ${accent.glow}`,
+                            boxShadow: isSelectedRoute
+                              ? `0 0 10px ${accent.glow}, 0 0 20px ${accent.glow}`
+                              : `0 0 8px ${accent.glow}`,
                             animationDelay: `${index * -0.28}s`,
                           }}
                         />
