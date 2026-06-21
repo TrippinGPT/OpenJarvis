@@ -20,6 +20,7 @@ import {
   fetchOpenClawBridgeStatus,
   type OpenClawBridgeStatus,
 } from '../lib/api';
+import { useAppStore } from '../lib/store';
 
 const agents = [
   { name: 'Dispatch', role: 'Coordinator', status: 'Online', x: 50, y: 14 },
@@ -171,6 +172,7 @@ export function DashboardPage() {
   const [bridgeBackendState, setBridgeBackendState] = useState<
     'loading' | 'connected' | 'fallback'
   >('loading');
+  const isRelayResponding = useAppStore((state) => state.streamState.isStreaming);
   const now = new Date();
   const stamp = now.toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
   const bridgeData = bridgeStatus ?? relayProjectLanes;
@@ -214,6 +216,190 @@ export function DashboardPage() {
       className="relative flex-1 overflow-y-auto px-4 py-5 sm:px-6 lg:px-8 lg:py-7"
       style={{ background: '#050508' }}
     >
+      <style>{`
+        @keyframes relay-core-breathe {
+          0%, 100% {
+            filter: brightness(0.94);
+            box-shadow:
+              0 0 24px rgba(168, 85, 247, 0.34),
+              0 0 66px rgba(126, 34, 206, 0.20),
+              inset 0 0 28px rgba(192, 132, 252, 0.14);
+          }
+          50% {
+            filter: brightness(1.08);
+            box-shadow:
+              0 0 34px rgba(192, 132, 252, 0.52),
+              0 0 94px rgba(126, 34, 206, 0.34),
+              inset 0 0 38px rgba(103, 232, 249, 0.16);
+          }
+        }
+
+        @keyframes relay-core-respond {
+          0%, 100% {
+            filter: brightness(1);
+            box-shadow:
+              0 0 34px rgba(192, 132, 252, 0.52),
+              0 0 92px rgba(126, 34, 206, 0.32),
+              inset 0 0 34px rgba(103, 232, 249, 0.14);
+          }
+          50% {
+            filter: brightness(1.24);
+            box-shadow:
+              0 0 48px rgba(216, 180, 254, 0.72),
+              0 0 124px rgba(126, 34, 206, 0.48),
+              inset 0 0 46px rgba(103, 232, 249, 0.25);
+          }
+        }
+
+        @keyframes relay-orbit-clockwise {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        @keyframes relay-orbit-counter {
+          from { transform: rotate(360deg); }
+          to { transform: rotate(0deg); }
+        }
+
+        @keyframes relay-link-travel {
+          from { stroke-dashoffset: 0; }
+          to { stroke-dashoffset: -10.4; }
+        }
+
+        @keyframes relay-link-breathe {
+          0%, 100% { opacity: 0.38; }
+          50% { opacity: 0.9; }
+        }
+
+        @keyframes relay-point-pulse {
+          0%, 100% { opacity: 0.5; transform: scale(0.82); }
+          50% { opacity: 1; transform: scale(1.22); }
+        }
+
+        @keyframes relay-glyph-pulse {
+          0%, 100% { opacity: 0.82; transform: scale(0.96); }
+          50% { opacity: 1; transform: scale(1.04); }
+        }
+
+        @keyframes relay-equalizer {
+          0%, 100% { transform: scaleY(0.34); opacity: 0.46; }
+          50% { transform: scaleY(0.92); opacity: 0.92; }
+        }
+
+        @keyframes relay-status-scan {
+          0% { background-position: 180% 0; }
+          100% { background-position: -180% 0; }
+        }
+
+        .relay-core-shell {
+          animation: relay-core-breathe 4.8s ease-in-out infinite;
+        }
+
+        .relay-mesh--responding .relay-core-shell {
+          animation: relay-core-respond 1.35s ease-in-out infinite;
+        }
+
+        .relay-orbit {
+          transform-box: view-box;
+          transform-origin: 50px 50px;
+        }
+
+        .relay-orbit--clockwise {
+          animation: relay-orbit-clockwise 34s linear infinite;
+        }
+
+        .relay-orbit--counter {
+          animation: relay-orbit-counter 42s linear infinite;
+        }
+
+        .relay-core-orbit {
+          transform-box: border-box;
+          transform-origin: center;
+        }
+
+        .relay-mesh--responding .relay-orbit--clockwise {
+          animation-duration: 12s;
+        }
+
+        .relay-mesh--responding .relay-orbit--counter {
+          animation-duration: 16s;
+        }
+
+        .relay-link-trace {
+          animation: relay-link-travel 4.4s linear infinite;
+        }
+
+        .relay-link-glow {
+          animation: relay-link-breathe 3.4s ease-in-out infinite;
+        }
+
+        .relay-mesh--responding .relay-link-trace {
+          animation-duration: 1.15s;
+          stroke-opacity: 0.84;
+        }
+
+        .relay-mesh--responding .relay-link-glow {
+          animation-duration: 1.1s;
+        }
+
+        .relay-connection-point,
+        .relay-agent-dot,
+        .relay-core-port {
+          transform-box: fill-box;
+          transform-origin: center;
+          animation: relay-point-pulse 2.8s ease-in-out infinite;
+        }
+
+        .relay-mesh--responding .relay-connection-point,
+        .relay-mesh--responding .relay-agent-dot,
+        .relay-mesh--responding .relay-core-port {
+          animation-duration: 1s;
+        }
+
+        .relay-core-glyph {
+          animation: relay-glyph-pulse 3.2s ease-in-out infinite;
+        }
+
+        .relay-mesh--responding .relay-core-glyph {
+          animation-duration: 0.9s;
+        }
+
+        .relay-equalizer-bar {
+          transform-origin: center bottom;
+          animation: relay-equalizer 2.6s ease-in-out infinite;
+        }
+
+        .relay-mesh--responding .relay-equalizer-bar {
+          animation-duration: 0.72s;
+        }
+
+        .relay-response-label {
+          background-image: linear-gradient(
+            90deg,
+            rgba(103, 232, 249, 0.52),
+            rgba(216, 180, 254, 0.96),
+            rgba(103, 232, 249, 0.52)
+          );
+          background-size: 220% 100%;
+          animation: relay-status-scan 2.6s linear infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .relay-core-shell,
+          .relay-orbit,
+          .relay-core-orbit,
+          .relay-link-trace,
+          .relay-link-glow,
+          .relay-connection-point,
+          .relay-agent-dot,
+          .relay-core-port,
+          .relay-core-glyph,
+          .relay-equalizer-bar,
+          .relay-response-label {
+            animation: none !important;
+          }
+        }
+      `}</style>
       <div
         className="pointer-events-none fixed inset-0 opacity-50"
         style={{
@@ -390,7 +576,11 @@ export function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(300px,0.65fr)]">
-          <Panel className="min-h-[640px]">
+          <Panel
+            className={`min-h-[640px] relay-mesh ${
+              isRelayResponding ? 'relay-mesh--responding' : ''
+            }`}
+          >
             <div className="absolute inset-0 opacity-40">
               <div
                 className="absolute inset-0"
@@ -418,13 +608,17 @@ export function DashboardPage() {
               <div
                 className="hidden items-center gap-2 rounded-lg px-3 py-2 text-[10px] uppercase tracking-[0.16em] sm:flex"
                 style={{
-                  color: 'rgb(134, 239, 172)',
-                  border: '1px solid rgba(74, 222, 128, 0.18)',
-                  background: 'rgba(74, 222, 128, 0.05)',
+                  color: isRelayResponding ? 'rgb(103, 232, 249)' : 'rgb(134, 239, 172)',
+                  border: isRelayResponding
+                    ? '1px solid rgba(34, 211, 238, 0.26)'
+                    : '1px solid rgba(74, 222, 128, 0.18)',
+                  background: isRelayResponding
+                    ? 'rgba(34, 211, 238, 0.07)'
+                    : 'rgba(74, 222, 128, 0.05)',
                 }}
               >
                 <Radio size={12} />
-                Mesh Stable
+                {isRelayResponding ? 'Relay Responding' : 'Mesh Stable'}
               </div>
             </div>
 
@@ -458,6 +652,9 @@ export function DashboardPage() {
               {[10, 17, 25, 31].map((radius, index) => (
                 <circle
                   key={radius}
+                  className={`relay-orbit ${
+                    index % 2 === 0 ? 'relay-orbit--clockwise' : 'relay-orbit--counter'
+                  }`}
                   cx="50"
                   cy="50"
                   r={radius}
@@ -477,6 +674,7 @@ export function DashboardPage() {
                 return (
                   <g key={agent.name}>
                     <line
+                      className="relay-link-glow"
                       x1="50"
                       y1="50"
                       x2={agent.x}
@@ -487,6 +685,7 @@ export function DashboardPage() {
                       filter="url(#relay-link-glow)"
                     />
                     <line
+                      className="relay-link-trace"
                       x1="50"
                       y1="50"
                       x2={agent.x}
@@ -496,7 +695,15 @@ export function DashboardPage() {
                       strokeWidth="0.16"
                       strokeDasharray="1.15 1.45"
                     />
-                    <circle cx={pulseX} cy={pulseY} r="0.48" fill={accent.color} fillOpacity="0.86" />
+                    <circle
+                      className="relay-connection-point"
+                      cx={pulseX}
+                      cy={pulseY}
+                      r="0.48"
+                      fill={accent.color}
+                      fillOpacity="0.86"
+                      style={{ animationDelay: `${index * -0.34}s` }}
+                    />
                     <circle
                       cx={pulseX}
                       cy={pulseY}
@@ -515,22 +722,25 @@ export function DashboardPage() {
               className="absolute left-1/2 top-[50%] flex h-36 w-36 items-center justify-center rounded-full text-center sm:h-40 sm:w-40"
               style={{
                 transform: 'translate(-50%, -50%)',
-                border: '1px solid rgba(192, 132, 252, 0.58)',
-                background:
-                  'radial-gradient(circle, rgba(192, 132, 252, 0.24), rgba(18, 7, 35, 0.94) 55%, rgba(5, 5, 10, 0.99) 76%)',
-                boxShadow:
-                  '0 0 28px rgba(168, 85, 247, 0.42), 0 0 82px rgba(126, 34, 206, 0.26), inset 0 0 32px rgba(192, 132, 252, 0.18)',
               }}
             >
               <div
-                className="absolute inset-2 rounded-full"
+                className="relay-core-shell absolute inset-0 rounded-full"
+                style={{
+                  border: '1px solid rgba(192, 132, 252, 0.58)',
+                  background:
+                    'radial-gradient(circle, rgba(192, 132, 252, 0.24), rgba(18, 7, 35, 0.94) 55%, rgba(5, 5, 10, 0.99) 76%)',
+                }}
+              />
+              <div
+                className="relay-core-orbit relay-orbit--clockwise absolute inset-2 rounded-full"
                 style={{
                   border: '1px dashed rgba(103, 232, 249, 0.26)',
                   transform: 'rotate(22deg)',
                 }}
               />
               <div
-                className="absolute inset-5 rounded-full"
+                className="relay-core-orbit relay-orbit--counter absolute inset-5 rounded-full"
                 style={{
                   border: '1px solid rgba(192, 132, 252, 0.28)',
                   boxShadow: 'inset 0 0 18px rgba(34, 211, 238, 0.08)',
@@ -544,7 +754,7 @@ export function DashboardPage() {
               ].map((position) => (
                 <span
                   key={position}
-                  className={`absolute h-1.5 w-1.5 rounded-full ${position}`}
+                  className={`relay-core-port absolute h-1.5 w-1.5 rounded-full ${position}`}
                   style={{
                     background: 'rgb(103, 232, 249)',
                     boxShadow: '0 0 10px rgba(34, 211, 238, 0.9)',
@@ -553,7 +763,7 @@ export function DashboardPage() {
               ))}
               <div className="relative z-10">
                 <div
-                  className="font-mono text-2xl font-semibold tracking-[0.18em]"
+                  className="relay-core-glyph font-mono text-2xl font-semibold tracking-[0.18em]"
                   style={{
                     color: 'rgb(233, 213, 255)',
                     textShadow:
@@ -568,11 +778,35 @@ export function DashboardPage() {
                 >
                   Relay
                 </div>
+                <div className="mt-2 flex h-3 items-end justify-center gap-0.5" aria-hidden="true">
+                  {[0.45, 0.8, 1, 0.66, 0.38].map((height, index) => (
+                    <span
+                      key={height}
+                      className="relay-equalizer-bar block w-0.5 rounded-full"
+                      style={{
+                        height: `${height * 100}%`,
+                        background:
+                          index % 2 === 0 ? 'rgb(192, 132, 252)' : 'rgb(103, 232, 249)',
+                        boxShadow:
+                          index % 2 === 0
+                            ? '0 0 7px rgba(168, 85, 247, 0.78)'
+                            : '0 0 7px rgba(34, 211, 238, 0.72)',
+                        animationDelay: `${index * -0.22}s`,
+                      }}
+                    />
+                  ))}
+                </div>
                 <div
-                  className="mt-1.5 text-[8px] uppercase tracking-[0.16em]"
-                  style={{ color: 'rgba(103, 232, 249, 0.72)' }}
+                  className={`mt-1.5 text-[8px] uppercase tracking-[0.16em] ${
+                    isRelayResponding
+                      ? 'relay-response-label bg-clip-text text-transparent'
+                      : ''
+                  }`}
+                  style={{
+                    color: isRelayResponding ? undefined : 'rgba(103, 232, 249, 0.72)',
+                  }}
                 >
-                  Routing Core
+                  {isRelayResponding ? 'Responding' : 'Switchboard'}
                 </div>
               </div>
             </div>
@@ -618,10 +852,11 @@ export function DashboardPage() {
                           {agent.name}
                         </div>
                         <span
-                          className="h-1.5 w-1.5 shrink-0 rounded-full"
+                          className="relay-agent-dot h-1.5 w-1.5 shrink-0 rounded-full"
                           style={{
                             background: accent.color,
                             boxShadow: `0 0 8px ${accent.glow}`,
+                            animationDelay: `${index * -0.28}s`,
                           }}
                         />
                       </div>
