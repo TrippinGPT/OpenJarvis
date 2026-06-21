@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
+import { useSearchParams } from 'react-router';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { toast } from 'sonner';
@@ -68,6 +69,7 @@ import type { ConnectRequest } from '../types/connectors';
 import { listConnectors, connectSource } from '../lib/connectors-api';
 import type { ToolCallInfo } from '../types';
 import { ToolCallCard } from '../components/Chat/ToolCallCard';
+import { getRelayAgent, type RelayAgent } from '../data/relayAgents';
 
 // ---------------------------------------------------------------------------
 // Status helpers
@@ -118,6 +120,97 @@ function StatusDot({ status }: { status: string }) {
       style={{ background: color }}
       title={status}
     />
+  );
+}
+
+function RelayAgentContextPanel({ agent }: { agent: RelayAgent }) {
+  return (
+    <section
+      className="mb-6 overflow-hidden rounded-2xl p-5"
+      style={{
+        border: '1px solid rgba(192, 132, 252, 0.22)',
+        background:
+          'linear-gradient(145deg, rgba(25, 12, 43, 0.92), rgba(7, 12, 20, 0.96))',
+        boxShadow: '0 18px 50px rgba(126, 34, 206, 0.08)',
+      }}
+      aria-label={`Selected Relay Agent: ${agent.name}`}
+    >
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-start gap-3">
+          <div
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-[10px] font-semibold"
+            style={{
+              color: 'rgb(216, 180, 254)',
+              border: '1px solid rgba(192, 132, 252, 0.28)',
+              background: 'rgba(168, 85, 247, 0.10)',
+              boxShadow: '0 0 20px rgba(168, 85, 247, 0.14)',
+            }}
+          >
+            {agent.name.slice(0, 2).toUpperCase()}
+          </div>
+          <div>
+            <div
+              className="text-[9px] font-medium uppercase tracking-[0.22em]"
+              style={{ color: 'rgb(103, 232, 249)' }}
+            >
+              Dashboard Context
+            </div>
+            <h2 className="mt-1 text-base font-semibold" style={{ color: 'var(--color-text)' }}>
+              Selected Relay Agent: {agent.name}
+            </h2>
+            <div className="mt-1 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+              Role: {agent.role}
+            </div>
+          </div>
+        </div>
+        <div
+          className="self-start rounded-full px-2.5 py-1 text-[8px] uppercase tracking-[0.13em]"
+          style={{
+            color: 'rgb(134, 239, 172)',
+            border: '1px solid rgba(74, 222, 128, 0.16)',
+            background: 'rgba(74, 222, 128, 0.045)',
+          }}
+        >
+          Context only / no auto-run
+        </div>
+      </div>
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
+        <div
+          className="rounded-xl p-3"
+          style={{
+            border: '1px solid rgba(255,255,255,0.06)',
+            background: 'rgba(255,255,255,0.02)',
+          }}
+        >
+          <div
+            className="text-[9px] uppercase tracking-[0.15em]"
+            style={{ color: 'var(--color-text-tertiary)' }}
+          >
+            Purpose
+          </div>
+          <p className="mt-2 text-xs leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+            {agent.purpose}
+          </p>
+        </div>
+        <div
+          className="rounded-xl p-3"
+          style={{
+            border: '1px solid rgba(34, 211, 238, 0.10)',
+            background: 'rgba(34, 211, 238, 0.025)',
+          }}
+        >
+          <div
+            className="text-[9px] uppercase tracking-[0.15em]"
+            style={{ color: 'rgb(103, 232, 249)' }}
+          >
+            Safe boundary
+          </div>
+          <p className="mt-2 text-xs leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+            {agent.boundary}
+          </p>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -3418,6 +3511,8 @@ function LogsTab({ agentId }: { agentId: string }) {
 // ---------------------------------------------------------------------------
 
 export function AgentsPage() {
+  const [searchParams] = useSearchParams();
+  const relayAgentContext = getRelayAgent(searchParams.get('relayAgent'));
   const managedAgents = useAppStore((s) => s.managedAgents);
   const setManagedAgents = useAppStore((s) => s.setManagedAgents);
   const selectedAgentId = useAppStore((s) => s.selectedAgentId);
@@ -3575,6 +3670,7 @@ export function AgentsPage() {
     return (
       <div className="flex-1 overflow-y-auto px-6 py-10">
         <div className="max-w-5xl mx-auto">
+        {relayAgentContext && <RelayAgentContextPanel agent={relayAgentContext} />}
         {/* Back button */}
         <button
           onClick={() => setSelectedAgentId(null)}
@@ -3939,6 +4035,8 @@ export function AgentsPage() {
           Long-running autonomous agents that can monitor sources, run tasks on a schedule, and message you through connected channels.
         </p>
       </header>
+
+      {relayAgentContext && <RelayAgentContextPanel agent={relayAgentContext} />}
 
       {agentManagerAvailable === false && (
         <div
