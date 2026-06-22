@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { useSearchParams } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { toast } from 'sonner';
@@ -123,6 +123,234 @@ function StatusDot({ status }: { status: string }) {
   );
 }
 
+const RELAY_ROSTER_PATH = 'D:\\AI\\TRIPPIN_AI_RELAY\\docs\\RELAY_AGENT_ROSTER.md';
+
+function buildAgentBrief(agent: RelayAgent): string {
+  return [
+    `Agent: ${agent.name}`,
+    `Role: ${agent.role}`,
+    `Purpose: ${agent.purpose}`,
+    `Best for: ${agent.bestFor}`,
+    `Boundary: ${agent.boundary}`,
+    'Current mode: Context/planning only. No auto-run.',
+  ].join('\n');
+}
+
+function buildCodexTaskPrompt(agent: RelayAgent): string {
+  return [
+    'Repo:',
+    'D:\\AI\\TRIPPIN_AI_RELAY',
+    '',
+    'Branch:',
+    'relay-branding-v0',
+    '',
+    `Agent: ${agent.name}`,
+    '',
+    `Role: ${agent.role}`,
+    '',
+    'Task: <fill in task>',
+    '',
+    'Agent guidance:',
+    agent.codexPromptHint,
+    '',
+    'Safety:',
+    'Do not add shell execution unless explicitly approved.',
+    'Do not modify D:\\AI\\OPENCLAW unless explicitly approved.',
+    'Do not run jarvis self-update.',
+    'Do not fetch, pull, merge, or update upstream.',
+    'Keep changes scoped and report files changed, validation, final git status.',
+  ].join('\n');
+}
+
+function buildPreflightRequest(agent: RelayAgent): string {
+  return [
+    `Relay, route this through ${agent.name}.`,
+    `Purpose: ${agent.purpose}`,
+    `Boundary: ${agent.boundary}`,
+    'Requested output: <fill in requested output>',
+    'Do not execute anything yet. Return a plan/checklist first.',
+  ].join('\n');
+}
+
+function RelayAgentActions({ agent }: { agent: RelayAgent }) {
+  const navigate = useNavigate();
+  const [copiedAction, setCopiedAction] = useState<string | null>(null);
+  const feedbackTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (feedbackTimerRef.current !== null) {
+        window.clearTimeout(feedbackTimerRef.current);
+      }
+    };
+  }, []);
+
+  const copyReference = useCallback(async (action: string, text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedAction(action);
+      if (feedbackTimerRef.current !== null) {
+        window.clearTimeout(feedbackTimerRef.current);
+      }
+      feedbackTimerRef.current = window.setTimeout(() => setCopiedAction(null), 1800);
+    } catch {
+      setCopiedAction(null);
+      toast.error('Could not copy reference text');
+    }
+  }, []);
+
+  const copyCards = [
+    {
+      key: 'brief',
+      title: 'Copy Agent Brief',
+      description: 'Agent role, purpose, best-fit work, and safe boundary.',
+      text: buildAgentBrief(agent),
+      icon: Bot,
+    },
+    {
+      key: 'codex',
+      title: 'Copy Codex Task Prompt',
+      description: 'Scoped task starter with agent-specific guidance and safety rules.',
+      text: buildCodexTaskPrompt(agent),
+      icon: FileText,
+    },
+    {
+      key: 'preflight',
+      title: 'Copy Preflight Request',
+      description: 'Plan-first request that explicitly prevents automatic execution.',
+      text: buildPreflightRequest(agent),
+      icon: Zap,
+    },
+    {
+      key: 'roster',
+      title: 'Open Roster Doc',
+      description: 'Copies the safe local roster path for opening outside the browser.',
+      text: RELAY_ROSTER_PATH,
+      icon: FileText,
+    },
+  ] as const;
+
+  return (
+    <div
+      className="mt-5 rounded-xl p-4"
+      style={{
+        border: '1px solid rgba(168, 85, 247, 0.16)',
+        background: 'rgba(8, 10, 18, 0.54)',
+      }}
+    >
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div
+            className="text-[9px] font-medium uppercase tracking-[0.2em]"
+            style={{ color: 'rgb(103, 232, 249)' }}
+          >
+            Planning and reference only
+          </div>
+          <h3 className="mt-1 text-sm font-semibold" style={{ color: 'var(--color-text)' }}>
+            Safe Agent Actions
+          </h3>
+        </div>
+        <div className="text-[10px]" style={{ color: 'var(--color-text-tertiary)' }}>
+          No tools, commands, agents, or workflows run from these controls.
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        {copyCards.map(({ key, title, description, text, icon: Icon }) => {
+          const copied = copiedAction === key;
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => copyReference(key, text)}
+              className="group flex min-h-32 flex-col rounded-xl p-3 text-left transition-all hover:-translate-y-0.5"
+              style={{
+                border: copied
+                  ? '1px solid rgba(74, 222, 128, 0.34)'
+                  : '1px solid rgba(192, 132, 252, 0.16)',
+                background: copied
+                  ? 'rgba(74, 222, 128, 0.06)'
+                  : 'linear-gradient(145deg, rgba(168, 85, 247, 0.07), rgba(34, 211, 238, 0.025))',
+                boxShadow: copied ? '0 0 22px rgba(74, 222, 128, 0.08)' : undefined,
+              }}
+              aria-label={`${title} for ${agent.name}`}
+            >
+              <div
+                className="flex h-8 w-8 items-center justify-center rounded-lg"
+                style={{
+                  color: copied ? 'rgb(134, 239, 172)' : 'rgb(216, 180, 254)',
+                  border: '1px solid rgba(192, 132, 252, 0.15)',
+                  background: 'rgba(168, 85, 247, 0.08)',
+                }}
+              >
+                {copied ? <Check size={14} /> : <Icon size={14} />}
+              </div>
+              <div className="mt-3 text-xs font-medium" style={{ color: 'var(--color-text)' }}>
+                {copied ? (key === 'roster' ? 'Roster Path Copied' : 'Copied') : title}
+              </div>
+              <p
+                className="mt-1.5 text-[10px] leading-relaxed"
+                style={{ color: 'var(--color-text-tertiary)' }}
+              >
+                {description}
+              </p>
+              <div
+                className="mt-auto flex items-center gap-1.5 pt-3 text-[9px] uppercase tracking-[0.12em]"
+                style={{ color: copied ? 'rgb(134, 239, 172)' : 'rgb(103, 232, 249)' }}
+              >
+                {copied ? <Check size={11} /> : <Copy size={11} />}
+                {copied ? 'Ready to paste' : 'Copy reference'}
+              </div>
+            </button>
+          );
+        })}
+
+        <button
+          type="button"
+          onClick={() => navigate('/dashboard')}
+          className="group flex min-h-32 flex-col rounded-xl p-3 text-left transition-all hover:-translate-y-0.5"
+          style={{
+            border: '1px solid rgba(34, 211, 238, 0.16)',
+            background: 'linear-gradient(145deg, rgba(34, 211, 238, 0.055), rgba(168, 85, 247, 0.025))',
+          }}
+          aria-label="Back to Relay dashboard"
+        >
+          <div
+            className="flex h-8 w-8 items-center justify-center rounded-lg"
+            style={{
+              color: 'rgb(103, 232, 249)',
+              border: '1px solid rgba(34, 211, 238, 0.16)',
+              background: 'rgba(34, 211, 238, 0.06)',
+            }}
+          >
+            <ChevronLeft size={14} />
+          </div>
+          <div className="mt-3 text-xs font-medium" style={{ color: 'var(--color-text)' }}>
+            Back to Dashboard
+          </div>
+          <p
+            className="mt-1.5 text-[10px] leading-relaxed"
+            style={{ color: 'var(--color-text-tertiary)' }}
+          >
+            Return to the Relay command-center mesh without starting an agent.
+          </p>
+          <div
+            className="mt-auto flex items-center gap-1.5 pt-3 text-[9px] uppercase tracking-[0.12em]"
+            style={{ color: 'rgb(103, 232, 249)' }}
+          >
+            <ChevronLeft size={11} />
+            Open dashboard
+          </div>
+        </button>
+      </div>
+
+      <div className="mt-3 text-[10px]" style={{ color: 'var(--color-text-tertiary)' }}>
+        Future safe references: {agent.futureSafeActions.join(' · ')}
+      </div>
+    </div>
+  );
+}
+
 function RelayAgentContextPanel({ agent }: { agent: RelayAgent }) {
   return (
     <section
@@ -210,6 +438,7 @@ function RelayAgentContextPanel({ agent }: { agent: RelayAgent }) {
           </p>
         </div>
       </div>
+      <RelayAgentActions agent={agent} />
     </section>
   );
 }

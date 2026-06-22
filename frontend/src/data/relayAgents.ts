@@ -7,8 +7,15 @@ export const relayAgents = [
     x: 50,
     y: 14,
     purpose: 'Routes requests and coordinates specialist agents.',
+    bestFor: 'Planning, triage, task breakdown, and routing decisions.',
     boundary: 'Coordination only. No destructive actions.',
     nextAction: 'Review the request and choose the safest specialist route.',
+    futureSafeActions: [
+      'Create a routing plan',
+      'Copy a task brief',
+      'Open the relevant page',
+    ],
+    codexPromptHint: 'Emphasize routing, triage, and a clear task breakdown.',
   },
   {
     key: 'recon',
@@ -18,8 +25,15 @@ export const relayAgents = [
     x: 17,
     y: 32,
     purpose: 'Scans sources, gathers context, and supports research/reporting.',
+    bestFor: 'Source gathering, summaries, market or intelligence scans, and context packs.',
     boundary: 'Research only. Verify sources before publishing.',
     nextAction: 'Define the research question and list the sources that need verification.',
+    futureSafeActions: [
+      'Create a research brief',
+      'List source targets',
+      'Open bridge status',
+    ],
+    codexPromptHint: 'Emphasize research, source verification, and reporting.',
   },
   {
     key: 'patch',
@@ -29,8 +43,15 @@ export const relayAgents = [
     x: 83,
     y: 32,
     purpose: 'Build, fix, test, and repo workflow support.',
+    bestFor: 'Codex tasks, code patches, build checks, and script planning.',
     boundary: 'No destructive file operations without explicit approval.',
     nextAction: 'Identify the smallest safe code change and its validation command.',
+    futureSafeActions: [
+      'Copy a Codex task',
+      'Run an approved read-only status check',
+      'Draft a patch plan',
+    ],
+    codexPromptHint: 'Emphasize scoped repo or build fixes and proportional validation.',
   },
   {
     key: 'redline',
@@ -40,8 +61,15 @@ export const relayAgents = [
     x: 14,
     y: 65,
     purpose: 'Checks safety, scope, boundaries, and operational risk.',
+    bestFor: 'Risk review, scope control, compliance boundaries, and paper/live separation.',
     boundary: 'Does not approve live financial actions.',
     nextAction: 'Review the proposed action for scope, safety, and approval requirements.',
+    futureSafeActions: [
+      'Create a risk checklist',
+      'Review a planned task',
+      'Flag unsafe scope',
+    ],
+    codexPromptHint: 'Emphasize risk, scope, boundary, and approval review.',
   },
   {
     key: 'racket',
@@ -51,8 +79,15 @@ export const relayAgents = [
     x: 38,
     y: 76,
     purpose: 'Tracks hype, trend language, narrative shifts, and signal patterns.',
+    bestFor: 'Trend language, hype or trap labels, content angles, and narrative reports.',
     boundary: 'Reporting only. No predictions or guaranteed outcomes.',
     nextAction: 'Summarize the current narrative signals without forecasting outcomes.',
+    futureSafeActions: [
+      'Create a narrative scan prompt',
+      'Copy trend labels',
+      'Draft a report angle',
+    ],
+    codexPromptHint: 'Emphasize narrative and trend scanning without predictions.',
   },
   {
     key: 'hermes',
@@ -62,9 +97,17 @@ export const relayAgents = [
     x: 62,
     y: 76,
     purpose: 'Local preflight, readiness checks, launcher/logging support.',
+    bestFor:
+      'Local checks, readiness summaries, incident or build logging, and workspace launch support.',
     boundary:
       'No registry edits, overclocking, risky service changes, or destructive cleanup.',
     nextAction: 'Run a read-only local readiness check and report blockers.',
+    futureSafeActions: [
+      'Run approved read-only checks',
+      'Create an incident log draft',
+      'Open launcher docs',
+    ],
+    codexPromptHint: 'Emphasize read-only local preflight, readiness, and logging.',
   },
   {
     key: 'veto',
@@ -74,8 +117,15 @@ export const relayAgents = [
     x: 86,
     y: 65,
     purpose: 'Final review, cleanup, approval/rejection, and incident quality control.',
+    bestFor: 'Final passes, cleanup notes, publish review, and approve or reject drafts.',
     boundary: 'Review only unless user explicitly approves next action.',
     nextAction: 'Perform a final review and return an approve, revise, or reject recommendation.',
+    futureSafeActions: [
+      'Create a review checklist',
+      'Copy an approval note',
+      'Flag missing requirements',
+    ],
+    codexPromptHint: 'Emphasize final review, cleanup, and missing-requirement checks.',
   },
 ] as const;
 
