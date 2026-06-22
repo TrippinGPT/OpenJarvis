@@ -13,6 +13,17 @@ This directory is the local sandbox location reserved for a future approved Pipe
 
 A future explicitly approved setup may place reviewed Piper binaries and local configuration notes here.
 
+The maintained candidate lane is `piper-tts` from [OHF-Voice/piper1-gpl](https://github.com/OHF-Voice/piper1-gpl). v2.1 adds gated scripts, but no package or model is installed.
+
+Expected future local layout:
+
+```text
+tools\piper\.venv
+tools\piper\models
+```
+
+`scripts\install_piper_gated.ps1` defaults to dry-run and keeps `-AllowInstall` as a manual-only placeholder. Do not manually populate this directory without reviewing source, version, license, and compatibility.
+
 ## Boundaries
 
 - Do not commit large binaries or downloaded voice-model files without explicit review.

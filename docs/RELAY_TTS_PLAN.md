@@ -131,15 +131,16 @@ Run:
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\prepare_piper_sandbox.ps1
 ```
 
-### v2.1 — First Piper install and audio test after explicit approval
+### v2.1 — Gated Piper scripts only
 
-- Install Piper manually or point to an existing reviewed installation.
-- Select one safe, licensed test voice/model.
-- Generate one original Relay test line.
-- Save output under the approved `outputs\tts_tests` sandbox.
-- Do not auto-play audio unless explicitly approved.
-- Do not clone or imitate any identifiable person or character.
-- Do not begin this stage without explicit user approval.
+- Add dry-run-first install and test-line runner scripts.
+- Keep `-AllowInstall` as a manual-only placeholder until a compatible local Python lane is approved.
+- Require `-AllowGenerate`, an existing Relay-local Piper module, and a manually supplied reviewed voice model before any test output.
+- Do not download voice models automatically.
+- Do not auto-play audio.
+- Do not add microphone input, audio capture, voice cloning, browser shell execution, or Popout runtime integration.
+
+The maintained candidate lane is `piper-tts` from [OHF-Voice/piper1-gpl](https://github.com/OHF-Voice/piper1-gpl). No Piper package or model is installed by v2.1 validation.
 
 ## Future implementation acceptance criteria
 
@@ -160,3 +161,5 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\prepare_
 - [Relay Piper Prototype Plan](RELAY_PIPER_PROTOTYPE_PLAN.md)
 - `config/relay_voice_profiles.json`
 - `scripts/prepare_piper_sandbox.ps1`
+- `scripts/install_piper_gated.ps1`
+- `scripts/run_piper_test_line_gated.ps1`

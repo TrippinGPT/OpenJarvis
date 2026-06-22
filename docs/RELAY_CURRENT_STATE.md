@@ -63,6 +63,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - `relay-v1.9-piper-prototype-plan`
 - `relay-v1.9.1-current-state-summary`
 - `relay-v2.0-piper-sandbox-prep`
+- `relay-v2.1-gated-piper-runner`
 
 ## 6. Current features
 
@@ -80,6 +81,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - TTS feasibility plan and checker
 - Piper prototype plan and read-only setup checker
 - Piper-local sandbox folders with boundary README files and a constrained preparation script
+- Dry-run-first gated Piper install and test-line scripts
 
 ## 7. Safety boundaries
 
@@ -101,16 +103,18 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - The local TTS feasibility check passed for a planning-only prototype.
 - The Piper prototype plan and read-only setup checker exist.
 - v2.0 prepares only the Relay-local Piper and TTS-test sandbox folders.
+- v2.1 adds gated scripts only. The install gate is a manual-review placeholder.
 - No Piper binary, voice model, TTS runtime, or generated audio is present.
+- No Relay Popout voice toggle or automatic speech exists.
 - Installation, model download, audio generation, playback, or UI voice controls require explicit user approval in a future task.
 
 ## 9. Next possible milestones
 
-- **v2.1:** Approved Piper installation and one controlled test
-- **v2.2:** User-controlled Relay Popout voice toggle
-- **v2.3:** Agent-specific original voice profiles
-- **v2.4:** Real routing signals connected to agent mesh animation
-- **v2.5:** Safe preflight actions
+- **v2.2:** Approved compatible Piper installation and one controlled test
+- **v2.3:** User-controlled Relay Popout voice toggle
+- **v2.4:** Agent-specific original voice profiles
+- **v2.5:** Real routing signals connected to agent mesh animation
+- **v2.6:** Safe preflight actions
 
 These are proposed milestones only. They do not authorize installation, downloads, audio generation, agent execution, or OpenClaw changes.
 
@@ -125,6 +129,8 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_op
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_relay_tts_feasibility.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_piper_setup.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\prepare_piper_sandbox.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\install_piper_gated.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_test_line_gated.ps1
 ```
 
 Related references:

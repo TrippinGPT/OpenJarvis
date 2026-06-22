@@ -77,18 +77,39 @@ A future approved setup task must document the exact Piper source, version, voic
 
 No command in this plan authorizes installation, download, model selection, audio generation, playback, or application integration.
 
-## Proposed v2.1 first audio test
+## v2.1 gated install and test-line scripts
 
-Only after explicit user approval, v2.1 may:
+v2.1 adds two dry-run-first scripts:
 
-1. Install Piper manually or point Relay to an existing reviewed Piper installation.
-2. Select one safe, licensed, original-sounding test voice/model.
-3. Generate one original Relay test line from the approved voice profile.
-4. Save the result under `outputs\tts_tests`.
-5. Record the Piper version, model identity, license, command, and output filename.
-6. Avoid auto-play unless the user explicitly approves playback.
+```text
+scripts/install_piper_gated.ps1
+scripts/run_piper_test_line_gated.ps1
+```
 
-The first test must not add microphone support, audio capture, voice cloning, automatic speech, browser shell execution, or OpenClaw integration.
+Both scripts default to dry-run mode.
+
+- `-AllowInstall` displays an approval banner and manual setup steps, but v2.1 intentionally remains a no-install placeholder.
+- The current reviewed package lane is `piper-tts` from [OHF-Voice/piper1-gpl](https://github.com/OHF-Voice/piper1-gpl).
+- The machine currently reports Python 3.14 while the reviewed package metadata explicitly lists support through Python 3.13, so no install command is guessed or executed.
+- `-AllowGenerate` can generate only when a Relay-local Piper module and exactly one manually supplied ONNX voice model/config are already present.
+- The runner never downloads a model and never auto-plays output.
+- No script accesses a microphone, captures audio, clones a voice, impersonates a real person or copyrighted character, executes browser shell commands, or modifies OpenClaw.
+
+Dry runs:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\install_piper_gated.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_test_line_gated.ps1
+```
+
+Manual approval gates:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\install_piper_gated.ps1 -AllowInstall
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_test_line_gated.ps1 -AllowGenerate
+```
+
+The first approved model must be original-sounding, license-reviewed, and placed manually under `tools\piper\models`. Actual Popout integration and automatic speech remain unimplemented.
 
 ## Related files
 
@@ -99,3 +120,5 @@ The first test must not add microphone support, audio capture, voice cloning, au
 - `scripts/check_relay_tts_feasibility.ps1`
 - `scripts/check_piper_setup.ps1`
 - `scripts/prepare_piper_sandbox.ps1`
+- `scripts/install_piper_gated.ps1`
+- `scripts/run_piper_test_line_gated.ps1`

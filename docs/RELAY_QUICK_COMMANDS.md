@@ -78,4 +78,20 @@ Piper sandbox prep:
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\prepare_piper_sandbox.ps1
 ```
 
+Gated Piper dry runs:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\install_piper_gated.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_test_line_gated.ps1
+```
+
+Manual approval required:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\install_piper_gated.ps1 -AllowInstall
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_test_line_gated.ps1 -AllowGenerate
+```
+
+`-AllowInstall` is a no-install/manual-review placeholder in v2.1. `-AllowGenerate` does not download models or play audio.
+
 > Do not run `jarvis self-update` on the Trippin AI Relay fork.
