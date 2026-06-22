@@ -19,25 +19,24 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useAppStore, type ThemeMode } from '../lib/store';
-import { checkHealth, fetchSpeechHealth, getMemoryStats, getInferenceSource, setInferenceSource, type InferenceSource } from '../lib/api';
+import { checkHealth, fetchModels, fetchSpeechHealth, getMemoryStats, getInferenceSource, setInferenceSource, type InferenceSource } from '../lib/api';
 import { isAutoUpdateDisabled, setAutoUpdateDisabled } from '../components/Desktop/UpdateChecker';
 
 function OllamaModelList() {
-  const [models, setModels] = useState<Array<{ name: string; size: number }>>([]);
+  const [models, setModels] = useState<string[]>([]);
   useEffect(() => {
-    fetch('http://localhost:11434/api/tags')
-      .then(r => r.json())
-      .then(data => setModels((data.models || []).map((m: any) => ({ name: m.name, size: m.size }))))
+    fetchModels()
+      .then(data => setModels(data.map(model => model.id)))
       .catch(() => setModels([]));
   }, []);
   if (models.length === 0) return <span className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>No models loaded</span>;
   return (
     <div className="flex flex-wrap gap-1">
-      {models.map(m => (
-        <span key={m.name} className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px]"
+      {models.map(model => (
+        <span key={model} className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px]"
           style={{ background: 'var(--color-bg-tertiary)', color: 'var(--color-text)' }}>
           <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--color-success)', display: 'inline-block' }} />
-          {m.name} ({(m.size / 1e9).toFixed(1)} GB)
+          {model}
         </span>
       ))}
     </div>

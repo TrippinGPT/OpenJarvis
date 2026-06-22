@@ -70,6 +70,10 @@ Relay agents are specialist roles, not autonomous live actors. The current imple
 - Voice/TTS: not implemented
 - OpenClaw bridge: read-only
 
+## Main personality direction
+
+Smartmouth Relay is the direction for Relay's original command-center personality: fast, sarcastic, funny, cocky-but-useful, and still operationally clear. It must not clone any copyrighted character or real actor. Future voice/TTS work should create an original Relay voice profile.
+
 ## Future execution rules
 
 - No arbitrary shell execution.

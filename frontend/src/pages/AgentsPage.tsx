@@ -144,9 +144,11 @@ function buildCodexTaskPrompt(agent: RelayAgent): string {
     'Branch:',
     'relay-branding-v0',
     '',
-    `Agent: ${agent.name}`,
+    'Agent:',
+    agent.name,
     '',
-    `Role: ${agent.role}`,
+    'Role:',
+    agent.role,
     '',
     'Task: <fill in task>',
     '',
@@ -165,9 +167,15 @@ function buildCodexTaskPrompt(agent: RelayAgent): string {
 function buildPreflightRequest(agent: RelayAgent): string {
   return [
     `Relay, route this through ${agent.name}.`,
-    `Purpose: ${agent.purpose}`,
-    `Boundary: ${agent.boundary}`,
+    '',
+    'Purpose:',
+    agent.purpose,
+    '',
+    'Boundary:',
+    agent.boundary,
+    '',
     'Requested output: <fill in requested output>',
+    '',
     'Do not execute anything yet. Return a plan/checklist first.',
   ].join('\n');
 }
@@ -225,7 +233,7 @@ function RelayAgentActions({ agent }: { agent: RelayAgent }) {
       key: 'roster',
       title: 'Open Roster Doc',
       description: 'Copies the safe local roster path for opening outside the browser.',
-      text: RELAY_ROSTER_PATH,
+      text: `Relay Agent Roster:\n${RELAY_ROSTER_PATH}`,
       icon: FileText,
     },
   ] as const;

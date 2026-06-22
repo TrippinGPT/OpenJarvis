@@ -454,11 +454,19 @@ export const useAppStore = create<AppState>((set, get) => {
     // â”€â”€ Models & server â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     setModels: (models: ModelInfo[]) =>
-      set((state) =>
-        !state.selectedModel && models.length > 0
-          ? { models, selectedModel: models[0].id }
-          : { models },
-      ),
+      set((state) => {
+        const availableIds = new Set(models.map((model) => model.id));
+        if (state.selectedModel && availableIds.has(state.selectedModel)) {
+          return { models };
+        }
+
+        const configuredDefault = state.settings.defaultModel;
+        const selectedModel = availableIds.has(configuredDefault)
+          ? configuredDefault
+          : models[0]?.id || '';
+
+        return { models, selectedModel };
+      }),
     setModelsLoading: (loading: boolean) => set({ modelsLoading: loading }),
     setSelectedModel: (model: string) => set({ selectedModel: model }),
     setServerInfo: (info: ServerInfo | null) => set({ serverInfo: info }),
