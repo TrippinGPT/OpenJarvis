@@ -1,7 +1,18 @@
-import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ExternalLink, MessageSquare, Radio, ShieldCheck, Sparkles } from 'lucide-react';
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import {
+  Activity,
+  ArrowLeft,
+  Bot,
+  CircleDot,
+  ExternalLink,
+  Link2,
+  MessageSquare,
+  Radio,
+  ShieldCheck,
+  Sparkles,
+} from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { checkHealth } from '../lib/api';
+import { checkHealth, fetchOpenClawBridgeStatus } from '../lib/api';
 import {
   readRelayPopoutActivity,
   RELAY_POPOUT_ACTIVITY_KEY,
@@ -9,8 +20,10 @@ import {
 } from '../lib/relayPopout';
 import { useAppStore } from '../lib/store';
 
+type BridgeState = 'checking' | 'connected' | 'fallback';
+
 function formatActivityTime(timestamp: number): string {
-  if (!timestamp) return 'Awaiting activity';
+  if (!timestamp) return '--:--:--';
   return new Date(timestamp).toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
@@ -18,11 +31,103 @@ function formatActivityTime(timestamp: number): string {
   });
 }
 
+function HudPanel({
+  children,
+  className = '',
+  cyan = false,
+}: {
+  children: ReactNode;
+  className?: string;
+  cyan?: boolean;
+}) {
+  return (
+    <section
+      className={`relay-popout-panel relative overflow-hidden ${className}`}
+      style={{
+        borderColor: cyan ? 'rgba(34, 211, 238, 0.24)' : 'rgba(168, 85, 247, 0.26)',
+        background: cyan
+          ? 'linear-gradient(145deg, rgba(5, 22, 32, 0.88), rgba(4, 8, 17, 0.94))'
+          : 'linear-gradient(145deg, rgba(20, 10, 39, 0.88), rgba(4, 7, 16, 0.95))',
+      }}
+    >
+      {children}
+    </section>
+  );
+}
+
+function MicroReadout({
+  label,
+  value,
+  color = 'rgb(103, 232, 249)',
+}: {
+  label: string;
+  value: string;
+  color?: string;
+}) {
+  return (
+    <div className="relay-popout-micro-panel">
+      <div className="text-[6px] uppercase tracking-[0.22em]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
+        {label}
+      </div>
+      <div className="mt-1 truncate text-[8px] font-semibold uppercase tracking-[0.09em]" style={{ color }}>
+        {value}
+      </div>
+      <div className="mt-1.5 h-px overflow-hidden" style={{ background: 'rgba(148, 163, 184, 0.10)' }}>
+        <div
+          className="h-full"
+          style={{
+            width: label === 'Safety' ? '100%' : '72%',
+            background: `linear-gradient(90deg, ${color}, transparent)`,
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function StatusRow({
+  icon: Icon,
+  label,
+  detail,
+  color,
+}: {
+  icon: typeof Activity;
+  label: string;
+  detail: string;
+  color: string;
+}) {
+  return (
+    <div className="flex min-w-0 items-center gap-2 py-1.5">
+      <div
+        className="flex h-5 w-5 shrink-0 items-center justify-center rounded"
+        style={{
+          color,
+          border: `1px solid color-mix(in srgb, ${color} 22%, transparent)`,
+          background: `color-mix(in srgb, ${color} 6%, transparent)`,
+        }}
+      >
+        <Icon size={10} />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-[8px] font-medium uppercase tracking-[0.1em]">{label}</div>
+        <div className="truncate text-[7px]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
+          {detail}
+        </div>
+      </div>
+      <span
+        className="h-1.5 w-1.5 shrink-0 rounded-full"
+        style={{ background: color, boxShadow: `0 0 8px ${color}` }}
+      />
+    </div>
+  );
+}
+
 export function RelayPopoutPage() {
   const navigate = useNavigate();
   const selectedModel = useAppStore((state) => state.selectedModel);
   const localStreamState = useAppStore((state) => state.streamState);
   const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
+  const [bridgeState, setBridgeState] = useState<BridgeState>('checking');
   const [sharedActivity, setSharedActivity] = useState<RelayPopoutActivity | null>(() =>
     readRelayPopoutActivity(),
   );
@@ -34,6 +139,20 @@ export function RelayPopoutPage() {
     refreshHealth();
     const interval = window.setInterval(refreshHealth, 30_000);
     return () => window.clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchOpenClawBridgeStatus()
+      .then(() => {
+        if (!cancelled) setBridgeState('connected');
+      })
+      .catch(() => {
+        if (!cancelled) setBridgeState('fallback');
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -54,244 +173,229 @@ export function RelayPopoutPage() {
     ? localStreamState.phase
     : sharedActivity?.phase || '';
   const currentModel = selectedModel || sharedActivity?.model || 'Loading local models...';
+  const meshState = isResponding ? 'Responding' : 'Stable';
+  const systemState = backendOnline === false ? 'Offline' : backendOnline === null ? 'Checking' : 'Online';
+  const bridgeLabel =
+    bridgeState === 'connected' ? 'Connected' : bridgeState === 'fallback' ? 'Manifest' : 'Checking';
   const statusLabel = isResponding ? 'RELAY RESPONDING' : 'RELAY ONLINE';
-  const recentStatus = useMemo(
-    () => [
-      {
-        label: isResponding ? 'Response route active' : 'Companion window ready',
-        detail: isResponding
-          ? activePhase || 'Local inference in progress'
-          : 'Standing by for a full-chat handoff',
-        color: isResponding ? 'rgb(216, 180, 254)' : 'rgb(103, 232, 249)',
-      },
-      {
-        label: 'Model link',
-        detail: currentModel,
-        color: 'rgb(196, 181, 253)',
-      },
-      {
-        label: 'Safety boundary',
-        detail: 'No shell, agent auto-run, voice, or OpenClaw execution',
-        color: 'rgb(134, 239, 172)',
-      },
-    ],
-    [activePhase, currentModel, isResponding],
-  );
+  const lastSync = formatActivityTime(sharedActivity?.updatedAt || 0);
 
   return (
-    <div
-      className="relative min-h-screen overflow-hidden px-4 py-4"
-      style={{
-        color: 'var(--color-text)',
-        background:
-          'radial-gradient(circle at 50% 18%, rgba(126,34,206,0.20), transparent 35%), linear-gradient(180deg, #08070d 0%, #05070b 100%)',
-      }}
-    >
-      <div className="hud-backdrop" aria-hidden="true" />
-      <div
-        className="pointer-events-none absolute -left-24 -top-28 h-72 w-72 rounded-full blur-3xl"
-        style={{ background: 'rgba(126, 34, 206, 0.16)' }}
-      />
-      <div
-        className="pointer-events-none absolute -right-28 top-1/3 h-64 w-64 rounded-full blur-3xl"
-        style={{ background: 'rgba(8, 145, 178, 0.09)' }}
-      />
+    <div className="relay-popout-screen h-screen overflow-y-auto">
+      <div className="relay-popout-grid" aria-hidden="true" />
+      <div className="relay-popout-scanlines" aria-hidden="true" />
+      <div className="relay-popout-screen-glow" aria-hidden="true" />
 
-      <main className="relative z-10 mx-auto flex min-h-[calc(100vh-2rem)] max-w-[460px] flex-col gap-3">
-        <header
-          className="rounded-2xl p-4"
-          style={{
-            border: '1px solid rgba(192, 132, 252, 0.24)',
-            background: 'linear-gradient(145deg, rgba(24, 12, 40, 0.94), rgba(7, 9, 15, 0.96))',
-            boxShadow: '0 20px 60px rgba(88, 28, 135, 0.18)',
-          }}
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div
-                className="flex h-10 w-10 items-center justify-center rounded-xl"
-                style={{
-                  color: 'rgb(216, 180, 254)',
-                  background: 'rgba(168, 85, 247, 0.14)',
-                  boxShadow: '0 0 24px rgba(168, 85, 247, 0.22)',
-                }}
-              >
-                <Sparkles size={18} />
+      <main className="relative z-10 mx-auto flex min-h-full max-w-[460px] flex-col gap-2.5 p-3">
+        <HudPanel className="px-3 py-2.5">
+          <header className="flex items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <div className="relay-popout-brand-mark">
+                <Sparkles size={14} />
               </div>
-              <div>
-                <div className="text-sm font-semibold tracking-[0.2em]">TRIPPIN AI</div>
-                <div
-                  className="mt-1 text-[8px] font-semibold tracking-[0.3em]"
-                  style={{ color: 'rgb(216, 180, 254)' }}
-                >
+              <div className="min-w-0">
+                <div className="text-[11px] font-semibold tracking-[0.2em]">TRIPPIN AI</div>
+                <div className="mt-0.5 text-[6px] font-semibold tracking-[0.32em]" style={{ color: 'rgb(196, 181, 253)' }}>
                   BUILT DIFFERENT
                 </div>
               </div>
             </div>
+
+            <div className="min-w-0 flex-1 text-center">
+              <div className="text-[9px] font-semibold uppercase tracking-[0.24em]" style={{ color: 'rgb(103, 232, 249)' }}>
+                Relay Companion
+              </div>
+              <div className="mt-0.5 truncate font-mono text-[6px] uppercase tracking-[0.08em]" style={{ color: 'rgba(148, 163, 184, 0.75)' }}>
+                Model // {currentModel}
+              </div>
+            </div>
+
             <div
-              className="inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-[8px] uppercase tracking-[0.14em]"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-sm px-2 py-1 text-[6px] font-semibold uppercase tracking-[0.12em]"
               style={{
                 color: backendOnline === false ? 'rgb(251, 191, 36)' : 'rgb(134, 239, 172)',
                 border:
                   backendOnline === false
-                    ? '1px solid rgba(251, 191, 36, 0.22)'
-                    : '1px solid rgba(74, 222, 128, 0.20)',
+                    ? '1px solid rgba(251, 191, 36, 0.24)'
+                    : '1px solid rgba(74, 222, 128, 0.22)',
                 background:
                   backendOnline === false
                     ? 'rgba(251, 191, 36, 0.06)'
-                    : 'rgba(74, 222, 128, 0.06)',
+                    : 'rgba(74, 222, 128, 0.055)',
               }}
             >
               <span className="hud-heartbeat" />
-              {backendOnline === null ? 'Checking' : backendOnline ? 'Online' : 'Offline'}
+              {systemState}
             </div>
-          </div>
+          </header>
+        </HudPanel>
 
-          <div className="mt-4">
-            <div className="text-lg font-semibold tracking-[0.08em]">Smartmouth Relay</div>
-            <p className="mt-1 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-              Relay online. Try not to break anything heroic.
-            </p>
-          </div>
-        </header>
-
-        <section
-          className="relative overflow-hidden rounded-2xl px-4 py-5"
-          style={{
-            border: isResponding
-              ? '1px solid rgba(216, 180, 254, 0.42)'
-              : '1px solid rgba(192, 132, 252, 0.20)',
-            background: 'linear-gradient(145deg, rgba(18, 10, 31, 0.94), rgba(7, 10, 16, 0.97))',
-            boxShadow: isResponding
-              ? '0 0 54px rgba(168, 85, 247, 0.18)'
-              : '0 18px 50px rgba(88, 28, 135, 0.10)',
-          }}
-        >
-          <div
-            className="pointer-events-none absolute inset-0 opacity-50"
-            style={{
-              backgroundImage:
-                'linear-gradient(rgba(168,85,247,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(34,211,238,0.035) 1px, transparent 1px)',
-              backgroundSize: '28px 28px',
-              maskImage: 'radial-gradient(circle at center, black, transparent 72%)',
-            }}
-          />
-
-          <div className="relative flex flex-col items-center">
-            <div className={`relay-popout-orb ${isResponding ? 'relay-popout-orb-active' : ''}`}>
-              <div className="relay-popout-ring relay-popout-ring-outer" />
-              <div className="relay-popout-ring relay-popout-ring-inner" />
-              <div className="relay-popout-core">
-                <span>///</span>
-              </div>
-              {isResponding && (
-                <div className="relay-popout-wave" aria-label="Relay response activity">
-                  {[0, 1, 2, 3, 4].map((bar) => (
-                    <span key={bar} style={{ animationDelay: `${bar * 90}ms` }} />
-                  ))}
-                </div>
-              )}
-            </div>
-
+        <div className="grid grid-cols-5 gap-1.5">
+          {[
+            ['SYS', systemState],
+            ['BRIDGE', bridgeLabel],
+            ['MESH', meshState],
+            ['AGENTS', '7 / 7'],
+            ['MODE', 'Read-only'],
+          ].map(([label, value], index) => (
             <div
-              className="mt-4 text-[10px] font-semibold uppercase tracking-[0.22em]"
-              style={{ color: isResponding ? 'rgb(216, 180, 254)' : 'rgb(103, 232, 249)' }}
+              key={label}
+              className="relay-popout-telemetry-cell"
+              style={{ '--telemetry-accent': index === 1 ? 'rgb(103, 232, 249)' : 'rgb(192, 132, 252)' } as CSSProperties}
             >
-              {statusLabel}
+              <div>{label}</div>
+              <strong>{value}</strong>
             </div>
-            <div className="mt-1 text-[10px]" style={{ color: 'var(--color-text-tertiary)' }}>
-              {isResponding
-                ? activePhase || 'Routing local response'
-                : `Last sync: ${formatActivityTime(sharedActivity?.updatedAt || 0)}`}
-            </div>
-          </div>
-        </section>
+          ))}
+        </div>
 
-        <section
-          className="rounded-2xl p-4"
-          style={{
-            border: '1px solid rgba(34, 211, 238, 0.16)',
-            background: 'linear-gradient(145deg, rgba(7, 18, 25, 0.90), rgba(8, 8, 14, 0.96))',
-          }}
-        >
-          <div className="flex items-center gap-2">
-            <Radio size={14} style={{ color: 'rgb(103, 232, 249)' }} />
-            <h2 className="text-xs font-semibold uppercase tracking-[0.16em]">Recent Status</h2>
-          </div>
-          <div className="mt-3 space-y-2">
-            {recentStatus.map((item) => (
-              <div
-                key={item.label}
-                className="rounded-xl p-3"
-                style={{
-                  border: '1px solid rgba(255,255,255,0.06)',
-                  background: 'rgba(255,255,255,0.025)',
-                }}
-              >
-                <div className="flex items-center gap-2 text-[10px] font-medium">
-                  <span
-                    className="h-1.5 w-1.5 shrink-0 rounded-full"
-                    style={{ background: item.color, boxShadow: `0 0 8px ${item.color}` }}
-                  />
-                  {item.label}
+        <HudPanel className={`relay-popout-main-hud ${isResponding ? 'relay-popout-main-hud-active' : ''}`}>
+          <div className="relay-popout-hud-corners" aria-hidden="true" />
+          <div className="relay-popout-hud-grid" aria-hidden="true" />
+          <div className="relay-popout-hud-axis relay-popout-hud-axis-x" aria-hidden="true" />
+          <div className="relay-popout-hud-axis relay-popout-hud-axis-y" aria-hidden="true" />
+
+          <div className="relative z-10 grid h-full grid-cols-[76px_minmax(0,1fr)_76px] items-center gap-2 px-2 py-3">
+            <aside className="space-y-2">
+              <MicroReadout label="Model" value={currentModel.replace(':latest', '')} color="rgb(196, 181, 253)" />
+              <MicroReadout label="Bridge" value={bridgeLabel} />
+              <MicroReadout label="Agents" value="7 / 7 Online" color="rgb(134, 239, 172)" />
+            </aside>
+
+            <div className="flex min-w-0 flex-col items-center">
+              <div className={`relay-popout-radar ${isResponding ? 'relay-popout-radar-active' : ''}`}>
+                <div className="relay-popout-radar-sweep" />
+                <div className="relay-popout-radar-ring relay-popout-radar-ring-1" />
+                <div className="relay-popout-radar-ring relay-popout-radar-ring-2" />
+                <div className="relay-popout-radar-ring relay-popout-radar-ring-3" />
+                <div className="relay-popout-radar-ticks" />
+                <span className="relay-popout-radar-dot relay-popout-radar-dot-a" />
+                <span className="relay-popout-radar-dot relay-popout-radar-dot-b" />
+                <span className="relay-popout-radar-dot relay-popout-radar-dot-c" />
+                <div className="relay-popout-radar-core">
+                  <span>///</span>
                 </div>
-                <div
-                  className="mt-1 break-words text-[10px] leading-relaxed"
-                  style={{ color: 'var(--color-text-tertiary)' }}
-                >
-                  {item.detail}
-                </div>
+                {isResponding && (
+                  <div className="relay-popout-wave" aria-label="Relay response activity">
+                    {[0, 1, 2, 3, 4].map((bar) => (
+                      <span key={bar} style={{ animationDelay: `${bar * 90}ms` }} />
+                    ))}
+                  </div>
+                )}
               </div>
-            ))}
-          </div>
-        </section>
 
-        <section
-          className="rounded-2xl p-4"
-          style={{
-            border: '1px solid rgba(192, 132, 252, 0.16)',
-            background: 'rgba(13, 9, 21, 0.90)',
-          }}
-        >
-          <div className="flex items-start gap-3">
-            <ShieldCheck size={16} style={{ color: 'rgb(134, 239, 172)' }} />
-            <div>
-              <div className="text-xs font-medium">Relay companion window ready</div>
-              <p className="mt-1 text-[10px] leading-relaxed" style={{ color: 'var(--color-text-tertiary)' }}>
-                Chat stays in the full Relay workspace for this first companion release. This
-                window provides model, health, and response-state visibility only.
-              </p>
+              <div
+                className="mt-2 text-[8px] font-semibold uppercase tracking-[0.24em]"
+                style={{ color: isResponding ? 'rgb(216, 180, 254)' : 'rgb(103, 232, 249)' }}
+              >
+                {statusLabel}
+              </div>
+              <div className="mt-1 max-w-full truncate font-mono text-[6px] uppercase tracking-[0.08em]" style={{ color: 'rgba(148, 163, 184, 0.70)' }}>
+                {isResponding ? activePhase || 'Routing local response' : `Sync ${lastSync}`}
+              </div>
             </div>
+
+            <aside className="space-y-2">
+              <MicroReadout label="Mesh" value={meshState} color={isResponding ? 'rgb(216, 180, 254)' : 'rgb(103, 232, 249)'} />
+              <MicroReadout label="Safety" value="Read-only" color="rgb(134, 239, 172)" />
+              <MicroReadout label="Link" value="Local" color="rgb(196, 181, 253)" />
+            </aside>
           </div>
-        </section>
+        </HudPanel>
+
+        <div className="grid grid-cols-[1.35fr_0.9fr] gap-2">
+          <HudPanel className="px-3 py-2.5" cyan>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <Radio size={10} style={{ color: 'rgb(103, 232, 249)' }} />
+                <h2 className="text-[7px] font-semibold uppercase tracking-[0.18em]">Recent Status</h2>
+              </div>
+              <span className="font-mono text-[6px]" style={{ color: 'rgba(148, 163, 184, 0.60)' }}>
+                {lastSync}
+              </span>
+            </div>
+            <div className="mt-1 divide-y" style={{ borderColor: 'rgba(148, 163, 184, 0.08)' }}>
+              <StatusRow
+                icon={CircleDot}
+                label={isResponding ? 'Response route active' : 'Companion window ready'}
+                detail={isResponding ? activePhase || 'Local inference in progress' : 'Waiting for Relay activity'}
+                color={isResponding ? 'rgb(216, 180, 254)' : 'rgb(103, 232, 249)'}
+              />
+              <StatusRow
+                icon={Link2}
+                label={bridgeState === 'connected' ? 'Bridge linked' : 'Bridge manifest ready'}
+                detail={bridgeState === 'connected' ? 'Read-only backend status connected' : 'Static safety manifest available'}
+                color="rgb(103, 232, 249)"
+              />
+              <StatusRow
+                icon={ShieldCheck}
+                label="Safety boundary active"
+                detail="No execution controls exposed"
+                color="rgb(134, 239, 172)"
+              />
+            </div>
+          </HudPanel>
+
+          <HudPanel className="px-3 py-2.5">
+            <div className="flex items-center gap-1.5">
+              <Activity size={10} style={{ color: 'rgb(192, 132, 252)' }} />
+              <h2 className="text-[7px] font-semibold uppercase tracking-[0.18em]">Signal</h2>
+            </div>
+            <div className="relay-popout-signal mt-3" aria-hidden="true">
+              {[7, 13, 9, 20, 14, 25, 11, 17, 8, 21, 12, 16].map((height, index) => (
+                <span
+                  key={`${height}-${index}`}
+                  style={{
+                    height: `${isResponding ? Math.min(28, height + 5) : height}px`,
+                    animationDelay: `${index * 70}ms`,
+                  }}
+                />
+              ))}
+            </div>
+            <div className="mt-3 flex items-center justify-between font-mono text-[6px] uppercase" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+              <span>{isResponding ? 'Active' : 'Standby'}</span>
+              <span>Local</span>
+            </div>
+          </HudPanel>
+        </div>
+
+        <HudPanel className="px-3 py-2.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <Bot size={10} style={{ color: 'rgb(196, 181, 253)' }} />
+              <span className="text-[7px] font-semibold uppercase tracking-[0.18em]">Command Strip</span>
+            </div>
+            <span className="text-[6px] uppercase tracking-[0.14em]" style={{ color: 'rgb(134, 239, 172)' }}>
+              Reference only
+            </span>
+          </div>
+          <div className="mt-2 grid gap-0.5 font-mono text-[7px] leading-relaxed" style={{ color: 'rgba(165, 243, 252, 0.78)' }}>
+            <div><span style={{ color: 'rgb(216, 180, 254)' }}>&gt;</span> relay --status</div>
+            <div><span style={{ color: 'rgba(148, 163, 184, 0.70)' }}>System:</span> {systemState}</div>
+            <div><span style={{ color: 'rgba(148, 163, 184, 0.70)' }}>Mesh:</span> {meshState}</div>
+            <div><span style={{ color: 'rgba(148, 163, 184, 0.70)' }}>Mode:</span> Companion</div>
+          </div>
+        </HudPanel>
 
         <footer className="mt-auto grid grid-cols-2 gap-2">
           <button
             type="button"
             onClick={() => navigate('/dashboard')}
-            className="flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-medium transition-colors"
-            style={{
-              color: 'rgb(103, 232, 249)',
-              border: '1px solid rgba(34, 211, 238, 0.18)',
-              background: 'rgba(34, 211, 238, 0.055)',
-            }}
+            className="relay-popout-nav-button"
+            style={{ color: 'rgb(103, 232, 249)', borderColor: 'rgba(34, 211, 238, 0.22)' }}
           >
-            <ArrowLeft size={14} />
+            <ArrowLeft size={11} />
             Dashboard
           </button>
           <button
             type="button"
             onClick={() => navigate('/')}
-            className="flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-medium transition-colors"
-            style={{
-              color: 'rgb(216, 180, 254)',
-              border: '1px solid rgba(192, 132, 252, 0.20)',
-              background: 'rgba(168, 85, 247, 0.075)',
-            }}
+            className="relay-popout-nav-button"
+            style={{ color: 'rgb(216, 180, 254)', borderColor: 'rgba(192, 132, 252, 0.22)' }}
           >
-            <MessageSquare size={14} />
+            <MessageSquare size={11} />
             Full Chat
-            <ExternalLink size={12} />
+            <ExternalLink size={9} />
           </button>
         </footer>
       </main>

@@ -755,103 +755,420 @@
   text-decoration: none;
 }
 
-/* Relay popout companion — lightweight CSS-only HUD motion. */
+/* Relay popout companion — compact top-monitor HUD motion. */
 @keyframes relay-popout-breathe {
-  0%, 100% { transform: scale(0.98); filter: brightness(0.92); }
-  50% { transform: scale(1.03); filter: brightness(1.12); }
+  0%, 100% { transform: scale(0.985); filter: brightness(0.94); }
+  50% { transform: scale(1.025); filter: brightness(1.12); }
 }
 
 @keyframes relay-popout-spin {
   to { transform: rotate(360deg); }
 }
 
-@keyframes relay-popout-wave {
-  0%, 100% { height: 5px; opacity: 0.5; }
-  50% { height: 18px; opacity: 1; }
+@keyframes relay-popout-sweep {
+  to { transform: rotate(360deg); }
 }
 
-.relay-popout-orb {
+@keyframes relay-popout-wave {
+  0%, 100% { height: 4px; opacity: 0.45; }
+  50% { height: 15px; opacity: 1; }
+}
+
+@keyframes relay-popout-signal {
+  0%, 100% { transform: scaleY(0.62); opacity: 0.48; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+
+@keyframes relay-popout-blip {
+  0%, 100% { opacity: 0.38; transform: scale(0.82); }
+  45% { opacity: 1; transform: scale(1.35); }
+}
+
+.relay-popout-screen {
   position: relative;
+  color: var(--color-text);
+  background:
+    radial-gradient(circle at 50% 32%, rgba(91, 33, 182, 0.18), transparent 36%),
+    radial-gradient(circle at 50% 55%, rgba(8, 145, 178, 0.08), transparent 42%),
+    linear-gradient(180deg, #030713 0%, #03050d 62%, #02040a 100%);
+}
+
+.relay-popout-grid,
+.relay-popout-scanlines,
+.relay-popout-screen-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.relay-popout-grid {
+  background-image:
+    linear-gradient(rgba(99, 102, 241, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.045) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: linear-gradient(to bottom, black 20%, transparent 96%);
+}
+
+.relay-popout-scanlines {
+  z-index: 20;
+  opacity: 0.12;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 3px,
+    rgba(125, 211, 252, 0.10) 4px
+  );
+  mix-blend-mode: screen;
+}
+
+.relay-popout-screen-glow {
+  box-shadow:
+    inset 0 0 70px rgba(30, 64, 175, 0.10),
+    inset 0 0 18px rgba(168, 85, 247, 0.10);
+}
+
+.relay-popout-panel {
+  border: 1px solid;
+  border-radius: 7px;
+  box-shadow:
+    inset 0 0 24px rgba(30, 64, 175, 0.035),
+    0 8px 30px rgba(0, 0, 0, 0.22);
+}
+
+.relay-popout-panel::before,
+.relay-popout-panel::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+}
+
+.relay-popout-panel::before {
+  left: -1px;
+  top: -1px;
+  border-left: 1px solid rgba(103, 232, 249, 0.62);
+  border-top: 1px solid rgba(103, 232, 249, 0.62);
+}
+
+.relay-popout-panel::after {
+  right: -1px;
+  bottom: -1px;
+  border-right: 1px solid rgba(192, 132, 252, 0.58);
+  border-bottom: 1px solid rgba(192, 132, 252, 0.58);
+}
+
+.relay-popout-brand-mark {
   display: flex;
-  width: 132px;
-  height: 132px;
+  width: 30px;
+  height: 30px;
+  flex: none;
   align-items: center;
   justify-content: center;
-  animation: relay-popout-breathe 4.2s ease-in-out infinite;
+  border: 1px solid rgba(192, 132, 252, 0.30);
+  border-radius: 5px;
+  color: rgb(216, 180, 254);
+  background: rgba(91, 33, 182, 0.14);
+  box-shadow: 0 0 18px rgba(168, 85, 247, 0.18);
 }
 
-.relay-popout-orb-active {
+.relay-popout-telemetry-cell {
+  min-width: 0;
+  padding: 6px 5px;
+  border: 1px solid color-mix(in srgb, var(--telemetry-accent) 22%, transparent);
+  border-radius: 4px;
+  color: rgba(148, 163, 184, 0.68);
+  background: rgba(4, 9, 20, 0.80);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 5px;
+  line-height: 1.2;
+  letter-spacing: 0.12em;
+  text-align: center;
+}
+
+.relay-popout-telemetry-cell strong {
+  display: block;
+  margin-top: 3px;
+  overflow: hidden;
+  color: var(--telemetry-accent);
+  font-size: 6px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.relay-popout-main-hud {
+  min-height: 300px;
+  transition: border-color 240ms ease, box-shadow 240ms ease;
+}
+
+.relay-popout-main-hud-active {
+  border-color: rgba(216, 180, 254, 0.52) !important;
+  box-shadow:
+    inset 0 0 35px rgba(91, 33, 182, 0.08),
+    0 0 35px rgba(168, 85, 247, 0.13);
+}
+
+.relay-popout-hud-grid,
+.relay-popout-hud-corners,
+.relay-popout-hud-axis {
+  position: absolute;
+  pointer-events: none;
+}
+
+.relay-popout-hud-grid {
+  inset: 0;
+  opacity: 0.65;
+  background-image:
+    linear-gradient(rgba(99, 102, 241, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.035) 1px, transparent 1px);
+  background-size: 20px 20px;
+  mask-image: radial-gradient(circle at center, black 8%, transparent 78%);
+}
+
+.relay-popout-hud-corners {
+  inset: 7px;
+  border:
+    1px solid transparent;
+  background:
+    linear-gradient(90deg, rgba(103, 232, 249, 0.55) 18px, transparent 18px) top left / 42px 1px no-repeat,
+    linear-gradient(180deg, rgba(103, 232, 249, 0.55) 18px, transparent 18px) top left / 1px 42px no-repeat,
+    linear-gradient(270deg, rgba(192, 132, 252, 0.55) 18px, transparent 18px) bottom right / 42px 1px no-repeat,
+    linear-gradient(0deg, rgba(192, 132, 252, 0.55) 18px, transparent 18px) bottom right / 1px 42px no-repeat;
+}
+
+.relay-popout-hud-axis-x {
+  left: 17%;
+  right: 17%;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(103, 232, 249, 0.22), transparent);
+}
+
+.relay-popout-hud-axis-y {
+  top: 12%;
+  bottom: 12%;
+  left: 50%;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(192, 132, 252, 0.20), transparent);
+}
+
+.relay-popout-micro-panel {
+  min-width: 0;
+  padding: 8px 6px;
+  border: 1px solid rgba(99, 102, 241, 0.16);
+  border-radius: 4px;
+  background: linear-gradient(145deg, rgba(7, 15, 31, 0.82), rgba(5, 7, 16, 0.88));
+  box-shadow: inset 0 0 16px rgba(59, 130, 246, 0.025);
+}
+
+.relay-popout-radar {
+  position: relative;
+  display: flex;
+  width: 202px;
+  height: 202px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  animation: relay-popout-breathe 4.6s ease-in-out infinite;
+}
+
+.relay-popout-radar-active {
   animation-duration: 1.8s;
 }
 
-.relay-popout-ring {
+.relay-popout-radar-ring {
   position: absolute;
-  border-radius: 9999px;
-  border: 1px solid rgba(192, 132, 252, 0.42);
+  border-radius: 50%;
+  border: 1px solid rgba(103, 232, 249, 0.24);
 }
 
-.relay-popout-ring-outer {
+.relay-popout-radar-ring-1 {
   inset: 0;
+  border-color: rgba(192, 132, 252, 0.40);
   border-style: dashed;
-  box-shadow: 0 0 28px rgba(168, 85, 247, 0.20);
-  animation: relay-popout-spin 12s linear infinite;
+  box-shadow: 0 0 28px rgba(91, 33, 182, 0.17);
+  animation: relay-popout-spin 16s linear infinite;
 }
 
-.relay-popout-ring-inner {
-  inset: 18px;
-  border-color: rgba(103, 232, 249, 0.34);
-  animation: relay-popout-spin 8s linear infinite reverse;
+.relay-popout-radar-ring-2 {
+  inset: 24px;
+  border-color: rgba(103, 232, 249, 0.32);
+  animation: relay-popout-spin 10s linear infinite reverse;
 }
 
-.relay-popout-core {
+.relay-popout-radar-ring-3 {
+  inset: 49px;
+  border-color: rgba(192, 132, 252, 0.42);
+  box-shadow: inset 0 0 20px rgba(168, 85, 247, 0.08);
+}
+
+.relay-popout-radar-ticks {
+  position: absolute;
+  inset: 10px;
+  border-radius: 50%;
+  opacity: 0.48;
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(125, 211, 252, 0.58) 0deg 0.7deg,
+    transparent 0.7deg 11.25deg
+  );
+  mask-image: radial-gradient(circle, transparent 71%, black 72% 77%, transparent 78%);
+  animation: relay-popout-spin 28s linear infinite;
+}
+
+.relay-popout-radar-sweep {
+  position: absolute;
+  inset: 17px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg 312deg,
+    rgba(34, 211, 238, 0.04) 327deg,
+    rgba(103, 232, 249, 0.30) 355deg,
+    transparent 360deg
+  );
+  animation: relay-popout-sweep 5.8s linear infinite;
+}
+
+.relay-popout-radar-sweep::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 44%;
+  height: 1px;
+  transform-origin: left center;
+  background: linear-gradient(90deg, rgba(103, 232, 249, 0.72), transparent);
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.46);
+}
+
+.relay-popout-radar-core {
+  position: relative;
+  z-index: 3;
   display: flex;
-  width: 68px;
-  height: 68px;
+  width: 72px;
+  height: 72px;
   align-items: center;
   justify-content: center;
-  border-radius: 9999px;
+  border: 1px solid rgba(216, 180, 254, 0.52);
+  border-radius: 50%;
   color: rgb(233, 213, 255);
-  border: 1px solid rgba(216, 180, 254, 0.48);
   background:
-    radial-gradient(circle at 38% 30%, rgba(103, 232, 249, 0.24), transparent 34%),
-    radial-gradient(circle, rgba(168, 85, 247, 0.34), rgba(40, 15, 65, 0.90));
+    radial-gradient(circle at 37% 30%, rgba(103, 232, 249, 0.32), transparent 30%),
+    radial-gradient(circle, rgba(124, 58, 237, 0.42), rgba(25, 10, 48, 0.96) 68%);
   box-shadow:
-    inset 0 0 24px rgba(216, 180, 254, 0.18),
-    0 0 34px rgba(168, 85, 247, 0.32);
-  font-size: 16px;
+    inset 0 0 28px rgba(103, 232, 249, 0.12),
+    0 0 18px rgba(192, 132, 252, 0.34),
+    0 0 48px rgba(91, 33, 182, 0.28);
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.10em;
 }
 
-.relay-popout-orb-active .relay-popout-core {
+.relay-popout-radar-active .relay-popout-radar-core {
   box-shadow:
-    inset 0 0 28px rgba(103, 232, 249, 0.24),
-    0 0 48px rgba(168, 85, 247, 0.48);
+    inset 0 0 32px rgba(103, 232, 249, 0.24),
+    0 0 24px rgba(216, 180, 254, 0.55),
+    0 0 64px rgba(124, 58, 237, 0.45);
 }
+
+.relay-popout-radar-dot {
+  position: absolute;
+  z-index: 4;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgb(103, 232, 249);
+  box-shadow: 0 0 9px rgba(34, 211, 238, 0.90);
+  animation: relay-popout-blip 2.4s ease-in-out infinite;
+}
+
+.relay-popout-radar-dot-a { left: 25px; top: 72px; }
+.relay-popout-radar-dot-b { right: 34px; top: 42px; animation-delay: 520ms; }
+.relay-popout-radar-dot-c { right: 25px; bottom: 54px; animation-delay: 980ms; }
 
 .relay-popout-wave {
   position: absolute;
-  bottom: 2px;
+  z-index: 5;
+  bottom: 21px;
   display: flex;
-  height: 20px;
+  height: 16px;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
 }
 
 .relay-popout-wave span {
   display: block;
-  width: 3px;
-  height: 6px;
+  width: 2px;
+  height: 5px;
   border-radius: 9999px;
   background: rgb(103, 232, 249);
-  box-shadow: 0 0 8px rgba(34, 211, 238, 0.72);
+  box-shadow: 0 0 7px rgba(34, 211, 238, 0.78);
   animation: relay-popout-wave 720ms ease-in-out infinite;
 }
 
+.relay-popout-signal {
+  display: flex;
+  height: 29px;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2px;
+}
+
+.relay-popout-signal span {
+  width: 3px;
+  min-height: 3px;
+  transform-origin: bottom;
+  border-radius: 1px 1px 0 0;
+  background: linear-gradient(to top, rgba(124, 58, 237, 0.62), rgb(103, 232, 249));
+  box-shadow: 0 0 5px rgba(34, 211, 238, 0.30);
+  animation: relay-popout-signal 1.8s ease-in-out infinite;
+}
+
+.relay-popout-nav-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border: 1px solid;
+  border-radius: 5px;
+  background: rgba(4, 9, 20, 0.82);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  transition: background 160ms ease, box-shadow 160ms ease;
+}
+
+.relay-popout-nav-button:hover {
+  background: rgba(30, 41, 59, 0.68);
+  box-shadow: 0 0 18px rgba(99, 102, 241, 0.12);
+}
+
+@media (max-width: 400px) {
+  .relay-popout-radar {
+    width: 176px;
+    height: 176px;
+  }
+
+  .relay-popout-main-hud {
+    min-height: 274px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .relay-popout-orb,
-  .relay-popout-ring,
-  .relay-popout-wave span {
+  .relay-popout-radar,
+  .relay-popout-radar-ring,
+  .relay-popout-radar-sweep,
+  .relay-popout-radar-ticks,
+  .relay-popout-radar-dot,
+  .relay-popout-wave span,
+  .relay-popout-signal span {
     animation: none !important;
   }
 }
