@@ -43,6 +43,14 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_op
 D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_AGENT_ROSTER.md
 ```
 
+## Relay current state
+
+Source-of-truth handoff summary:
+
+```text
+D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_CURRENT_STATE.md
+```
+
 ## Relay TTS plan
 
 Planning reference only:
