@@ -793,6 +793,15 @@
     linear-gradient(180deg, #030713 0%, #03050d 62%, #02040a 100%);
 }
 
+.relay-popout-layout {
+  width: 100%;
+  max-width: 460px;
+}
+
+.relay-popout-mode-wide {
+  display: none;
+}
+
 .relay-popout-grid,
 .relay-popout-scanlines,
 .relay-popout-screen-glow {
@@ -1158,6 +1167,239 @@
 
   .relay-popout-main-hud {
     min-height: 274px;
+  }
+}
+
+@media (min-width: 900px) {
+  .relay-popout-screen {
+    min-height: 100vh;
+  }
+
+  .relay-popout-layout {
+    display: grid;
+    width: min(88vw, 1680px);
+    max-width: none;
+    min-height: 100vh;
+    grid-template-rows:
+      auto
+      auto
+      minmax(420px, 1fr)
+      auto
+      auto
+      auto;
+    gap: clamp(10px, 1.25vh, 18px);
+    padding: clamp(18px, 2vw, 36px);
+  }
+
+  .relay-popout-mode-compact {
+    display: none;
+  }
+
+  .relay-popout-mode-wide {
+    display: inline;
+  }
+
+  .relay-popout-header {
+    padding: clamp(12px, 1.3vw, 20px) clamp(16px, 1.8vw, 28px);
+  }
+
+  .relay-popout-header .relay-popout-brand-mark {
+    width: clamp(34px, 2.8vw, 46px);
+    height: clamp(34px, 2.8vw, 46px);
+  }
+
+  .relay-popout-telemetry-grid {
+    gap: clamp(8px, 0.8vw, 14px);
+  }
+
+  .relay-popout-telemetry-cell {
+    padding: clamp(8px, 0.85vw, 14px);
+    font-size: clamp(6px, 0.48vw, 9px);
+  }
+
+  .relay-popout-telemetry-cell strong {
+    margin-top: 5px;
+    font-size: clamp(8px, 0.62vw, 12px);
+  }
+
+  .relay-popout-main-hud {
+    min-height: 0;
+    height: 100%;
+  }
+
+  .relay-popout-hud-layout {
+    grid-template-columns:
+      minmax(160px, 0.78fr)
+      minmax(360px, 2.2fr)
+      minmax(160px, 0.78fr);
+    gap: clamp(20px, 3vw, 64px);
+    padding: clamp(24px, 3vh, 46px) clamp(20px, 3vw, 52px);
+  }
+
+  .relay-popout-side-stack {
+    display: grid;
+    align-content: center;
+    gap: clamp(12px, 1.8vh, 24px);
+  }
+
+  .relay-popout-side-stack.space-y-2 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 0;
+  }
+
+  .relay-popout-micro-panel {
+    padding: clamp(12px, 1.2vw, 20px);
+    border-radius: 6px;
+  }
+
+  .relay-popout-micro-panel > div:first-child {
+    font-size: clamp(7px, 0.55vw, 10px);
+  }
+
+  .relay-popout-micro-panel > div:nth-child(2) {
+    margin-top: 7px;
+    font-size: clamp(10px, 0.82vw, 15px);
+  }
+
+  .relay-popout-radar-column {
+    justify-content: center;
+  }
+
+  .relay-popout-radar {
+    width: min(46vh, 34vw, 520px);
+    height: min(46vh, 34vw, 520px);
+    min-width: 300px;
+    min-height: 300px;
+  }
+
+  .relay-popout-radar-core {
+    width: clamp(96px, 9vw, 148px);
+    height: clamp(96px, 9vw, 148px);
+    font-size: clamp(21px, 1.8vw, 31px);
+  }
+
+  .relay-popout-radar-ring-2 {
+    inset: 11%;
+  }
+
+  .relay-popout-radar-ring-3 {
+    inset: 24%;
+  }
+
+  .relay-popout-radar-ticks {
+    inset: 5%;
+  }
+
+  .relay-popout-radar-sweep {
+    inset: 8%;
+  }
+
+  .relay-popout-radar-dot {
+    width: 7px;
+    height: 7px;
+  }
+
+  .relay-popout-radar-dot-a {
+    left: 12%;
+    top: 36%;
+  }
+
+  .relay-popout-radar-dot-b {
+    right: 17%;
+    top: 20%;
+  }
+
+  .relay-popout-radar-dot-c {
+    right: 12%;
+    bottom: 27%;
+  }
+
+  .relay-popout-wave {
+    bottom: 10%;
+    height: 25px;
+    gap: 4px;
+  }
+
+  .relay-popout-wave span {
+    width: 3px;
+  }
+
+  .relay-popout-radar-column > div:nth-child(2) {
+    margin-top: clamp(12px, 1.5vh, 20px);
+    font-size: clamp(11px, 0.8vw, 15px);
+  }
+
+  .relay-popout-radar-column > div:nth-child(3) {
+    margin-top: 6px;
+    font-size: clamp(8px, 0.55vw, 11px);
+  }
+
+  .relay-popout-lower-grid {
+    grid-template-columns: minmax(0, 1.4fr) minmax(240px, 0.6fr);
+    gap: clamp(10px, 1vw, 16px);
+  }
+
+  .relay-popout-status-panel,
+  .relay-popout-signal-panel,
+  .relay-popout-command-panel {
+    padding: clamp(12px, 1.15vw, 20px);
+  }
+
+  .relay-popout-status-panel h2,
+  .relay-popout-signal-panel h2,
+  .relay-popout-command-panel span {
+    font-size: clamp(8px, 0.52vw, 10px);
+  }
+
+  .relay-popout-status-panel .text-\[8px\] {
+    font-size: clamp(9px, 0.62vw, 12px);
+  }
+
+  .relay-popout-status-panel .text-\[7px\],
+  .relay-popout-command-panel .text-\[7px\] {
+    font-size: clamp(8px, 0.55vw, 11px);
+  }
+
+  .relay-popout-signal {
+    height: clamp(36px, 5vh, 58px);
+  }
+
+  .relay-popout-command-panel > div:last-child {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(8px, 1vw, 18px);
+    align-items: center;
+  }
+
+  .relay-popout-footer {
+    width: min(520px, 42vw);
+    justify-self: end;
+    margin-top: 0;
+  }
+
+  .relay-popout-nav-button {
+    padding: 9px 14px;
+    font-size: clamp(8px, 0.55vw, 10px);
+  }
+}
+
+@media (min-width: 1400px) and (min-height: 850px) {
+  .relay-popout-layout {
+    width: min(90vw, 1760px);
+  }
+
+  .relay-popout-main-hud {
+    min-height: 500px;
+  }
+
+  .relay-popout-radar {
+    width: min(52vh, 36vw, 600px);
+    height: min(52vh, 36vw, 600px);
+  }
+
+  .relay-popout-hud-layout {
+    grid-template-columns:
+      minmax(210px, 0.82fr)
+      minmax(480px, 2.35fr)
+      minmax(210px, 0.82fr);
   }
 }
 

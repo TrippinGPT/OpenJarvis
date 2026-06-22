@@ -186,8 +186,8 @@ export function RelayPopoutPage() {
       <div className="relay-popout-scanlines" aria-hidden="true" />
       <div className="relay-popout-screen-glow" aria-hidden="true" />
 
-      <main className="relative z-10 mx-auto flex min-h-full max-w-[460px] flex-col gap-2.5 p-3">
-        <HudPanel className="px-3 py-2.5">
+      <main className="relay-popout-layout relative z-10 mx-auto flex min-h-full flex-col gap-2.5 p-3">
+        <HudPanel className="relay-popout-header px-3 py-2.5">
           <header className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-2.5">
               <div className="relay-popout-brand-mark">
@@ -206,7 +206,9 @@ export function RelayPopoutPage() {
                 Relay Companion
               </div>
               <div className="mt-0.5 truncate font-mono text-[6px] uppercase tracking-[0.08em]" style={{ color: 'rgba(148, 163, 184, 0.75)' }}>
-                Model // {currentModel}
+                <span className="relay-popout-mode-compact">Companion Mode</span>
+                <span className="relay-popout-mode-wide">Monitor Mode</span>
+                {' // '}Model // {currentModel}
               </div>
             </div>
 
@@ -230,7 +232,7 @@ export function RelayPopoutPage() {
           </header>
         </HudPanel>
 
-        <div className="grid grid-cols-5 gap-1.5">
+        <div className="relay-popout-telemetry-grid grid grid-cols-5 gap-1.5">
           {[
             ['SYS', systemState],
             ['BRIDGE', bridgeLabel],
@@ -255,14 +257,14 @@ export function RelayPopoutPage() {
           <div className="relay-popout-hud-axis relay-popout-hud-axis-x" aria-hidden="true" />
           <div className="relay-popout-hud-axis relay-popout-hud-axis-y" aria-hidden="true" />
 
-          <div className="relative z-10 grid h-full grid-cols-[76px_minmax(0,1fr)_76px] items-center gap-2 px-2 py-3">
-            <aside className="space-y-2">
+          <div className="relay-popout-hud-layout relative z-10 grid h-full grid-cols-[76px_minmax(0,1fr)_76px] items-center gap-2 px-2 py-3">
+            <aside className="relay-popout-side-stack space-y-2">
               <MicroReadout label="Model" value={currentModel.replace(':latest', '')} color="rgb(196, 181, 253)" />
               <MicroReadout label="Bridge" value={bridgeLabel} />
               <MicroReadout label="Agents" value="7 / 7 Online" color="rgb(134, 239, 172)" />
             </aside>
 
-            <div className="flex min-w-0 flex-col items-center">
+            <div className="relay-popout-radar-column flex min-w-0 flex-col items-center">
               <div className={`relay-popout-radar ${isResponding ? 'relay-popout-radar-active' : ''}`}>
                 <div className="relay-popout-radar-sweep" />
                 <div className="relay-popout-radar-ring relay-popout-radar-ring-1" />
@@ -295,7 +297,7 @@ export function RelayPopoutPage() {
               </div>
             </div>
 
-            <aside className="space-y-2">
+            <aside className="relay-popout-side-stack space-y-2">
               <MicroReadout label="Mesh" value={meshState} color={isResponding ? 'rgb(216, 180, 254)' : 'rgb(103, 232, 249)'} />
               <MicroReadout label="Safety" value="Read-only" color="rgb(134, 239, 172)" />
               <MicroReadout label="Link" value="Local" color="rgb(196, 181, 253)" />
@@ -303,8 +305,8 @@ export function RelayPopoutPage() {
           </div>
         </HudPanel>
 
-        <div className="grid grid-cols-[1.35fr_0.9fr] gap-2">
-          <HudPanel className="px-3 py-2.5" cyan>
+        <div className="relay-popout-lower-grid grid grid-cols-[1.35fr_0.9fr] gap-2">
+          <HudPanel className="relay-popout-status-panel px-3 py-2.5" cyan>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5">
                 <Radio size={10} style={{ color: 'rgb(103, 232, 249)' }} />
@@ -336,7 +338,7 @@ export function RelayPopoutPage() {
             </div>
           </HudPanel>
 
-          <HudPanel className="px-3 py-2.5">
+          <HudPanel className="relay-popout-signal-panel px-3 py-2.5">
             <div className="flex items-center gap-1.5">
               <Activity size={10} style={{ color: 'rgb(192, 132, 252)' }} />
               <h2 className="text-[7px] font-semibold uppercase tracking-[0.18em]">Signal</h2>
@@ -359,7 +361,7 @@ export function RelayPopoutPage() {
           </HudPanel>
         </div>
 
-        <HudPanel className="px-3 py-2.5">
+        <HudPanel className="relay-popout-command-panel px-3 py-2.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
               <Bot size={10} style={{ color: 'rgb(196, 181, 253)' }} />
@@ -377,7 +379,7 @@ export function RelayPopoutPage() {
           </div>
         </HudPanel>
 
-        <footer className="mt-auto grid grid-cols-2 gap-2">
+        <footer className="relay-popout-footer mt-auto grid grid-cols-2 gap-2">
           <button
             type="button"
             onClick={() => navigate('/dashboard')}
