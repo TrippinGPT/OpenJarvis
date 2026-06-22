@@ -37,4 +37,10 @@ uv run relay doctor
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_openclaw_bridge.ps1
 ```
 
+## Relay agent roster
+
+```text
+D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_AGENT_ROSTER.md
+```
+
 > Do not run `jarvis self-update` on the Trippin AI Relay fork.
