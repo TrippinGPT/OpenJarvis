@@ -49,6 +49,7 @@
         "piper",
         "kokoro"
       ],
+      "first_prototype_candidate": "piper",
       "status": "planned"
     }
   ],

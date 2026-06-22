@@ -58,4 +58,10 @@ Read-only local feasibility check:
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_relay_tts_feasibility.ps1
 ```
 
+Piper setup check:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_piper_setup.ps1
+```
+
 > Do not run `jarvis self-update` on the Trippin AI Relay fork.

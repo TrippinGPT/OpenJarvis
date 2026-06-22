@@ -102,13 +102,31 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_re
 
 The checker inventories local prerequisites only. It does not install packages, download models, generate or play audio, access a microphone, call remote APIs, or modify OpenClaw.
 
-### v1.9 — Piper or Kokoro local prototype
+### v1.9 — Piper plan and read-only checklist
 
-- Select one approved local candidate after feasibility review.
+- Select Piper as the first local/offline prototype candidate.
+- Document the manual setup, licensing review, safety rules, and proposed test paths.
+- Add a read-only Piper setup checker.
+- Do not install Piper, download models, create folders, generate audio, or add runtime integration.
+- Keep Kokoro as a later candidate and Coqui/XTTS-style systems as advanced, review-only options.
+
+See [RELAY_PIPER_PROTOTYPE_PLAN.md](RELAY_PIPER_PROTOTYPE_PLAN.md).
+
+Run the read-only setup check with:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_piper_setup.ps1
+```
+
+### v1.10 — First Piper audio test after explicit approval
+
+- Install Piper manually or point to an existing reviewed installation.
+- Select one safe, licensed test voice/model.
 - Generate one original Relay test line.
-- Save a local test WAV or MP3 under an explicitly approved temporary/test folder.
+- Save output under an explicitly approved test folder.
 - Do not auto-play audio unless explicitly approved.
 - Do not clone or imitate any identifiable person or character.
+- Do not begin this stage without explicit user approval.
 
 ### v2.0 — Popout voice toggle
 
@@ -134,4 +152,5 @@ The checker inventories local prerequisites only. It does not install packages, 
 - [Relay Personality Guide](RELAY_PERSONALITY_GUIDE.md)
 - [Relay Script Pack](RELAY_SCRIPT_PACK.md)
 - [Relay Agent Roster](RELAY_AGENT_ROSTER.md)
+- [Relay Piper Prototype Plan](RELAY_PIPER_PROTOTYPE_PLAN.md)
 - `config/relay_voice_profiles.json`
