@@ -52,4 +52,10 @@ D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_TTS_PLAN.md
 D:\AI\TRIPPIN_AI_RELAY\config\relay_voice_profiles.json
 ```
 
+Read-only local feasibility check:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_relay_tts_feasibility.ps1
+```
+
 > Do not run `jarvis self-update` on the Trippin AI Relay fork.

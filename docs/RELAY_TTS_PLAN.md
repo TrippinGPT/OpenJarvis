@@ -90,6 +90,18 @@ The voice profile is a delivery specification, not a reference impression. Futur
 - Do not download models unless explicitly approved.
 - Do not auto-install packages or modify system audio settings.
 
+The v1.8 read-only checker is available at:
+
+`scripts/check_relay_tts_feasibility.ps1`
+
+Run it with:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_relay_tts_feasibility.ps1
+```
+
+The checker inventories local prerequisites only. It does not install packages, download models, generate or play audio, access a microphone, call remote APIs, or modify OpenClaw.
+
 ### v1.9 — Piper or Kokoro local prototype
 
 - Select one approved local candidate after feasibility review.
