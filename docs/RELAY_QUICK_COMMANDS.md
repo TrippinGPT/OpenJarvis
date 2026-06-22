@@ -72,4 +72,10 @@ Piper setup check:
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_piper_setup.ps1
 ```
 
+Piper sandbox prep:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\prepare_piper_sandbox.ps1
+```
+
 > Do not run `jarvis self-update` on the Trippin AI Relay fork.

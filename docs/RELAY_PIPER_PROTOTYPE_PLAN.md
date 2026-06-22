@@ -52,15 +52,34 @@ D:\AI\TRIPPIN_AI_RELAY\outputs\tts_tests
 
 These folders are not created by the checker. A missing result is expected before setup.
 
+## v2.0 Piper sandbox preparation
+
+v2.0 prepares the two Relay-local sandbox folders and their boundary README files:
+
+```text
+D:\AI\TRIPPIN_AI_RELAY\tools\piper
+D:\AI\TRIPPIN_AI_RELAY\outputs\tts_tests
+```
+
+Run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\prepare_piper_sandbox.ps1
+```
+
+The preparation script is restricted to those paths inside the Relay repository. It creates the folders and `README.md` files only when missing. It does not install Piper, download binaries or models, generate or play audio, access a microphone, call remote APIs, or modify OpenClaw.
+
+Actual Piper installation, voice-model selection, and the first audio test still require explicit user approval in a future task.
+
 ## Manual setup will be done only after user approval
 
 A future approved setup task must document the exact Piper source, version, voice/model license, destination paths, and rollback steps before installation or download begins.
 
 No command in this plan authorizes installation, download, model selection, audio generation, playback, or application integration.
 
-## Proposed v1.10 first audio test
+## Proposed v2.1 first audio test
 
-Only after explicit user approval, v1.10 may:
+Only after explicit user approval, v2.1 may:
 
 1. Install Piper manually or point Relay to an existing reviewed Piper installation.
 2. Select one safe, licensed, original-sounding test voice/model.
@@ -79,3 +98,4 @@ The first test must not add microphone support, audio capture, voice cloning, au
 - `config/relay_voice_profiles.json`
 - `scripts/check_relay_tts_feasibility.ps1`
 - `scripts/check_piper_setup.ps1`
+- `scripts/prepare_piper_sandbox.ps1`

@@ -61,6 +61,8 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - `relay-v1.7-tts-planning`
 - `relay-v1.8-tts-feasibility-checker`
 - `relay-v1.9-piper-prototype-plan`
+- `relay-v1.9.1-current-state-summary`
+- `relay-v2.0-piper-sandbox-prep`
 
 ## 6. Current features
 
@@ -77,6 +79,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - Relay personality and script-pack documentation
 - TTS feasibility plan and checker
 - Piper prototype plan and read-only setup checker
+- Piper-local sandbox folders with boundary README files and a constrained preparation script
 
 ## 7. Safety boundaries
 
@@ -97,15 +100,17 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - Piper and Kokoro are not installed.
 - The local TTS feasibility check passed for a planning-only prototype.
 - The Piper prototype plan and read-only setup checker exist.
+- v2.0 prepares only the Relay-local Piper and TTS-test sandbox folders.
+- No Piper binary, voice model, TTS runtime, or generated audio is present.
 - Installation, model download, audio generation, playback, or UI voice controls require explicit user approval in a future task.
 
 ## 9. Next possible milestones
 
-- **v2.0:** Approved Piper installation and one controlled test
-- **v2.1:** User-controlled Relay Popout voice toggle
-- **v2.2:** Agent-specific original voice profiles
-- **v2.3:** Real routing signals connected to agent mesh animation
-- **v2.4:** Safe preflight actions
+- **v2.1:** Approved Piper installation and one controlled test
+- **v2.2:** User-controlled Relay Popout voice toggle
+- **v2.3:** Agent-specific original voice profiles
+- **v2.4:** Real routing signals connected to agent mesh animation
+- **v2.5:** Safe preflight actions
 
 These are proposed milestones only. They do not authorize installation, downloads, audio generation, agent execution, or OpenClaw changes.
 
@@ -119,6 +124,7 @@ git --no-pager log --oneline -10
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_openclaw_bridge.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_relay_tts_feasibility.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_piper_setup.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\prepare_piper_sandbox.ps1
 ```
 
 Related references:

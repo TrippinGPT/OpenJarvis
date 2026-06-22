@@ -118,23 +118,28 @@ Run the read-only setup check with:
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_piper_setup.ps1
 ```
 
-### v1.10 — First Piper audio test after explicit approval
+### v2.0 — Piper sandbox folders only
+
+- Prepare `tools\piper` and `outputs\tts_tests` inside the Relay repository.
+- Add README boundary notes to both sandbox folders.
+- Provide a constrained preparation script that creates only those folders and missing README files.
+- Do not install Piper, download binaries or models, generate audio, or add runtime integration.
+
+Run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\prepare_piper_sandbox.ps1
+```
+
+### v2.1 — First Piper install and audio test after explicit approval
 
 - Install Piper manually or point to an existing reviewed installation.
 - Select one safe, licensed test voice/model.
 - Generate one original Relay test line.
-- Save output under an explicitly approved test folder.
+- Save output under the approved `outputs\tts_tests` sandbox.
 - Do not auto-play audio unless explicitly approved.
 - Do not clone or imitate any identifiable person or character.
 - Do not begin this stage without explicit user approval.
-
-### v2.0 — Popout voice toggle
-
-- Add a user-controlled voice toggle to the Relay Popout.
-- Keep voice off by default.
-- Speak only assistant responses or explicit test lines.
-- Provide an immediate stop/mute control.
-- Preserve all existing safety, truthfulness, privacy, and permission boundaries.
 
 ## Future implementation acceptance criteria
 
@@ -154,3 +159,4 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_pi
 - [Relay Agent Roster](RELAY_AGENT_ROSTER.md)
 - [Relay Piper Prototype Plan](RELAY_PIPER_PROTOTYPE_PLAN.md)
 - `config/relay_voice_profiles.json`
+- `scripts/prepare_piper_sandbox.ps1`
