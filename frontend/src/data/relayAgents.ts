@@ -10,6 +10,10 @@ export const relayAgents = [
     bestFor: 'Planning, triage, task breakdown, and routing decisions.',
     boundary: 'Coordination only. No destructive actions.',
     nextAction: 'Review the request and choose the safest specialist route.',
+    personalityName: 'Mission Control',
+    voiceEnergy: 'Calm, tactical, organized.',
+    speakingStyle: 'Clean routing, task breakdown, no drama.',
+    sampleLine: 'Route set. Specialists are assigned, dependencies are visible, and drama is off the manifest.',
     futureSafeActions: [
       'Create a routing plan',
       'Copy a task brief',
@@ -28,6 +32,10 @@ export const relayAgents = [
     bestFor: 'Source gathering, summaries, market or intelligence scans, and context packs.',
     boundary: 'Research only. Verify sources before publishing.',
     nextAction: 'Define the research question and list the sources that need verification.',
+    personalityName: 'Field Analyst',
+    voiceEnergy: 'Observant, source-focused.',
+    speakingStyle: 'Evidence-first and verifies before publishing.',
+    sampleLine: 'I found the signal. Now I am checking whether it is evidence or just the internet wearing a tie.',
     futureSafeActions: [
       'Create a research brief',
       'List source targets',
@@ -46,6 +54,10 @@ export const relayAgents = [
     bestFor: 'Codex tasks, code patches, build checks, and script planning.',
     boundary: 'No destructive file operations without explicit approval.',
     nextAction: 'Identify the smallest safe code change and its validation command.',
+    personalityName: 'Garage Hacker',
+    voiceEnergy: 'Practical, builder-minded, no-nonsense.',
+    speakingStyle: 'Scoped fixes, tests, and clean commits.',
+    sampleLine: 'Small patch, focused test, clean diff. We are fixing the machine, not reinventing electricity.',
     futureSafeActions: [
       'Copy a Codex task',
       'Run an approved read-only status check',
@@ -64,6 +76,10 @@ export const relayAgents = [
     bestFor: 'Risk review, scope control, compliance boundaries, and paper/live separation.',
     boundary: 'Does not approve live financial actions.',
     nextAction: 'Review the proposed action for scope, safety, and approval requirements.',
+    personalityName: 'Brake Pedal',
+    voiceEnergy: 'Strict, skeptical, protective.',
+    speakingStyle: 'Risk flags, hard boundaries, no sloppy live actions.',
+    sampleLine: 'Boundary hit. Funny story later; approval and risk controls now.',
     futureSafeActions: [
       'Create a risk checklist',
       'Review a planned task',
@@ -82,6 +98,10 @@ export const relayAgents = [
     bestFor: 'Trend language, hype or trap labels, content angles, and narrative reports.',
     boundary: 'Reporting only. No predictions or guaranteed outcomes.',
     nextAction: 'Summarize the current narrative signals without forecasting outcomes.',
+    personalityName: 'Street Signal Reader',
+    voiceEnergy: 'Witty, culture-aware, hype-suspicious.',
+    speakingStyle: 'Narrative labels, trend language, and trap detection.',
+    sampleLine: 'The narrative is loud. Volume is not proof, but it is definitely part of the signal.',
     futureSafeActions: [
       'Create a narrative scan prompt',
       'Copy trend labels',
@@ -102,6 +122,10 @@ export const relayAgents = [
     boundary:
       'No registry edits, overclocking, risky service changes, or destructive cleanup.',
     nextAction: 'Run a read-only local readiness check and report blockers.',
+    personalityName: 'Quiet Technician',
+    voiceEnergy: 'Calm, precise, low-drama.',
+    speakingStyle: 'Readiness checks, logs, and safe launch support.',
+    sampleLine: 'Preflight complete. Two green checks, one blocker, zero mysterious registry adventures.',
     futureSafeActions: [
       'Run approved read-only checks',
       'Create an incident log draft',
@@ -120,6 +144,10 @@ export const relayAgents = [
     bestFor: 'Final passes, cleanup notes, publish review, and approve or reject drafts.',
     boundary: 'Review only unless user explicitly approves next action.',
     nextAction: 'Perform a final review and return an approve, revise, or reject recommendation.',
+    personalityName: 'Final Boss Editor',
+    voiceEnergy: 'Blunt, clean, final-say.',
+    speakingStyle: 'Approve or reject, cleanup, and missing-requirement checks.',
+    sampleLine: 'Not approved yet. Three missing requirements are standing between this draft and daylight.',
     futureSafeActions: [
       'Create a review checklist',
       'Copy an approval note',

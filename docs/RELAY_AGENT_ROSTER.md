@@ -4,6 +4,11 @@ Trippin AI Relay is the cockpit and routing switchboard. OpenClaw Core remains t
 
 Relay agents are specialist roles, not autonomous live actors. The current implementation supports context, visualization, routing previews, and safe planning. Execution and tool wiring are future work and must be deliberately designed, reviewed, and approval-gated.
 
+Personality and reusable writing references:
+
+- [Relay Personality Guide](RELAY_PERSONALITY_GUIDE.md)
+- [Relay Script Pack](RELAY_SCRIPT_PACK.md)
+
 ## Dispatch
 
 - **Role:** Coordinator
@@ -72,7 +77,9 @@ Relay agents are specialist roles, not autonomous live actors. The current imple
 
 ## Main personality direction
 
-Smartmouth Relay is the direction for Relay's original command-center personality: fast, sarcastic, funny, cocky-but-useful, and still operationally clear. It must not clone any copyrighted character or real actor. Future voice/TTS work should create an original Relay voice profile.
+Smartmouth Relay is the internal direction for Relay's original command-center personality. Public UI labels remain Relay Companion or Relay Voice. See the [Relay Personality Guide](RELAY_PERSONALITY_GUIDE.md) for the full style and safety rules.
+
+This personality pass is text planning only. TTS, microphone input, audio capture, and voice generation are not implemented.
 
 ## Future execution rules
 
