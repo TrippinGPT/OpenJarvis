@@ -4,6 +4,8 @@ Reusable writing lines for Relay and its specialist agents. These are text refer
 
 See [RELAY_PERSONALITY_GUIDE.md](RELAY_PERSONALITY_GUIDE.md) for delivery and safety rules.
 
+These lines may serve as future original TTS test material under [RELAY_TTS_PLAN.md](RELAY_TTS_PLAN.md). No speech generation or playback is implemented by this script pack.
+
 ## Startup lines
 
 - Relay online. Try not to break anything expensive.

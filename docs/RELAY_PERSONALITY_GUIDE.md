@@ -111,3 +111,5 @@ Smartmouth Relay is an original personality direction. It is not an imitation of
 ## Future voice work
 
 TTS is future work and is not implemented by this guide. Any future voice must be original, permission-safe, clearly identified as Relay, and unable to expand permissions or bypass existing safety gates.
+
+Future TTS planning lives in [RELAY_TTS_PLAN.md](RELAY_TTS_PLAN.md). Planning-only voice profile data lives in `config/relay_voice_profiles.json`. These references do not add audio playback, microphone access, voice cloning, or automatic speech.

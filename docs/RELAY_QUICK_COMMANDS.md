@@ -43,4 +43,13 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_op
 D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_AGENT_ROSTER.md
 ```
 
+## Relay TTS plan
+
+Planning reference only:
+
+```text
+D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_TTS_PLAN.md
+D:\AI\TRIPPIN_AI_RELAY\config\relay_voice_profiles.json
+```
+
 > Do not run `jarvis self-update` on the Trippin AI Relay fork.
