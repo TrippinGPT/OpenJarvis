@@ -5,6 +5,7 @@ import {
   Check,
   Copy,
   Cpu,
+  ExternalLink,
   FolderKanban,
   GitBranch,
   Link2,
@@ -172,6 +173,7 @@ export function DashboardPage() {
   }>({ target: null, until: 0 });
   const [selectedAgent, setSelectedAgent] = useState<AgentRouteTarget>('dispatch');
   const [activityClock, setActivityClock] = useState(() => Date.now());
+  const [popoutBlocked, setPopoutBlocked] = useState(false);
   const [bridgeBackendState, setBridgeBackendState] = useState<
     'loading' | 'connected' | 'fallback'
   >('loading');
@@ -296,6 +298,20 @@ export function DashboardPage() {
     } catch {
       setCopiedCommand(null);
     }
+  };
+
+  const openRelayPopout = () => {
+    const popout = window.open(
+      '/relay-popout',
+      'relay-popout-companion',
+      'popup=yes,width=460,height=720,resizable=yes,scrollbars=yes',
+    );
+    if (popout) {
+      popout.focus();
+      setPopoutBlocked(false);
+      return;
+    }
+    setPopoutBlocked(true);
   };
 
   return (
@@ -622,6 +638,33 @@ export function DashboardPage() {
           </div>
 
           <div className="flex flex-wrap gap-2 xl:justify-end">
+            <button
+              type="button"
+              onClick={openRelayPopout}
+              className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-[10px] font-medium uppercase tracking-[0.12em] transition-colors"
+              style={{
+                color: 'rgb(216, 180, 254)',
+                border: '1px solid rgba(192, 132, 252, 0.22)',
+                background: 'rgba(168, 85, 247, 0.07)',
+              }}
+            >
+              <ExternalLink size={13} />
+              Open Relay Popout
+            </button>
+            {popoutBlocked && (
+              <button
+                type="button"
+                onClick={() => navigate('/relay-popout')}
+                className="rounded-xl px-3 py-2 text-[10px] font-medium uppercase tracking-[0.12em]"
+                style={{
+                  color: 'rgb(103, 232, 249)',
+                  border: '1px solid rgba(34, 211, 238, 0.20)',
+                  background: 'rgba(34, 211, 238, 0.055)',
+                }}
+              >
+                Popup blocked — open here
+              </button>
+            )}
             <div
               className="rounded-xl px-3 py-2 text-[11px]"
               style={{

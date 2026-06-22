@@ -8,6 +8,7 @@ import { GetStartedPage } from './pages/GetStartedPage';
 import { AgentsPage } from './pages/AgentsPage';
 import { DataSourcesPage } from './pages/DataSourcesPage';
 import { LogsPage } from './pages/LogsPage';
+import { RelayPopoutPage } from './pages/RelayPopoutPage';
 import { CommandPalette } from './components/CommandPalette';
 import { SetupScreen } from './components/SetupScreen';
 import { Toaster } from './components/ui/sonner';
@@ -16,6 +17,7 @@ import { fetchModels, fetchServerInfo, fetchSavings, submitSavings, isTauri } fr
 import { OptInModal } from './components/OptInModal';
 import { UpdateChecker } from './components/Desktop/UpdateChecker';
 import { track, hashId } from './lib/analytics';
+import { writeRelayPopoutActivity } from './lib/relayPopout';
 
 export default function App() {
   const [setupDone, setSetupDone] = useState(!isTauri());
@@ -32,6 +34,7 @@ export default function App() {
   const setModels = useAppStore((s) => s.setModels);
   const setModelsLoading = useAppStore((s) => s.setModelsLoading);
   const selectedModel = useAppStore((s) => s.selectedModel);
+  const streamState = useAppStore((s) => s.streamState);
   const setServerInfo = useAppStore((s) => s.setServerInfo);
   const setSavings = useAppStore((s) => s.setSavings);
   const settings = useAppStore((s) => s.settings);
@@ -73,6 +76,17 @@ export default function App() {
       .catch(() => setModels([]))
       .finally(() => setModelsLoading(false));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Publish read-only activity state so a separate companion window can react.
+  useEffect(() => {
+    if (window.location.pathname === '/relay-popout') return;
+    writeRelayPopoutActivity({
+      isResponding: streamState.isStreaming,
+      phase: streamState.phase,
+      model: selectedModel,
+      updatedAt: Date.now(),
+    });
+  }, [selectedModel, streamState.isStreaming, streamState.phase]);
 
   // Fetch server info
   useEffect(() => {
@@ -182,6 +196,7 @@ export default function App() {
     <>
       <UpdateChecker />
       <Routes>
+        <Route path="relay-popout" element={<RelayPopoutPage />} />
         <Route element={<Layout />}>
           <Route index element={<ChatPage />} />
           <Route path="dashboard" element={<DashboardPage />} />

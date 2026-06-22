@@ -754,3 +754,104 @@
   background: var(--color-accent);
   text-decoration: none;
 }
+
+/* Relay popout companion — lightweight CSS-only HUD motion. */
+@keyframes relay-popout-breathe {
+  0%, 100% { transform: scale(0.98); filter: brightness(0.92); }
+  50% { transform: scale(1.03); filter: brightness(1.12); }
+}
+
+@keyframes relay-popout-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes relay-popout-wave {
+  0%, 100% { height: 5px; opacity: 0.5; }
+  50% { height: 18px; opacity: 1; }
+}
+
+.relay-popout-orb {
+  position: relative;
+  display: flex;
+  width: 132px;
+  height: 132px;
+  align-items: center;
+  justify-content: center;
+  animation: relay-popout-breathe 4.2s ease-in-out infinite;
+}
+
+.relay-popout-orb-active {
+  animation-duration: 1.8s;
+}
+
+.relay-popout-ring {
+  position: absolute;
+  border-radius: 9999px;
+  border: 1px solid rgba(192, 132, 252, 0.42);
+}
+
+.relay-popout-ring-outer {
+  inset: 0;
+  border-style: dashed;
+  box-shadow: 0 0 28px rgba(168, 85, 247, 0.20);
+  animation: relay-popout-spin 12s linear infinite;
+}
+
+.relay-popout-ring-inner {
+  inset: 18px;
+  border-color: rgba(103, 232, 249, 0.34);
+  animation: relay-popout-spin 8s linear infinite reverse;
+}
+
+.relay-popout-core {
+  display: flex;
+  width: 68px;
+  height: 68px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  color: rgb(233, 213, 255);
+  border: 1px solid rgba(216, 180, 254, 0.48);
+  background:
+    radial-gradient(circle at 38% 30%, rgba(103, 232, 249, 0.24), transparent 34%),
+    radial-gradient(circle, rgba(168, 85, 247, 0.34), rgba(40, 15, 65, 0.90));
+  box-shadow:
+    inset 0 0 24px rgba(216, 180, 254, 0.18),
+    0 0 34px rgba(168, 85, 247, 0.32);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.relay-popout-orb-active .relay-popout-core {
+  box-shadow:
+    inset 0 0 28px rgba(103, 232, 249, 0.24),
+    0 0 48px rgba(168, 85, 247, 0.48);
+}
+
+.relay-popout-wave {
+  position: absolute;
+  bottom: 2px;
+  display: flex;
+  height: 20px;
+  align-items: center;
+  gap: 3px;
+}
+
+.relay-popout-wave span {
+  display: block;
+  width: 3px;
+  height: 6px;
+  border-radius: 9999px;
+  background: rgb(103, 232, 249);
+  box-shadow: 0 0 8px rgba(34, 211, 238, 0.72);
+  animation: relay-popout-wave 720ms ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .relay-popout-orb,
+  .relay-popout-ring,
+  .relay-popout-wave span {
+    animation: none !important;
+  }
+}
