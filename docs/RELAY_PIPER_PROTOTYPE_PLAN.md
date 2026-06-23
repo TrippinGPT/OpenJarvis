@@ -10,7 +10,8 @@ Piper is the first candidate for a future local/offline Relay voice prototype. T
 - **Piper installation:** Installed locally in `tools\piper.venv`
 - **Piper package:** `piper-tts` 1.4.2
 - **Piper Python:** 3.11.15
-- **Voice model:** Not selected or downloaded
+- **Voice model candidate:** `en_US_lessac_medium`
+- **Voice-model gate:** Defined in `config\piper_voice_models.json`
 - **Audio generation:** Not implemented
 - **Audio playback:** Not implemented
 - **Microphone or audio capture:** Not implemented
@@ -111,7 +112,7 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\install_
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_test_line_gated.ps1 -AllowGenerate
 ```
 
-The first approved model must be original-sounding, license-reviewed, and placed manually under `tools\piper\models`. Actual Popout integration and automatic speech remain unimplemented.
+The first approved model must be original-sounding, license-reviewed, and placed manually under `tools\piper\voices`. Actual Popout integration and automatic speech remain unimplemented.
 
 ## v2.1.1 Python runtime compatibility
 
@@ -153,7 +154,7 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\install_
 
 The script remains dry-run by default. It refuses non-Python-3.11 environments and does not use global site packages.
 
-No voice model was selected or downloaded. No audio was generated or played. The next planned milestone is v2.3: an explicit voice-model selection and download plan with license review.
+No audio was generated or played. The approved v2.3 voice-model selection and download gate is described below.
 
 ## v2.2.1 verified venv path
 
@@ -171,7 +172,38 @@ Verified state:
 - All Piper scripts and current documentation reference `tools\piper.venv`.
 - Both canonical and legacy venv patterns remain ignored by Git.
 - No migration or reinstall was required.
-- No voice model was downloaded and no audio was generated.
+- The approved local test voice is defined as `en_US_lessac_medium`.
+- Voice-model files belong under `tools\piper\voices` and stay ignored by Git.
+- No audio was generated.
+
+## v2.3 voice model selection and gated download
+
+The approved local voice candidate is:
+
+```text
+en_US_lessac_medium
+```
+
+The local selection gate uses:
+
+- `config\piper_voice_models.json`
+- `scripts\download_piper_voice_model_gated.ps1`
+
+The approved model pair is:
+
+- `D:\AI\TRIPPIN_AI_RELAY\tools\piper\voices\en_US-lessac-medium.onnx`
+- `D:\AI\TRIPPIN_AI_RELAY\tools\piper\voices\en_US-lessac-medium.onnx.json`
+
+Safety boundary:
+
+- Local testing only
+- No audio generation yet
+- No autoplay
+- No Popout voice integration yet
+- No microphone/audio capture
+- No voice cloning
+- No real-person or copyrighted-character impersonation
+- Model card and license review are required before any distribution discussion
 
 ## Related files
 
@@ -181,6 +213,9 @@ Verified state:
 - `config/relay_voice_profiles.json`
 - `scripts/check_relay_tts_feasibility.ps1`
 - `scripts/check_piper_setup.ps1`
+- `config/piper_voice_models.json`
+- [Relay Piper Voice Model Selection](RELAY_PIPER_VOICE_MODEL_SELECTION.md)
+- `scripts/download_piper_voice_model_gated.ps1`
 - `scripts/prepare_piper_sandbox.ps1`
 - `scripts/install_piper_gated.ps1`
 - `scripts/run_piper_test_line_gated.ps1`

@@ -13,11 +13,12 @@ $repoRootPrefix = $repoRoot.TrimEnd(
     [System.IO.Path]::DirectorySeparatorChar,
     [System.IO.Path]::AltDirectorySeparatorChar
 ) + [System.IO.Path]::DirectorySeparatorChar
-$piperRoot = Join-Path $repoRoot "tools\piper"
-$localPython = Join-Path $repoRoot "tools\piper.venv\Scripts\python.exe"
-$modelsRoot = Join-Path $piperRoot "models"
+$configPath = Join-Path $repoRoot "config\piper_voice_models.json"
+$localVenvPath = Join-Path $repoRoot "tools\piper.venv"
+$localPython = Join-Path $localVenvPath "Scripts\python.exe"
+$localPiperCommand = Join-Path $localVenvPath "Scripts\piper.exe"
+$voicesRoot = Join-Path $repoRoot "tools\piper\voices"
 $outputRoot = Join-Path $repoRoot "outputs\tts_tests"
-$voiceConfigPath = Join-Path $repoRoot "config\relay_voice_profiles.json"
 
 if (-not $repoRoot.Equals($expectedRepoRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
     throw "Refusing to run Piper outside the expected Relay repo: $expectedRepoRoot"
@@ -37,6 +38,37 @@ function Assert-RelayPath {
     return $fullPath
 }
 
+function Get-CommandVersion {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Name
+    )
+
+    $command = Get-Command $Name -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($null -eq $command) {
+        return [pscustomobject]@{
+            Available = $false
+            Version = "Not found"
+        }
+    }
+
+    try {
+        $output = & $command.Source --version 2>&1
+        $version = ($output | ForEach-Object { "$_".Trim() } | Where-Object { $_ }) -join " "
+        if ([string]::IsNullOrWhiteSpace($version)) {
+            $version = "Available (version not reported)"
+        }
+    }
+    catch {
+        $version = "Available (version check failed: $($_.Exception.Message))"
+    }
+
+    return [pscustomobject]@{
+        Available = $true
+        Version = $version
+    }
+}
+
 function Test-PiperModule {
     param(
         [Parameter(Mandatory = $true)]
@@ -51,108 +83,107 @@ function Test-PiperModule {
     return ($LASTEXITCODE -eq 0)
 }
 
-$defaultVoiceId = "Unavailable"
-$defaultLine = $null
-if (Test-Path -LiteralPath $voiceConfigPath -PathType Leaf) {
-    try {
-        $voiceConfig = Get-Content -LiteralPath $voiceConfigPath -Raw | ConvertFrom-Json
-        $defaultVoiceId = [string]$voiceConfig.default_voice
-        $defaultProfile = $voiceConfig.voices |
-            Where-Object { $_.id -eq $defaultVoiceId } |
-            Select-Object -First 1
+function Get-Count {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Folder,
 
-        if ($null -ne $defaultProfile -and @($defaultProfile.do_say).Count -gt 0) {
-            $defaultLine = [string]$defaultProfile.do_say[0]
-        }
-    }
-    catch {
-        throw "Relay voice profile config is invalid: $($_.Exception.Message)"
-    }
-}
-
-$plannedLine = if (-not [string]::IsNullOrWhiteSpace($Line)) { $Line.Trim() } else { $defaultLine }
-if ([string]::IsNullOrWhiteSpace($plannedLine)) {
-    throw "No Relay test line was provided or found in config/relay_voice_profiles.json."
-}
-if ($plannedLine.Length -gt 500) {
-    throw "Relay test line is limited to 500 characters."
-}
-
-$localModuleAvailable = Test-PiperModule -PythonPath $localPython
-$piperCommand = Get-Command "piper" -ErrorAction SilentlyContinue | Select-Object -First 1
-$piperDetected = $localModuleAvailable -or ($null -ne $piperCommand)
-$models = @()
-if (Test-Path -LiteralPath $modelsRoot -PathType Container) {
-    $models = @(
-        Get-ChildItem -LiteralPath $modelsRoot -Recurse -File -Filter "*.onnx" |
-            Sort-Object FullName
+        [Parameter(Mandatory = $true)]
+        [string]$Filter
     )
+
+    if (-not (Test-Path -LiteralPath $Folder -PathType Container)) {
+        return 0
+    }
+
+    return @(
+        Get-ChildItem -LiteralPath $Folder -Recurse -File -Filter $Filter
+    ).Count
 }
 
-$timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
-$plannedOutput = Assert-RelayPath -Path (Join-Path $outputRoot "relay-smartmouth-$timestamp.wav")
+function Write-SectionLine {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Label,
+
+        [Parameter(Mandatory = $true)]
+        [string]$Value
+    )
+
+    Write-Host ("{0,-34} {1}" -f "${Label}:", $Value)
+}
+
+if ($AllowGenerate) {
+    Write-Error "Audio generation is reserved for v2.4 after voice model gate validation."
+    exit 1
+}
+
+if (-not (Test-Path -LiteralPath $configPath -PathType Leaf)) {
+    throw "Missing voice-model config: $configPath"
+}
+
+try {
+    $voiceConfig = Get-Content -LiteralPath $configPath -Raw | ConvertFrom-Json
+}
+catch {
+    throw "Voice-model config is invalid: $($_.Exception.Message)"
+}
+
+$selectedVoice = $voiceConfig.voices |
+    Where-Object { $_.id -eq $voiceConfig.default_voice_id } |
+    Select-Object -First 1
+
+if ($null -eq $selectedVoice) {
+    throw "Default voice id '$($voiceConfig.default_voice_id)' was not found in $configPath."
+}
+
+$modelPath = Assert-RelayPath -Path $selectedVoice.model_output_path
+$configOutputPath = Assert-RelayPath -Path $selectedVoice.config_output_path
+$voiceFolderExists = Test-Path -LiteralPath $voicesRoot -PathType Container
+$modelExists = Test-Path -LiteralPath $modelPath -PathType Leaf
+$configExists = Test-Path -LiteralPath $configOutputPath -PathType Leaf
+$voiceModelCount = Get-Count -Folder $voicesRoot -Filter "*.onnx"
+$voiceConfigCount = Get-Count -Folder $voicesRoot -Filter "*.onnx.json"
+$localPiperInstalled = Test-PiperModule -PythonPath $localPython
+$piperCommand = Get-Command "piper" -ErrorAction SilentlyContinue | Select-Object -First 1
+$plannedLine = if (-not [string]::IsNullOrWhiteSpace($Line)) {
+    $Line.Trim()
+}
+else {
+    "Relay online. Ready for the next safe step."
+}
+$plannedOutput = Assert-RelayPath -Path (Join-Path $outputRoot "relay-test-line-preview.wav")
 
 Write-Host ""
 Write-Host "Relay Piper Gated Test Line" -ForegroundColor Magenta
 Write-Host "Repo root: $repoRoot" -ForegroundColor Cyan
-Write-Host "Mode: $(if ($AllowGenerate) { 'GENERATION GATE REQUESTED' } else { 'DRY RUN' })" -ForegroundColor Cyan
+Write-Host "Mode: DRY RUN" -ForegroundColor Cyan
 Write-Host ""
 
-Write-Host "Planned test" -ForegroundColor Cyan
-Write-Host "- Voice profile: $defaultVoiceId"
-Write-Host "- Test line: $plannedLine"
-Write-Host "- Planned output: $plannedOutput"
-Write-Host "- Piper detected: $piperDetected"
-Write-Host "- Relay-local Piper module: $localModuleAvailable"
-Write-Host "- Local ONNX models found: $($models.Count)"
-Write-Host "- Auto-play: disabled"
-Write-Host ""
+Write-Host "Selected voice" -ForegroundColor Cyan
+Write-SectionLine -Label "Voice id" -Value $selectedVoice.id
+Write-SectionLine -Label "Display name" -Value $selectedVoice.display_name
+Write-SectionLine -Label "Model output path" -Value $modelPath
+Write-SectionLine -Label "Config output path" -Value $configOutputPath
+Write-SectionLine -Label "Model present" -Value $modelExists.ToString()
+Write-SectionLine -Label "Config present" -Value $configExists.ToString()
+Write-SectionLine -Label "Voice folder" -Value $(if ($voiceFolderExists) { "Present" } else { "Missing, expected before model download." })
+Write-SectionLine -Label ".onnx count" -Value $voiceModelCount.ToString()
+Write-SectionLine -Label ".onnx.json count" -Value $voiceConfigCount.ToString()
+Write-SectionLine -Label "Planned test line" -Value $plannedLine
+Write-SectionLine -Label "Planned output path" -Value $plannedOutput
+Write-SectionLine -Label "Local Piper module" -Value $(if ($localPiperInstalled) { "Installed in the Relay venv" } else { "Missing" })
+Write-SectionLine -Label "Local Piper command" -Value $(if (Test-Path -LiteralPath $localPiperCommand -PathType Leaf) { $localPiperCommand } else { "Not found" })
 
-if (-not $AllowGenerate) {
-    Write-Host "Dry run complete. Audio generation requires -AllowGenerate." -ForegroundColor Yellow
-}
-elseif (-not $localModuleAvailable) {
-    Write-Host "Generation stopped: the Relay-local Piper module was not detected at tools\piper.venv." -ForegroundColor Yellow
-    Write-Host "Run the gated install review after a compatible local Python interpreter is approved." -ForegroundColor Yellow
-}
-elseif ($models.Count -eq 0) {
-    Write-Host "Voice model missing. Manual model selection/download requires a future explicit approval step." -ForegroundColor Yellow
-}
-elseif ($models.Count -gt 1) {
-    Write-Host "Generation stopped: multiple voice models were found." -ForegroundColor Yellow
-    Write-Host "A future approved task must select one reviewed model explicitly." -ForegroundColor Yellow
-}
-elseif (-not (Test-Path -LiteralPath "$($models[0].FullName).json" -PathType Leaf)) {
-    Write-Host "Voice model config missing: $($models[0].FullName).json" -ForegroundColor Yellow
-    Write-Host "Manual model selection/download requires a future explicit approval step." -ForegroundColor Yellow
-}
-elseif (-not (Test-Path -LiteralPath $outputRoot -PathType Container)) {
-    Write-Host "Generation stopped: output sandbox is missing." -ForegroundColor Yellow
-    Write-Host "Run scripts\prepare_piper_sandbox.ps1 first." -ForegroundColor Yellow
+Write-Host ""
+if (-not $modelExists -or -not $configExists) {
+    Write-Host "Model files are missing. This is expected before the approved voice-model download." -ForegroundColor Yellow
 }
 else {
-    $model = $models[0]
-    $modelName = [System.IO.Path]::GetFileNameWithoutExtension($model.Name)
-    $modelDataDir = $model.DirectoryName
-
-    Write-Host "============================================================" -ForegroundColor Yellow
-    Write-Host "PIPER AUDIO GENERATION APPROVED BY -AllowGenerate" -ForegroundColor Yellow
-    Write-Host "============================================================" -ForegroundColor Yellow
-    Write-Host "Command: $localPython -m piper -m $modelName --data-dir `"$modelDataDir`" -f `"$plannedOutput`" -- <approved Relay line>"
-    Write-Host "No playback command will run."
-    Write-Host ""
-
-    & $localPython -m piper -m $modelName --data-dir $modelDataDir -f $plannedOutput -- $plannedLine
-    if ($LASTEXITCODE -ne 0) {
-        throw "Piper exited with code $LASTEXITCODE."
-    }
-    if (-not (Test-Path -LiteralPath $plannedOutput -PathType Leaf)) {
-        throw "Piper reported success but the expected output was not created: $plannedOutput"
-    }
-
-    Write-Host "Audio generated: $plannedOutput" -ForegroundColor Green
-    Write-Host "Audio was not played." -ForegroundColor Green
+    Write-Host "Model files are present. Generation would still remain gated until a later task." -ForegroundColor Green
 }
+
+Write-Host "Dry run complete. Audio generation is not available in v2.3." -ForegroundColor Yellow
 
 Write-Host ""
 Write-Host "Safety confirmation" -ForegroundColor Cyan

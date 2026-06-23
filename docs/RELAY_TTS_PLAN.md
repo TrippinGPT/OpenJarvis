@@ -11,7 +11,8 @@ The Relay Popout HUD is the intended future voicebox surface. The main planned p
 - **Mode:** Planning only
 - **Piper package:** Installed locally only in `tools\piper.venv`
 - **Piper runtime:** Python 3.11.15 / `piper-tts` 1.4.2
-- **Voice model:** Not selected or downloaded
+- **Voice model candidate:** `en_US_lessac_medium`
+- **Voice-model gate:** `config\piper_voice_models.json`
 - **Application TTS integration:** Not implemented
 - **Audio playback:** Not implemented
 - **Microphone or audio capture:** Not implemented
@@ -170,7 +171,15 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_pi
 - Do not generate or play audio.
 - Do not add Relay Popout runtime integration or a voice toggle.
 
-The next planned step is v2.3: approved voice-model selection/download planning and license review.
+### v2.3 - Approved Piper voice-model selection and gated download
+
+- Define the approved local test voice in `config\piper_voice_models.json`.
+- Gate the download through `scripts/download_piper_voice_model_gated.ps1`.
+- Keep voice files under `tools\piper\voices` and ignored by Git.
+- Require license and model-card review before any distribution discussion.
+- Do not add application runtime integration or audio generation yet.
+
+The approved local voice candidate is `en_US_lessac_medium` from the `rhasspy/piper-voices` repository. The selected voice pair lives only under `tools\piper\voices` and remains separate from `tools\piper.venv`.
 
 ## Future implementation acceptance criteria
 
@@ -189,8 +198,11 @@ The next planned step is v2.3: approved voice-model selection/download planning 
 - [Relay Script Pack](RELAY_SCRIPT_PACK.md)
 - [Relay Agent Roster](RELAY_AGENT_ROSTER.md)
 - [Relay Piper Prototype Plan](RELAY_PIPER_PROTOTYPE_PLAN.md)
+- [Relay Piper Voice Model Selection](RELAY_PIPER_VOICE_MODEL_SELECTION.md)
 - `config/relay_voice_profiles.json`
+- `config/piper_voice_models.json`
 - `scripts/prepare_piper_sandbox.ps1`
 - `scripts/install_piper_gated.ps1`
 - `scripts/run_piper_test_line_gated.ps1`
+- `scripts/download_piper_voice_model_gated.ps1`
 - `scripts/check_piper_python_runtime.ps1`

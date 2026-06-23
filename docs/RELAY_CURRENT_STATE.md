@@ -67,6 +67,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - `relay-v2.1.1-piper-python-runtime-check`
 - `relay-v2.2-local-piper-install`
 - `relay-v2.2.1-piper-venv-path-normalized`
+- `relay-v2.3-piper-voice-model-gate`
 
 ## 6. Current features
 
@@ -87,6 +88,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - Dry-run-first gated Piper install and test-line scripts
 - Read-only Piper Python runtime compatibility checker
 - Isolated Python 3.11 Piper installation under `tools\piper.venv`
+- Approved Piper voice-model gate with local files under `tools\piper\voices`
 
 ## 7. Safety boundaries
 
@@ -104,7 +106,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 
 - No TTS runtime or application integration exists.
 - No audio has been generated.
-- Piper and Kokoro are not installed.
+- Piper is installed locally; Kokoro is not installed.
 - The local TTS feasibility check passed for a planning-only prototype.
 - The Piper prototype plan and read-only setup checker exist.
 - v2.0 prepares only the Relay-local Piper and TTS-test sandbox folders.
@@ -113,14 +115,16 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - This machine defaults to Python 3.14.5; the launcher also reports Python 3.12 and uv-managed CPython 3.11.15.
 - v2.2 created `tools\piper.venv` with Python 3.11.15 and installed `piper-tts` 1.4.2 locally.
 - v2.2.1 verified `tools\piper.venv` as the canonical active path; legacy `tools\piper\.venv` is absent and unused.
+- v2.3 adds the approved local test voice `en_US_lessac_medium` and the gated download script.
+- Voice-model files live only under `tools\piper\voices` and remain ignored by Git.
 - No Piper package was installed globally.
-- No voice model or generated audio is present.
+- The selected voice-model pair lives under `tools\piper\voices` and no audio has been generated.
 - No Relay Popout voice toggle or automatic speech exists.
 - Model download, audio generation, playback, or UI voice controls require explicit user approval in a future task.
 
 ## 9. Next possible milestones
 
-- **v2.3:** Approved Piper voice-model selection/download plan
+- **v2.3:** Approved Piper voice-model selection/download gate
 - **v2.4:** One controlled local test-line generation
 - **v2.5:** User-controlled Relay Popout voice toggle
 - **v2.6:** Agent-specific original voice profiles
@@ -139,6 +143,8 @@ git --no-pager log --oneline -10
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_openclaw_bridge.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_relay_tts_feasibility.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_piper_setup.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\download_piper_voice_model_gated.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\download_piper_voice_model_gated.ps1 -AllowDownload
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\prepare_piper_sandbox.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_piper_python_runtime.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\install_piper_gated.ps1
@@ -152,3 +158,4 @@ Related references:
 - [Relay Agent Roster](RELAY_AGENT_ROSTER.md)
 - [Relay TTS Plan](RELAY_TTS_PLAN.md)
 - [Relay Piper Prototype Plan](RELAY_PIPER_PROTOTYPE_PLAN.md)
+- [Relay Piper Voice Model Selection](RELAY_PIPER_VOICE_MODEL_SELECTION.md)

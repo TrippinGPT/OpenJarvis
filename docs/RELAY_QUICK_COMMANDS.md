@@ -72,6 +72,18 @@ Piper setup check:
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_piper_setup.ps1
 ```
 
+Piper voice model selection:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\download_piper_voice_model_gated.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\download_piper_voice_model_gated.ps1 -AllowDownload
+```
+
+```text
+D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_PIPER_VOICE_MODEL_SELECTION.md
+D:\AI\TRIPPIN_AI_RELAY\config\piper_voice_models.json
+```
+
 Piper sandbox prep:
 
 ```powershell

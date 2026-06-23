@@ -111,9 +111,10 @@ src/openjarvis/channels/whatsapp_baileys_bridge/node_modules/
 # Dogfood reports (regenerated locally; not for VCS)
 dogfood_report*.md
 
-# Relay local Piper runtime/model/audio artifacts
-/tools/piper/models/**/*.onnx
-/tools/piper/models/**/*.onnx.json
+# Relay local Piper runtime/voice/audio artifacts
+/tools/piper.venv/
+/tools/piper/voices/*.onnx
+/tools/piper/voices/*.onnx.json
 /outputs/tts_tests/*.wav
 /outputs/tts_tests/*.mp3
 

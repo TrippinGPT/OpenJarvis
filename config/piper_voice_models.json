@@ -1,0 +1,30 @@
+{
+  "version": "1.0",
+  "default_voice_id": "en_US_lessac_medium",
+  "safety_rules": [
+    "Use voice files only for local Relay testing.",
+    "Do not download or distribute without reviewing the model card and license.",
+    "Do not clone or impersonate real people or copyrighted characters.",
+    "Do not enable autoplay, microphone capture, or browser shell execution.",
+    "Do not place voice models inside tools\\piper.venv.",
+    "Keep voice-model metadata in config\\piper_voice_models.json only."
+  ],
+  "voices": [
+    {
+      "id": "en_US_lessac_medium",
+      "display_name": "English US Lessac Medium",
+      "language": "en_US",
+      "quality": "medium",
+      "status": "approved_for_local_test",
+      "license_review_status": "needs_review_before_distribution",
+      "model_filename": "en_US-lessac-medium.onnx",
+      "config_filename": "en_US-lessac-medium.onnx.json",
+      "model_output_path": "D:\\AI\\TRIPPIN_AI_RELAY\\tools\\piper\\voices\\en_US-lessac-medium.onnx",
+      "config_output_path": "D:\\AI\\TRIPPIN_AI_RELAY\\tools\\piper\\voices\\en_US-lessac-medium.onnx.json",
+      "model_url": "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx",
+      "config_url": "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json",
+      "source_note": "rhasspy/piper-voices Hugging Face repository",
+      "usage_boundary": "Local Relay testing only. Do not redistribute without review."
+    }
+  ]
+}
