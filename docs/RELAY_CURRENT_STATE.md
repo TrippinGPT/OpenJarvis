@@ -149,7 +149,8 @@ After startup commands are sent, the launcher automatically opens the frontend i
 ### v2.5.1 milestone note
 
 - Kokoro prerequisite prep is now documented separately.
-- Default Python is 3.14.5 and Python 3.11 is not currently detected.
+- Default Python is 3.14.5.
+- `py -3.11` does not resolve, but uv-managed CPython 3.11.15 is available and satisfies the Kokoro Python prereq.
 - `espeak-ng` is missing on PATH.
 - No Kokoro install, model download, or audio generation has happened.
 

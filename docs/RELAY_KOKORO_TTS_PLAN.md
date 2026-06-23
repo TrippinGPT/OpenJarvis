@@ -30,6 +30,7 @@ Kokoro 82M is the next local TTS lane to evaluate after the Piper voice-fit fail
 
 - Python 3.11 is the preferred target for a future Kokoro setup.
 - The machine currently defaults to Python 3.14.5, so default Python is not the install target.
+- `py -0p` also lists a uv-managed Astral CPython 3.11.15 runtime, which is the intended local target.
 - `espeak-ng` is missing on PATH and must be resolved before a future install task.
 - The Kokoro prerequisite checklist lives in `docs/RELAY_KOKORO_PREREQUISITES.md`.
 - The read-only prerequisite checker is `scripts/check_kokoro_prereqs.ps1`.

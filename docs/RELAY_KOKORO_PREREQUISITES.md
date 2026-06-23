@@ -7,7 +7,9 @@ This document prepares for a future Kokoro local setup without installing Kokoro
 ## Current blocker summary
 
 - Default Python is 3.14.5
-- Python 3.11 is not detected
+- `py -3.11` does not resolve on this machine
+- `py -0p` lists an Astral/CPython 3.11.15 uv-managed runtime
+- uv-managed CPython 3.11.15 is present and should be used for a future Kokoro setup
 - `espeak-ng` is not found on PATH
 - `tools\kokoro` does not exist
 - `tools\kokoro.venv` does not exist
@@ -15,13 +17,13 @@ This document prepares for a future Kokoro local setup without installing Kokoro
 
 ## Recommended target
 
-- Use isolated Python 3.11 for Kokoro
+- Use isolated uv-managed Python 3.11.15 for Kokoro
 - Do not rely on default Python 3.14
 - Keep Kokoro isolated under `tools\kokoro` and `tools\kokoro.venv`
 
 ## Prerequisite checklist
 
-- Python 3.11 is installed and discoverable
+- Python 3.11 is installed and discoverable through `py -3.11` or the uv-managed CPython runtime
 - uv is available
 - `espeak-ng` is installed and discoverable on PATH
 - `outputs\tts_tests` exists

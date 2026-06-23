@@ -13,6 +13,7 @@ The Relay Popout HUD is the intended future voicebox surface. The main planned p
 - **Piper runtime:** Python 3.11.15 / `piper-tts` 1.4.2
 - **Piper review result:** technical pipeline works, but the tested voices did not reach the final Relay Companion fit
 - **Next TTS lane:** Kokoro planning/prerequisite phase only
+- **Kokoro runtime target:** uv-managed CPython 3.11.15, not default Python 3.14.5
 - **Voice-model gate:** `config\piper_voice_models.json`
 - **Application TTS integration:** Not implemented
 - **Audio playback:** Not implemented
@@ -230,8 +231,9 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 
 ### v2.5.1 - Kokoro prerequisite prep
 
-- Python 3.11 is preferred for the future Kokoro setup.
+- Python 3.11.15 is preferred for the future Kokoro setup.
 - The machine currently defaults to Python 3.14.5, so the default interpreter is not the target.
+- The uv-managed CPython 3.11.15 runtime is the correct local target.
 - `espeak-ng` is missing and must be resolved before a future setup task.
 - This stage only documents prerequisites and checks readiness.
 - Do not install Kokoro yet.
