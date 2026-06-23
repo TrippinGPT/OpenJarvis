@@ -64,6 +64,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - `relay-v1.9.1-current-state-summary`
 - `relay-v2.0-piper-sandbox-prep`
 - `relay-v2.1-gated-piper-runner`
+- `relay-v2.1.1-piper-python-runtime-check`
 
 ## 6. Current features
 
@@ -82,6 +83,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - Piper prototype plan and read-only setup checker
 - Piper-local sandbox folders with boundary README files and a constrained preparation script
 - Dry-run-first gated Piper install and test-line scripts
+- Read-only Piper Python runtime compatibility checker
 
 ## 7. Safety boundaries
 
@@ -104,6 +106,9 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - The Piper prototype plan and read-only setup checker exist.
 - v2.0 prepares only the Relay-local Piper and TTS-test sandbox folders.
 - v2.1 adds gated scripts only. The install gate is a manual-review placeholder.
+- v2.1.1 inventories local Python runtimes before installation. Python 3.11 is preferred and Python 3.12 is acceptable.
+- This machine defaults to Python 3.14.5; the launcher also reports Python 3.12 and uv-managed CPython 3.11.15.
+- The recommended future Piper target is the available Python 3.11 runtime, but installation remains disabled pending explicit approval.
 - No Piper binary, voice model, TTS runtime, or generated audio is present.
 - No Relay Popout voice toggle or automatic speech exists.
 - Installation, model download, audio generation, playback, or UI voice controls require explicit user approval in a future task.
@@ -129,6 +134,7 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_op
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_relay_tts_feasibility.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_piper_setup.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\prepare_piper_sandbox.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_piper_python_runtime.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\install_piper_gated.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_test_line_gated.ps1
 ```

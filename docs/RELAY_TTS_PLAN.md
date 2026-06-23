@@ -142,6 +142,21 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\prepare_
 
 The maintained candidate lane is `piper-tts` from [OHF-Voice/piper1-gpl](https://github.com/OHF-Voice/piper1-gpl). No Piper package or model is installed by v2.1 validation.
 
+### v2.1.1 — Python runtime compatibility check
+
+- Inventory the default Python and Windows Python launcher runtimes.
+- Prefer Python 3.11 for a future Relay-local Piper venv.
+- Accept Python 3.12 when 3.11 is unavailable.
+- Treat Python 3.13/3.14-only systems cautiously until Piper compatibility is confirmed.
+- Keep installation disabled and do not create a virtual environment.
+- Do not add Piper runtime or Relay Popout voice integration.
+
+Run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_piper_python_runtime.ps1
+```
+
 ## Future implementation acceptance criteria
 
 - User explicitly enables voice.
@@ -163,3 +178,4 @@ The maintained candidate lane is `piper-tts` from [OHF-Voice/piper1-gpl](https:/
 - `scripts/prepare_piper_sandbox.ps1`
 - `scripts/install_piper_gated.ps1`
 - `scripts/run_piper_test_line_gated.ps1`
+- `scripts/check_piper_python_runtime.ps1`

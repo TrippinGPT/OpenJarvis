@@ -10,6 +10,7 @@ $expectedRepoRoot = [System.IO.Path]::GetFullPath("D:\AI\TRIPPIN_AI_RELAY")
 $repoRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot ".."))
 $piperRoot = Join-Path $repoRoot "tools\piper"
 $localPython = Join-Path $piperRoot ".venv\Scripts\python.exe"
+$runtimeChecker = Join-Path $repoRoot "scripts\check_piper_python_runtime.ps1"
 
 if (-not $repoRoot.Equals($expectedRepoRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
     throw "Refusing to inspect or install Piper outside the expected Relay repo: $expectedRepoRoot"
@@ -76,6 +77,7 @@ if (-not $AllowInstall) {
     Write-Host "Dry-run checks only:" -ForegroundColor Yellow
     Write-Host "- Verify the Relay-local Piper sandbox."
     Write-Host "- Verify uv and a compatible Python interpreter."
+    Write-Host "- Run the read-only runtime checker: $runtimeChecker"
     Write-Host "- Review the OHF Piper source, package version, GPL license, and Windows compatibility."
     Write-Host "- Plan an isolated virtual environment under tools\piper\.venv."
     Write-Host ""
@@ -87,14 +89,15 @@ else {
     Write-Host "============================================================" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "v2.1 keeps this gate manual-only. No install command will run." -ForegroundColor Yellow
-    Write-Host "Reason: the current machine reports Python 3.14, while the reviewed piper-tts package metadata explicitly lists support through Python 3.13." -ForegroundColor Yellow
+    Write-Host "Reason: the default Python is 3.14. A compatible Relay-local runtime must be explicitly selected from the runtime checker before installation is designed." -ForegroundColor Yellow
     Write-Host ""
     Write-Host "Manual next steps for a future approved task:"
-    Write-Host "1. Select and verify a compatible local Python interpreter."
-    Write-Host "2. Pin and review the intended piper-tts version and GPL-3.0-or-later license."
-    Write-Host "3. Define the exact uv commands for tools\piper\.venv."
-    Write-Host "4. Print those commands before execution and verify the local piper module afterward."
-    Write-Host "5. Keep all installation files inside the Relay repository."
+    Write-Host "1. Run the read-only runtime checker: $runtimeChecker"
+    Write-Host "2. Select and verify a compatible local Python interpreter."
+    Write-Host "3. Pin and review the intended piper-tts version and GPL-3.0-or-later license."
+    Write-Host "4. Define the exact uv commands for a Relay-local virtual environment."
+    Write-Host "5. Print those commands before execution and verify the local piper module afterward."
+    Write-Host "6. Keep all installation files inside the Relay repository."
 }
 
 Write-Host ""

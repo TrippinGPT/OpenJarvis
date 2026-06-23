@@ -111,6 +111,24 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_pipe
 
 The first approved model must be original-sounding, license-reviewed, and placed manually under `tools\piper\models`. Actual Popout integration and automatic speech remain unimplemented.
 
+## v2.1.1 Python runtime compatibility
+
+v2.1.1 adds a read-only Python runtime inventory before any Piper installation:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_piper_python_runtime.ps1
+```
+
+The current default runtime is Python 3.14.5. The Windows launcher also reports Python 3.12 and a uv-managed CPython 3.11.15. Piper installation remains disabled until a later task explicitly selects and verifies the Relay-local runtime.
+
+Runtime preference:
+
+1. Python 3.11 in a Relay-local venv
+2. Python 3.12 in a Relay-local venv
+3. Python 3.13 or 3.14 only with additional compatibility review
+
+The current recommendation is the available uv-managed Python 3.11 runtime. The planned future venv path is `D:\AI\TRIPPIN_AI_RELAY\tools\piper.venv`. The checker does not create it, install Python, install Piper, download models, or generate audio. The `-AllowInstall` gate remains manual-only until that runtime is explicitly approved.
+
 ## Related files
 
 - [Relay TTS Plan](RELAY_TTS_PLAN.md)
@@ -122,3 +140,4 @@ The first approved model must be original-sounding, license-reviewed, and placed
 - `scripts/prepare_piper_sandbox.ps1`
 - `scripts/install_piper_gated.ps1`
 - `scripts/run_piper_test_line_gated.ps1`
+- `scripts/check_piper_python_runtime.ps1`
