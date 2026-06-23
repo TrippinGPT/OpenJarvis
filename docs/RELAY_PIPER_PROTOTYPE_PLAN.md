@@ -217,6 +217,14 @@ v2.4 is the first controlled local audio milestone:
 
 The approved line remains original Relay copy only. This milestone validates the local Piper path, not the dashboard or popout audio runtime.
 
+### v2.4.1 audio review note
+
+- `en_US_lessac_medium` generated successfully and confirmed the local Piper pipeline works.
+- The first review pass was clear enough to validate the technical baseline.
+- The voice sounded too robotic and does not fit the Relay Companion / Smartmouth Relay persona well enough for approval.
+- The next step is comparison testing with alternate candidates before any app integration.
+- Do not treat this voice as the final Relay voice.
+
 ## Related files
 
 - [Relay TTS Plan](RELAY_TTS_PLAN.md)

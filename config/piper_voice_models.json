@@ -16,6 +16,9 @@
       "language": "en_US",
       "quality": "medium",
       "status": "approved_for_local_test",
+      "review_status": "reviewed_not_final",
+      "relay_fit": "failed",
+      "technical_status": "working_baseline",
       "license_review_status": "needs_review_before_distribution",
       "model_filename": "en_US-lessac-medium.onnx",
       "config_filename": "en_US-lessac-medium.onnx.json",
@@ -24,6 +27,7 @@
       "model_url": "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx",
       "config_url": "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json",
       "source_note": "rhasspy/piper-voices Hugging Face repository",
+      "review_notes": "Clarity 7/10, speed acceptable, too robotic, tone acceptable, not a good Relay fit.",
       "usage_boundary": "Local Relay testing only. Do not redistribute without review."
     }
   ]

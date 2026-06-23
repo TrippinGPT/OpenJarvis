@@ -1,0 +1,27 @@
+# Relay Piper Audio Review
+
+## Purpose
+
+Track subjective review results for local Relay voice tests without changing runtime behavior or approving a final voice too early.
+
+## Reviewed test
+
+- **Current reviewed file:** `D:\AI\TRIPPIN_AI_RELAY\outputs\tts_tests\relay_test_smartmouth_20260622_221740.wav`
+- **Voice ID:** `en_US_lessac_medium`
+- **Test line:** `Relay online. Try not to break anything expensive.`
+
+## Review summary
+
+- **Clarity:** 7/10
+- **Speed:** acceptable
+- **Robotic quality:** too robotic
+- **Tone:** acceptable
+- **Relay persona fit:** failed
+
+## Decision
+
+`en_US_lessac_medium` is a working technical baseline for the local Piper pipeline, but it is not approved as the final Relay Companion / Smartmouth Relay voice.
+
+## Next recommendation
+
+v2.4.2 should add a gated voice comparison lane before any app integration. That comparison should stay local, read-only, and focused on approval of a better original Relay voice.

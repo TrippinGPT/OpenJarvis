@@ -21,6 +21,7 @@ The Relay Popout HUD is the intended future voicebox surface. The main planned p
 - **Default future behavior:** Off
 - **Local offline test WAV generation:** Gated
 - **Relay Popout voice toggle:** Future work
+- **Final voice selection:** Not decided
 
 ## Identity and safety boundaries
 
@@ -192,6 +193,12 @@ The approved local voice candidate is `en_US_lessac_medium` from the `rhasspy/pi
 - Do not add application runtime TTS integration yet.
 
 The first WAV validates the local Piper path only. Popout voice toggle work remains future implementation.
+
+### v2.4.1 - Audio review result
+
+- Local generation works and the Piper pipeline is useful.
+- `en_US_lessac_medium` is a working technical baseline, but it is not approved as the final Relay voice.
+- The popout voice toggle remains blocked until a better Relay voice is approved.
 
 ## Future implementation acceptance criteria
 

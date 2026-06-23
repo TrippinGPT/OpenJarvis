@@ -117,4 +117,10 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_pipe
 
 As of v2.2, `-AllowInstall` creates only `tools\piper.venv` with Python 3.11 and installs pinned `piper-tts` there. It does not download a voice model or generate audio.
 
+Piper audio review notes:
+
+```text
+D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_PIPER_AUDIO_REVIEW.md
+```
+
 > Do not run `jarvis self-update` on the Trippin AI Relay fork.

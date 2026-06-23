@@ -69,6 +69,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - `relay-v2.2.1-piper-venv-path-normalized`
 - `relay-v2.3-piper-voice-model-gate`
 - `relay-v2.4-first-piper-test-wav`
+- `relay-v2.4.1-piper-audio-review`
 
 ## 6. Current features
 
@@ -120,12 +121,19 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - v2.3 adds the approved local test voice `en_US_lessac_medium` and the gated download script.
 - Voice-model files live only under `tools\piper\voices` and remain ignored by Git.
 - v2.4 gates the first local test WAV and keeps the generated audio local/ignored.
+- v2.4.1 reviewed the first WAV and rejected `en_US_lessac_medium` as the final Relay voice.
 - No Piper package was installed globally.
 - The selected voice-model pair lives under `tools\piper\voices` and no audio has been generated.
 - Generated WAV files are local test artifacts and ignored by Git.
 - No Relay Popout voice toggle or automatic speech exists.
 - No app runtime TTS exists yet.
 - Model download, audio generation, playback, or UI voice controls require explicit user approval in a future task.
+
+### v2.4.1 milestone note
+
+- First local Piper WAV was reviewed.
+- `en_US_lessac_medium` was rejected as the final Relay voice because it sounded too robotic and did not fit the persona well enough.
+- The pipeline remains useful for future comparison testing and controlled voice selection.
 
 ## 9. Next possible milestones
 
