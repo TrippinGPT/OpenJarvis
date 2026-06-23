@@ -155,6 +155,24 @@ The script remains dry-run by default. It refuses non-Python-3.11 environments a
 
 No voice model was selected or downloaded. No audio was generated or played. The next planned milestone is v2.3: an explicit voice-model selection and download plan with license review.
 
+## v2.2.1 verified venv path
+
+The Piper installation path was verified as:
+
+```text
+D:\AI\TRIPPIN_AI_RELAY\tools\piper.venv
+```
+
+Verified state:
+
+- Canonical venv exists and contains Python 3.11.15.
+- `piper-tts` 1.4.2 is installed in the canonical venv.
+- Legacy nested path `tools\piper\.venv` is absent.
+- All Piper scripts and current documentation reference `tools\piper.venv`.
+- Both canonical and legacy venv patterns remain ignored by Git.
+- No migration or reinstall was required.
+- No voice model was downloaded and no audio was generated.
+
 ## Related files
 
 - [Relay TTS Plan](RELAY_TTS_PLAN.md)

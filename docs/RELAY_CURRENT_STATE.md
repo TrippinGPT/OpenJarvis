@@ -66,6 +66,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - `relay-v2.1-gated-piper-runner`
 - `relay-v2.1.1-piper-python-runtime-check`
 - `relay-v2.2-local-piper-install`
+- `relay-v2.2.1-piper-venv-path-normalized`
 
 ## 6. Current features
 
@@ -111,6 +112,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - v2.1.1 inventories local Python runtimes before installation. Python 3.11 is preferred and Python 3.12 is acceptable.
 - This machine defaults to Python 3.14.5; the launcher also reports Python 3.12 and uv-managed CPython 3.11.15.
 - v2.2 created `tools\piper.venv` with Python 3.11.15 and installed `piper-tts` 1.4.2 locally.
+- v2.2.1 verified `tools\piper.venv` as the canonical active path; legacy `tools\piper\.venv` is absent and unused.
 - No Piper package was installed globally.
 - No voice model or generated audio is present.
 - No Relay Popout voice toggle or automatic speech exists.
