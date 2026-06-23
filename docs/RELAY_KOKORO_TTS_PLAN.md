@@ -26,6 +26,14 @@ Kokoro 82M is the next local TTS lane to evaluate after the Piper voice-fit fail
 - No autoplay
 - No microphone or audio capture
 
+### v2.5.1 prerequisite lane
+
+- Python 3.11 is the preferred target for a future Kokoro setup.
+- The machine currently defaults to Python 3.14.5, so default Python is not the install target.
+- `espeak-ng` is missing on PATH and must be resolved before a future install task.
+- The Kokoro prerequisite checklist lives in `docs/RELAY_KOKORO_PREREQUISITES.md`.
+- The read-only prerequisite checker is `scripts/check_kokoro_prereqs.ps1`.
+
 ## Safety
 
 - Use an original Relay voice only
@@ -53,8 +61,15 @@ Kokoro 82M is the next local TTS lane to evaluate after the Piper voice-fit fail
 
 ## Recommended next checks
 
+- Run `scripts/check_kokoro_prereqs.ps1`
 - Run `scripts/check_kokoro_feasibility.ps1`
 - Review official Kokoro package and model documentation
 - Keep the lane planning-only until a later approved install task
 
 No command in this document authorizes installation, download, generation, playback, or application integration.
+
+## Related files
+
+- `docs/RELAY_KOKORO_PREREQUISITES.md`
+- `scripts/check_kokoro_prereqs.ps1`
+- `scripts/check_kokoro_feasibility.ps1`

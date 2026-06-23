@@ -74,6 +74,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - `relay-v2.4.3-piper-amy-tuning`
 - `relay-v2.4.5-piper-danny-test`
 - `relay-v2.5-kokoro-feasibility`
+- `relay-v2.5.1-kokoro-prereqs`
 
 ## 6. Current features
 
@@ -130,6 +131,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - v2.4.3 adds an Amy-only tuning lane based on the comparison review.
 - v2.4.5 adds a Danny candidate gate based on the Piper samples page.
 - v2.5 adds a Kokoro feasibility lane after the Piper fit failures.
+- v2.5.1 adds Kokoro prerequisite prep before any install.
 - No Piper package was installed globally.
 - The selected voice-model pair lives under `tools\piper\voices` and no audio has been generated.
 - Generated WAV files are local test artifacts and ignored by Git.
@@ -143,6 +145,13 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - No Kokoro install has happened yet.
 - No new audio or model downloads were performed for Kokoro.
 - Piper remains the baseline only; the final Relay voice is still unresolved.
+
+### v2.5.1 milestone note
+
+- Kokoro prerequisite prep is now documented separately.
+- Default Python is 3.14.5 and Python 3.11 is not currently detected.
+- `espeak-ng` is missing on PATH.
+- No Kokoro install, model download, or audio generation has happened.
 
 ### v2.4.1 milestone note
 
@@ -174,6 +183,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - **v2.3:** Approved Piper voice-model selection/download gate
 - **v2.4:** First gated local test WAV
 - **v2.5:** Kokoro feasibility lane
+- **v2.5.1:** Kokoro prerequisite prep
 - **v2.6:** Approved Kokoro install/test
 - **v2.7:** User-controlled Relay Popout voice toggle
 - **v2.8:** Agent-specific original voice profiles
@@ -193,6 +203,7 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_op
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_relay_tts_feasibility.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_piper_setup.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_kokoro_feasibility.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_kokoro_prereqs.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\download_piper_voice_model_gated.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\download_piper_voice_model_gated.ps1 -AllowDownload
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_test_line_gated.ps1 -AllowGenerate

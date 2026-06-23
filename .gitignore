@@ -118,6 +118,10 @@ dogfood_report*.md
 /outputs/tts_tests/*.wav
 /outputs/tts_tests/*.mp3
 
+# Relay local Kokoro prereq/runtime artifacts
+/tools/kokoro.venv/
+/tools/kokoro/models/
+
 # Second Repos
 Inline/
 scratch/
