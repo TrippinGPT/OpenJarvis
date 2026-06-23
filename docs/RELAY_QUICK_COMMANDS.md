@@ -84,9 +84,18 @@ Kokoro prerequisite check:
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_kokoro_prereqs.ps1
 ```
 
+Kokoro gated venv setup:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\setup_kokoro_venv_gated.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\setup_kokoro_venv_gated.ps1 -AllowSetup
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\setup_kokoro_venv_gated.ps1 -AllowSetup -SkipPackageInstall
+```
+
 ```text
 D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_KOKORO_TTS_PLAN.md
 D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_KOKORO_PREREQUISITES.md
+D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_KOKORO_VENV_SETUP.md
 ```
 
 Piper voice model selection:

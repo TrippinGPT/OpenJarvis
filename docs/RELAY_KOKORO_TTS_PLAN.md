@@ -25,15 +25,25 @@ Kokoro 82M is the next local TTS lane to evaluate after the Piper voice-fit fail
 - No app/runtime TTS
 - No autoplay
 - No microphone or audio capture
+- Prerequisites are now satisfied and the gated venv setup lane is complete
 
 ### v2.5.1 prerequisite lane
 
 - Python 3.11 is the preferred target for a future Kokoro setup.
 - The machine currently defaults to Python 3.14.5, so default Python is not the install target.
 - `py -0p` also lists a uv-managed Astral CPython 3.11.15 runtime, which is the intended local target.
-- `espeak-ng` is missing on PATH and must be resolved before a future install task.
+- `espeak-ng` is installed and ready for the gated setup lane.
 - The Kokoro prerequisite checklist lives in `docs/RELAY_KOKORO_PREREQUISITES.md`.
 - The read-only prerequisite checker is `scripts/check_kokoro_prereqs.ps1`.
+
+### v2.5.2 gated venv setup lane
+
+- The gated Kokoro venv setup lane is complete.
+- `scripts/setup_kokoro_venv_gated.ps1` is dry-run by default.
+- `-AllowSetup` is required to create `tools\kokoro.venv`.
+- `-SkipPackageInstall` allows a venv-only setup with pip upgrade only.
+- No audio generation happens in this milestone.
+- The setup doc is `docs/RELAY_KOKORO_VENV_SETUP.md`.
 
 ## Safety
 
@@ -73,4 +83,6 @@ No command in this document authorizes installation, download, generation, playb
 
 - `docs/RELAY_KOKORO_PREREQUISITES.md`
 - `scripts/check_kokoro_prereqs.ps1`
+- `scripts/setup_kokoro_venv_gated.ps1`
+- [Relay Kokoro Venv Setup](RELAY_KOKORO_VENV_SETUP.md)
 - `scripts/check_kokoro_feasibility.ps1`

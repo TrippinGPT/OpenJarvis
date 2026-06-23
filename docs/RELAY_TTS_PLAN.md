@@ -12,8 +12,9 @@ The Relay Popout HUD is the intended future voicebox surface. The main planned p
 - **Piper package:** Installed locally only in `tools\piper.venv`
 - **Piper runtime:** Python 3.11.15 / `piper-tts` 1.4.2
 - **Piper review result:** technical pipeline works, but the tested voices did not reach the final Relay Companion fit
-- **Next TTS lane:** Kokoro planning/prerequisite phase only
+- **Next TTS lane:** Kokoro model/test review after gated setup
 - **Kokoro runtime target:** uv-managed CPython 3.11.15, not default Python 3.14.5
+- **Kokoro status:** gated venv setup completed; runtime TTS still off
 - **Voice-model gate:** `config\piper_voice_models.json`
 - **Application TTS integration:** Not implemented
 - **Audio playback:** Not implemented
@@ -234,9 +235,19 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - Python 3.11.15 is preferred for the future Kokoro setup.
 - The machine currently defaults to Python 3.14.5, so the default interpreter is not the target.
 - The uv-managed CPython 3.11.15 runtime is the correct local target.
-- `espeak-ng` is missing and must be resolved before a future setup task.
-- This stage only documents prerequisites and checks readiness.
-- Do not install Kokoro yet.
+- `espeak-ng` is now verified and ready.
+- This stage documented prerequisites and checks readiness.
+- Do not install Kokoro yet without the gated setup flag.
+
+### v2.5.2 - Kokoro gated venv setup
+
+- The gated Kokoro venv setup lane is complete.
+- `scripts/setup_kokoro_venv_gated.ps1` is dry-run by default.
+- `-AllowSetup` is required to create `tools\kokoro.venv`.
+- `-SkipPackageInstall` allows a venv-only setup with pip upgrade only.
+- No audio generation yet.
+- No app/runtime TTS yet.
+- No microphone or audio capture.
 
 ## Future implementation acceptance criteria
 
@@ -273,3 +284,5 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - `scripts/check_kokoro_feasibility.ps1`
 - [Relay Kokoro Prerequisites](RELAY_KOKORO_PREREQUISITES.md)
 - `scripts/check_kokoro_prereqs.ps1`
+- [Relay Kokoro Venv Setup](RELAY_KOKORO_VENV_SETUP.md)
+- `scripts/setup_kokoro_venv_gated.ps1`

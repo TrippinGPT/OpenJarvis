@@ -75,6 +75,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - `relay-v2.4.5-piper-danny-test`
 - `relay-v2.5-kokoro-feasibility`
 - `relay-v2.5.1-kokoro-prereqs`
+- `relay-v2.5.2-kokoro-venv-setup`
 
 ## 6. Current features
 
@@ -97,6 +98,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - Isolated Python 3.11 Piper installation under `tools\piper.venv`
 - Approved Piper voice-model gate with local files under `tools\piper\voices`
 - First gated local Relay test WAV under `outputs\tts_tests`
+- Gated Kokoro venv setup lane with Kokoro installed in `tools\kokoro.venv`
 
 ## 7. Safety boundaries
 
@@ -114,8 +116,10 @@ After startup commands are sent, the launcher automatically opens the frontend i
 
 - No TTS runtime or application integration exists.
 - No audio has been generated.
-- Piper is installed locally; Kokoro is not installed.
+- Piper is installed locally; Kokoro is installed locally in `tools\kokoro.venv`.
 - The local TTS feasibility check passed for a planning-only prototype.
+- The Kokoro prerequisite checker now reports ready for future gated setup.
+- v2.5.2 created `tools\kokoro.venv` and installed `kokoro` 0.9.4 locally without generating audio.
 - The Piper prototype plan and read-only setup checker exist.
 - v2.0 prepares only the Relay-local Piper and TTS-test sandbox folders.
 - v2.1 adds gated scripts only. The install gate is a manual-review placeholder.
@@ -132,6 +136,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - v2.4.5 adds a Danny candidate gate based on the Piper samples page.
 - v2.5 adds a Kokoro feasibility lane after the Piper fit failures.
 - v2.5.1 adds Kokoro prerequisite prep before any install.
+- v2.5.2 adds a gated Kokoro venv setup lane. No audio generation or runtime TTS has happened yet.
 - No Piper package was installed globally.
 - The selected voice-model pair lives under `tools\piper\voices` and no audio has been generated.
 - Generated WAV files are local test artifacts and ignored by Git.
@@ -151,8 +156,15 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - Kokoro prerequisite prep is now documented separately.
 - Default Python is 3.14.5.
 - `py -3.11` does not resolve, but uv-managed CPython 3.11.15 is available and satisfies the Kokoro Python prereq.
-- `espeak-ng` is missing on PATH.
+- `espeak-ng` is installed and available at `C:\Program Files\eSpeak NG\espeak-ng.exe`.
 - No Kokoro install, model download, or audio generation has happened.
+
+### v2.5.2 milestone note
+
+- Kokoro prerequisites are satisfied.
+- The gated Kokoro venv setup has completed.
+- `tools\kokoro.venv` now exists and contains `kokoro` 0.9.4.
+- No audio generation or runtime TTS has happened.
 
 ### v2.4.1 milestone note
 
@@ -185,6 +197,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - **v2.4:** First gated local test WAV
 - **v2.5:** Kokoro feasibility lane
 - **v2.5.1:** Kokoro prerequisite prep
+- **v2.5.2:** Kokoro gated venv setup
 - **v2.6:** Approved Kokoro install/test
 - **v2.7:** User-controlled Relay Popout voice toggle
 - **v2.8:** Agent-specific original voice profiles

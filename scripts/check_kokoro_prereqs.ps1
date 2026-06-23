@@ -11,8 +11,10 @@ $kokoroPlanPath = Join-Path $repoRoot "docs\RELAY_KOKORO_TTS_PLAN.md"
 $voiceProfilesPath = Join-Path $repoRoot "config\relay_voice_profiles.json"
 $kokoroToolsPath = Join-Path $repoRoot "tools\kokoro"
 $kokoroVenvPath = Join-Path $repoRoot "tools\kokoro.venv"
+$kokoroVenvPythonPath = Join-Path $kokoroVenvPath "Scripts\python.exe"
 $ttsTestsPath = Join-Path $repoRoot "outputs\tts_tests"
 $uvPythonRoot = Join-Path $env:APPDATA "uv\python"
+$espeakNgFallbackPath = "C:\Program Files\eSpeak NG\espeak-ng.exe"
 
 function Write-CheckLine {
     param(
@@ -63,6 +65,46 @@ function Invoke-OptionalToolCommand {
             Output = @()
             Error = $_.Exception.Message
             Path = $command.Source
+        }
+    }
+}
+
+function Invoke-OptionalExecutableCommand {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
+
+        [Parameter(Mandatory = $true)]
+        [string[]]$Arguments
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Path) -or -not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+        return [pscustomobject]@{
+            Available = $false
+            Success = $false
+            Output = @("Not found")
+            Error = $null
+            Path = $null
+        }
+    }
+
+    try {
+        $output = @(& $Path @Arguments 2>&1)
+        return [pscustomobject]@{
+            Available = $true
+            Success = ($LASTEXITCODE -eq 0)
+            Output = $output
+            Error = $null
+            Path = $Path
+        }
+    }
+    catch {
+        return [pscustomobject]@{
+            Available = $true
+            Success = $false
+            Output = @()
+            Error = $_.Exception.Message
+            Path = $Path
         }
     }
 }
@@ -171,6 +213,12 @@ function Get-PythonExecutableInfo {
 function Get-EspeakNgInfo {
     $result = Invoke-OptionalToolCommand -Name "espeak-ng" -Arguments @('--version')
     if (-not $result.Available) {
+        if (Test-Path -LiteralPath $espeakNgFallbackPath -PathType Leaf) {
+            $result = Invoke-OptionalExecutableCommand -Path $espeakNgFallbackPath -Arguments @('--version')
+        }
+    }
+
+    if (-not $result.Available) {
         return [pscustomobject]@{
             Available = $false
             Path = "Not found"
@@ -187,6 +235,42 @@ function Get-EspeakNgInfo {
         Available = $true
         Path = $result.Path
         Version = $version
+    }
+}
+
+function Get-PipShowStatus {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$PythonPath,
+
+        [Parameter(Mandatory = $true)]
+        [string]$PackageName
+    )
+
+    $result = Invoke-OptionalExecutableCommand -Path $PythonPath -Arguments @('-m', 'pip', 'show', $PackageName)
+    if (-not $result.Available) {
+        return [pscustomobject]@{
+            Available = $false
+            Installed = $false
+            Version = "Not found"
+            Path = $PythonPath
+            Output = @("Not found")
+        }
+    }
+
+    $text = ($result.Output | ForEach-Object { "$_".Trim() } | Where-Object { $_ }) -join "`n"
+    $installed = $result.Success -and ($text -match "(?m)^Name:\s+$([regex]::Escape($PackageName))\s*$")
+    $version = "Missing"
+    if ($installed -and $text -match "(?m)^Version:\s+(.+)$") {
+        $version = $matches[1]
+    }
+
+    return [pscustomobject]@{
+        Available = $true
+        Installed = $installed
+        Version = $version
+        Path = $PythonPath
+        Output = @($result.Output)
     }
 }
 
@@ -338,7 +422,10 @@ $defaultPythonPath = if ($python.Available) { $python.Path } else { "Not found" 
 $defaultPythonVersion = if ($python.Available) { $python.Version } else { "Not found" }
 $kokoroToolsExists = Test-Path -LiteralPath $kokoroToolsPath -PathType Container
 $kokoroVenvExists = Test-Path -LiteralPath $kokoroVenvPath -PathType Container
+$kokoroVenvPythonExists = Test-Path -LiteralPath $kokoroVenvPythonPath -PathType Leaf
 $ttsTestsExists = Test-Path -LiteralPath $ttsTestsPath -PathType Container
+$kokoroVenvPythonInfo = if ($kokoroVenvPythonExists) { Get-PythonExecutableInfo -Path $kokoroVenvPythonPath } else { $null }
+$kokoroPackageInfo = if ($kokoroVenvPythonExists) { Get-PipShowStatus -PythonPath $kokoroVenvPythonPath -PackageName "kokoro" } else { $null }
 
 $ignoreChecks = [ordered]@{
     "tools/kokoro.venv/" = (Test-GitIgnoredPattern -Path "tools/kokoro.venv/")
@@ -412,6 +499,15 @@ Write-Host ""
 Write-Host "Kokoro local paths" -ForegroundColor Cyan
 Write-CheckLine -Label "tools\kokoro" -Value $(if ($kokoroToolsExists) { "Present: $kokoroToolsPath" } else { "Missing" })
 Write-CheckLine -Label "tools\kokoro.venv" -Value $(if ($kokoroVenvExists) { "Present: $kokoroVenvPath" } else { "Missing" })
+Write-CheckLine -Label "tools\kokoro.venv\Scripts\python.exe" -Value $(if ($kokoroVenvPythonExists) { "Present: $kokoroVenvPythonPath" } else { "Missing" })
+if ($kokoroVenvPythonExists) {
+    Write-CheckLine -Label "Venv Python version" -Value $kokoroVenvPythonInfo.Version
+    Write-CheckLine -Label "kokoro package in venv" -Value $(if ($kokoroPackageInfo.Installed) { "Installed: kokoro $($kokoroPackageInfo.Version)" } else { "Missing" })
+}
+else {
+    Write-CheckLine -Label "Venv Python version" -Value "Not available"
+    Write-CheckLine -Label "kokoro package in venv" -Value "Not checked"
+}
 Write-CheckLine -Label "outputs\tts_tests" -Value $(if ($ttsTestsExists) { "Present: $ttsTestsPath" } else { "Missing" })
 
 Write-Host ""
