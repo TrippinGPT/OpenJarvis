@@ -70,6 +70,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - `relay-v2.3-piper-voice-model-gate`
 - `relay-v2.4-first-piper-test-wav`
 - `relay-v2.4.1-piper-audio-review`
+- `relay-v2.4.2-piper-voice-comparison`
 
 ## 6. Current features
 
@@ -122,6 +123,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - Voice-model files live only under `tools\piper\voices` and remain ignored by Git.
 - v2.4 gates the first local test WAV and keeps the generated audio local/ignored.
 - v2.4.1 reviewed the first WAV and rejected `en_US_lessac_medium` as the final Relay voice.
+- v2.4.2 adds a gated comparison lane for `en_US_lessac_medium`, `en_US_amy_medium`, and `en_US_ljspeech_medium`.
 - No Piper package was installed globally.
 - The selected voice-model pair lives under `tools\piper\voices` and no audio has been generated.
 - Generated WAV files are local test artifacts and ignored by Git.
@@ -134,6 +136,11 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - First local Piper WAV was reviewed.
 - `en_US_lessac_medium` was rejected as the final Relay voice because it sounded too robotic and did not fit the persona well enough.
 - The pipeline remains useful for future comparison testing and controlled voice selection.
+
+### v2.4.2 milestone note
+
+- A gated local comparison lane is available for `en_US_lessac_medium`, `en_US_amy_medium`, and `en_US_ljspeech_medium`.
+- The comparison lane remains offline and does not integrate voice into the app.
 
 ## 9. Next possible milestones
 
@@ -172,4 +179,5 @@ Related references:
 - [Relay Agent Roster](RELAY_AGENT_ROSTER.md)
 - [Relay TTS Plan](RELAY_TTS_PLAN.md)
 - [Relay Piper Prototype Plan](RELAY_PIPER_PROTOTYPE_PLAN.md)
+- [Relay Piper Voice Comparison](RELAY_PIPER_VOICE_COMPARISON.md)
 - [Relay Piper Voice Model Selection](RELAY_PIPER_VOICE_MODEL_SELECTION.md)

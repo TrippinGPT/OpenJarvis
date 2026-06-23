@@ -25,3 +25,5 @@ Track subjective review results for local Relay voice tests without changing run
 ## Next recommendation
 
 v2.4.2 should add a gated voice comparison lane before any app integration. That comparison should stay local, read-only, and focused on approval of a better original Relay voice.
+
+Related comparison plan: [RELAY_PIPER_VOICE_COMPARISON.md](RELAY_PIPER_VOICE_COMPARISON.md)

@@ -225,6 +225,14 @@ The approved line remains original Relay copy only. This milestone validates the
 - The next step is comparison testing with alternate candidates before any app integration.
 - Do not treat this voice as the final Relay voice.
 
+### v2.4.2 gated comparison lane
+
+- Compare `en_US_lessac_medium` against `en_US_amy_medium` and `en_US_ljspeech_medium` locally.
+- Keep the lane offline and gated behind explicit download and generation switches.
+- Save one comparison WAV per selected voice under `outputs\tts_tests`.
+- Use the results to choose a better original Relay voice before any app integration.
+- Do not treat the comparison lane as runtime TTS or voice-toggle work.
+
 ## Related files
 
 - [Relay TTS Plan](RELAY_TTS_PLAN.md)
@@ -241,3 +249,5 @@ The approved line remains original Relay copy only. This milestone validates the
 - `scripts/run_piper_test_line_gated.ps1`
 - `scripts/check_piper_python_runtime.ps1`
 - `outputs/tts_tests/README.md`
+- [Relay Piper Voice Comparison](RELAY_PIPER_VOICE_COMPARISON.md)
+- `scripts/run_piper_voice_comparison_gated.ps1`

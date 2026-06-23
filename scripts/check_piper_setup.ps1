@@ -115,6 +115,7 @@ $configExists = Test-Path -LiteralPath $voiceConfigPath -PathType Leaf
 $configValid = $false
 $defaultVoiceId = "Unavailable"
 $defaultVoice = $null
+$comparisonVoices = @()
 
 if ($configExists) {
     try {
@@ -124,6 +125,13 @@ if ($configExists) {
         $defaultVoice = $voiceConfig.voices |
             Where-Object { $_.id -eq $defaultVoiceId } |
             Select-Object -First 1
+        $comparisonVoices = @(
+            $voiceConfig.voices |
+                Where-Object {
+                    ($_.PSObject.Properties.Name -contains "comparison_candidate" -and $_.comparison_candidate -eq $true) -or
+                    $_.status -eq "candidate_for_local_comparison"
+                }
+        )
     }
     catch {
         $defaultVoiceId = "Config invalid: $($_.Exception.Message)"
@@ -146,6 +154,28 @@ if ($generatedWavCount -gt 0) {
     $latestGeneratedWav = $generatedWavs |
         Sort-Object -Property @{ Expression = "LastWriteTime"; Descending = $true }, "FullName" |
         Select-Object -First 1
+}
+$comparisonWavs = @()
+if (Test-Path -LiteralPath $plannedOutputPath -PathType Container) {
+    $comparisonWavs = @(
+        Get-ChildItem -LiteralPath $plannedOutputPath -Recurse -File -Filter "relay_compare_*.wav" |
+            Sort-Object LastWriteTime, FullName
+    )
+}
+$comparisonWavCount = $comparisonWavs.Count
+$latestComparisonWav = $null
+if ($comparisonWavCount -gt 0) {
+    $latestComparisonWav = $comparisonWavs |
+        Sort-Object -Property @{ Expression = "LastWriteTime"; Descending = $true }, "FullName" |
+        Select-Object -First 1
+}
+$downloadedComparisonPairCount = 0
+foreach ($comparisonVoice in $comparisonVoices) {
+    $comparisonModelPath = [System.IO.Path]::GetFullPath([string]$comparisonVoice.model_output_path)
+    $comparisonConfigPath = [System.IO.Path]::GetFullPath([string]$comparisonVoice.config_output_path)
+    if ((Test-Path -LiteralPath $comparisonModelPath -PathType Leaf) -and (Test-Path -LiteralPath $comparisonConfigPath -PathType Leaf)) {
+        $downloadedComparisonPairCount++
+    }
 }
 $ignoreProbePath = if ($null -ne $latestGeneratedWav) {
     $latestGeneratedWav.FullName
@@ -185,6 +215,13 @@ Write-CheckLine -Label ".onnx.json count" -Value $voiceConfigCount.ToString()
 Write-CheckLine -Label "Default voice id" -Value $defaultVoiceId
 Write-CheckLine -Label "Selected model_output_path" -Value $(if ($null -ne $defaultVoice) { if (Test-Path -LiteralPath $defaultVoice.model_output_path -PathType Leaf) { "Present" } else { "Missing, expected before download." } } else { "Unavailable" })
 Write-CheckLine -Label "Selected config_output_path" -Value $(if ($null -ne $defaultVoice) { if (Test-Path -LiteralPath $defaultVoice.config_output_path -PathType Leaf) { "Present" } else { "Missing, expected before download." } } else { "Unavailable" })
+
+Write-Host ""
+Write-Host "Comparison lane" -ForegroundColor Cyan
+Write-CheckLine -Label "Comparison candidate count" -Value $comparisonVoices.Count.ToString()
+Write-CheckLine -Label "Downloaded voice model pair count" -Value $downloadedComparisonPairCount.ToString()
+Write-CheckLine -Label "Generated comparison WAV count" -Value $comparisonWavCount.ToString()
+Write-CheckLine -Label "Latest comparison WAV path" -Value $(if ($null -ne $latestComparisonWav) { $latestComparisonWav.FullName } else { "None" })
 
 Write-Host ""
 Write-Host "Generated audio" -ForegroundColor Cyan

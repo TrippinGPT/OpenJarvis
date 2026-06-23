@@ -17,6 +17,12 @@ Future explicitly approved tests may save temporary Relay voice samples here.
 
 `scripts\run_piper_test_line_gated.ps1` defaults to dry-run. Generation requires `-AllowGenerate`, a Relay-local Piper module, and one manually supplied reviewed voice model. The script does not download models or auto-play output.
 
+Comparison WAV naming convention:
+
+- `relay_compare_<voiceid>_<YYYYMMDD_HHMMSS>.wav`
+- One file per selected voice when the comparison lane is run with `-AllowGenerate`
+- Comparison WAVs remain ignored by Git
+
 ## Boundaries
 
 - Do not commit generated audio unless explicitly approved.

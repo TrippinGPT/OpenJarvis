@@ -29,6 +29,40 @@
       "source_note": "rhasspy/piper-voices Hugging Face repository",
       "review_notes": "Clarity 7/10, speed acceptable, too robotic, tone acceptable, not a good Relay fit.",
       "usage_boundary": "Local Relay testing only. Do not redistribute without review."
+    },
+    {
+      "id": "en_US_amy_medium",
+      "display_name": "English US Amy Medium",
+      "language": "en_US",
+      "quality": "medium",
+      "status": "candidate_for_local_comparison",
+      "comparison_candidate": true,
+      "license_review_status": "needs_review_before_distribution",
+      "model_filename": "en_US-amy-medium.onnx",
+      "config_filename": "en_US-amy-medium.onnx.json",
+      "model_output_path": "D:\\AI\\TRIPPIN_AI_RELAY\\tools\\piper\\voices\\en_US-amy-medium.onnx",
+      "config_output_path": "D:\\AI\\TRIPPIN_AI_RELAY\\tools\\piper\\voices\\en_US-amy-medium.onnx.json",
+      "model_url": "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/amy/medium/en_US-amy-medium.onnx",
+      "config_url": "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/amy/medium/en_US-amy-medium.onnx.json",
+      "source_note": "rhasspy/piper-voices Hugging Face repository",
+      "usage_boundary": "Local testing only."
+    },
+    {
+      "id": "en_US_ljspeech_medium",
+      "display_name": "English US LJSpeech Medium",
+      "language": "en_US",
+      "quality": "medium",
+      "status": "candidate_for_local_comparison",
+      "comparison_candidate": true,
+      "license_review_status": "needs_review_before_distribution",
+      "model_filename": "en_US-ljspeech-medium.onnx",
+      "config_filename": "en_US-ljspeech-medium.onnx.json",
+      "model_output_path": "D:\\AI\\TRIPPIN_AI_RELAY\\tools\\piper\\voices\\en_US-ljspeech-medium.onnx",
+      "config_output_path": "D:\\AI\\TRIPPIN_AI_RELAY\\tools\\piper\\voices\\en_US-ljspeech-medium.onnx.json",
+      "model_url": "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/ljspeech/medium/en_US-ljspeech-medium.onnx",
+      "config_url": "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/ljspeech/medium/en_US-ljspeech-medium.onnx.json",
+      "source_note": "rhasspy/piper-voices Hugging Face repository",
+      "usage_boundary": "Local testing only."
     }
   ]
 }

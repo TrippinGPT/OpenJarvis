@@ -200,6 +200,12 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - `en_US_lessac_medium` is a working technical baseline, but it is not approved as the final Relay voice.
 - The popout voice toggle remains blocked until a better Relay voice is approved.
 
+### v2.4.2 - Comparison lane
+
+- The first voice failed final fit review.
+- Comparison testing is next.
+- Compare the baseline against additional local Piper candidates before any application integration.
+
 ## Future implementation acceptance criteria
 
 - User explicitly enables voice.
@@ -225,3 +231,5 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - `scripts/run_piper_test_line_gated.ps1`
 - `scripts/download_piper_voice_model_gated.ps1`
 - `scripts/check_piper_python_runtime.ps1`
+- [Relay Piper Voice Comparison](RELAY_PIPER_VOICE_COMPARISON.md)
+- `scripts/run_piper_voice_comparison_gated.ps1`

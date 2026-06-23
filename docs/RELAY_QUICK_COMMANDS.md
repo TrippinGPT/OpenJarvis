@@ -123,4 +123,16 @@ Piper audio review notes:
 D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_PIPER_AUDIO_REVIEW.md
 ```
 
+Piper voice comparison:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_voice_comparison_gated.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_voice_comparison_gated.ps1 -AllowDownload -AllowGenerate
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_voice_comparison_gated.ps1 -AllowDownload -AllowGenerate -Line "Routing that now. Shocking development: we are using a plan."
+```
+
+```text
+D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_PIPER_VOICE_COMPARISON.md
+```
+
 > Do not run `jarvis self-update` on the Trippin AI Relay fork.
