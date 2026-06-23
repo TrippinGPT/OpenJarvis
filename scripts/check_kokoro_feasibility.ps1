@@ -6,6 +6,7 @@ $ErrorActionPreference = 'Continue'
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $kokoroVenvPython = Join-Path $repoRoot "tools\kokoro.venv\Scripts\python.exe"
+$kokoroCachePath = Join-Path $repoRoot "tools\kokoro\models"
 $kokoroSetupScript = Join-Path $repoRoot "scripts\setup_kokoro_venv_gated.ps1"
 $uvPythonRoot = Join-Path $env:APPDATA "uv\python"
 $espeakFallbackPath = "C:\Program Files\eSpeak NG\espeak-ng.exe"
@@ -166,11 +167,40 @@ function Get-KokoroPackageStatus {
     }
 }
 
+function Get-LatestFile {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Folder,
+
+        [Parameter(Mandatory = $true)]
+        [string]$Filter
+    )
+
+    if (-not (Test-Path -LiteralPath $Folder -PathType Container)) {
+        return $null
+    }
+
+    return Get-ChildItem -LiteralPath $Folder -Recurse -File -Filter $Filter -ErrorAction SilentlyContinue |
+        Sort-Object LastWriteTime -Descending |
+        Select-Object -First 1
+}
+
 $pythonCandidate = Get-Python311Candidate
 $espeakCandidate = Get-EspeakNgCandidate
 $kokoroPackageStatus = Get-KokoroPackageStatus -PythonPath $kokoroVenvPython
 $kokoroVenvPresent = Test-Path -LiteralPath $kokoroVenvPython -PathType Leaf
 $kokoroVenvVersion = if ($kokoroVenvPresent) { (& $kokoroVenvPython --version 2>&1 | Select-Object -First 1).ToString().Trim() } else { 'Not available' }
+$kokoroCachePresent = Test-Path -LiteralPath $kokoroCachePath -PathType Container
+$kokoroCacheFileCount = if ($kokoroCachePresent) { @(
+    Get-ChildItem -LiteralPath $kokoroCachePath -Recurse -File -ErrorAction SilentlyContinue
+).Count } else { 0 }
+$kokoroFirstWavCount = if (Test-Path -LiteralPath (Join-Path $repoRoot 'outputs\tts_tests') -PathType Container) {
+    @(
+        Get-ChildItem -LiteralPath (Join-Path $repoRoot 'outputs\tts_tests') -Recurse -File -Filter 'relay_kokoro_first_*.wav' -ErrorAction SilentlyContinue
+    ).Count
+} else { 0 }
+$kokoroLatestWav = Get-LatestFile -Folder (Join-Path $repoRoot 'outputs\tts_tests') -Filter 'relay_kokoro_first_*.wav'
+$kokoroLatestWavPath = if ($null -ne $kokoroLatestWav) { $kokoroLatestWav.FullName } else { 'None' }
 $ttsTestsPresent = Test-Path -LiteralPath (Join-Path $repoRoot 'outputs\tts_tests') -PathType Container
 $ignoreChecks = [ordered]@{
     "tools/kokoro.venv/" = (Test-GitIgnoredPattern -Path "tools/kokoro.venv/")
@@ -192,6 +222,8 @@ Write-Host "Readiness summary" -ForegroundColor Cyan
 Write-Host ("- Prerequisites ready: {0}" -f $(if ($prerequisitesReady) { "Yes" } else { "No" }))
 Write-Host ("- Venv setup: {0}" -f $(if ($kokoroVenvPresent) { "Present" } else { "Pending" }))
 Write-Host ("- Kokoro package: {0}" -f $(if ($kokoroPackageStatus.Installed) { "Installed ($($kokoroPackageStatus.Version))" } else { "Missing" }))
+Write-Host ("- Kokoro cache: {0}" -f $(if ($kokoroCachePresent) { "Present ($kokoroCacheFileCount files)" } else { "Missing" }))
+Write-Host ("- First WAV: {0}" -f $(if ($kokoroFirstWavCount -gt 0) { "Present ($kokoroFirstWavCount file(s))" } else { "Missing" }))
 
 Write-Host ""
 Write-Host "Prerequisite prep lane" -ForegroundColor Cyan
@@ -206,8 +238,8 @@ Write-Host "Run this with -AllowSetup only after explicit approval."
 Write-Host ""
 Write-Host "Kokoro status" -ForegroundColor Cyan
 Write-Host "- Planning-only"
-Write-Host "- No model download yet"
-Write-Host "- No audio generation yet"
+Write-Host "- Prefetch and first-WAV gates are available"
 Write-Host "- No app/runtime TTS"
 Write-Host "- No microphone/audio capture"
 Write-Host "- No OpenClaw changes"
+Write-Host ("- Latest first WAV: {0}" -f $kokoroLatestWavPath)

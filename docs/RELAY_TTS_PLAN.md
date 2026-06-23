@@ -12,9 +12,9 @@ The Relay Popout HUD is the intended future voicebox surface. The main planned p
 - **Piper package:** Installed locally only in `tools\piper.venv`
 - **Piper runtime:** Python 3.11.15 / `piper-tts` 1.4.2
 - **Piper review result:** technical pipeline works, but the tested voices did not reach the final Relay Companion fit
-- **Next TTS lane:** Kokoro model/test review after gated setup
+- **Next TTS lane:** Kokoro first WAV review after gated setup
 - **Kokoro runtime target:** uv-managed CPython 3.11.15, not default Python 3.14.5
-- **Kokoro status:** gated venv setup completed; runtime TTS still off
+- **Kokoro status:** gated venv setup completed; first WAV test has been run locally
 - **Voice-model gate:** `config\piper_voice_models.json`
 - **Application TTS integration:** Not implemented
 - **Audio playback:** Not implemented
@@ -249,6 +249,17 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - No app/runtime TTS yet.
 - No microphone or audio capture.
 
+### v2.5.3 - First gated Kokoro WAV test
+
+- Generate the first Kokoro WAV only when `-AllowGenerate` is passed to the gated runner.
+- Use `-AllowModelDownload` when the Kokoro cache needs to be prefetched locally.
+- Keep cached assets under `tools\kokoro\models`.
+- Keep generated WAV output under `outputs\tts_tests`.
+- Use `af_heart` as the baseline Kokoro voice for the first local test.
+- Use the Smartmouth Relay planning line as the first local Kokoro line.
+- Do not add application runtime TTS or a voice toggle yet.
+- The generated WAV remains local and ignored by Git.
+
 ## Future implementation acceptance criteria
 
 - User explicitly enables voice.
@@ -286,3 +297,5 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - `scripts/check_kokoro_prereqs.ps1`
 - [Relay Kokoro Venv Setup](RELAY_KOKORO_VENV_SETUP.md)
 - `scripts/setup_kokoro_venv_gated.ps1`
+- [Relay Kokoro First WAV Test](RELAY_KOKORO_FIRST_WAV_TEST.md)
+- `scripts/run_kokoro_first_wav_gated.ps1`

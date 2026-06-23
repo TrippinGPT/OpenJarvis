@@ -14,6 +14,8 @@ This document prepares for a future Kokoro local setup without installing Kokoro
 - `tools\kokoro` now exists as the Relay Kokoro sandbox folder
 - `tools\kokoro.venv` now exists after the gated setup lane
 - Kokoro 0.9.4 is installed in `tools\kokoro.venv`
+- `tools\kokoro\models` now exists as the local Kokoro cache
+- The first gated Kokoro WAV exists under `outputs\tts_tests`
 
 ## Recommended target
 
@@ -34,6 +36,7 @@ This document prepares for a future Kokoro local setup without installing Kokoro
 - The prerequisites are ready and the gated Kokoro venv setup has already been completed.
 - Run `scripts\setup_kokoro_venv_gated.ps1` without flags for a dry run if you need to review the plan again.
 - Use `-AllowSetup -SkipPackageInstall` only for a venv-only refresh.
+- The next gated lane is the first Kokoro WAV test in `docs/RELAY_KOKORO_FIRST_WAV_TEST.md`.
 
 ## Manual install notes
 

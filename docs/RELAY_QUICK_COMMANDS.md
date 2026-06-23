@@ -98,6 +98,18 @@ D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_KOKORO_PREREQUISITES.md
 D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_KOKORO_VENV_SETUP.md
 ```
 
+Kokoro first WAV test:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_first_wav_gated.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_first_wav_gated.ps1 -AllowModelDownload
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_first_wav_gated.ps1 -AllowModelDownload -AllowGenerate
+```
+
+```text
+D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_KOKORO_FIRST_WAV_TEST.md
+```
+
 Piper voice model selection:
 
 ```powershell

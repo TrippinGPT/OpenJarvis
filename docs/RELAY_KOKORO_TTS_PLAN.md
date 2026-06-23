@@ -21,7 +21,8 @@ Kokoro 82M is the next local TTS lane to evaluate after the Piper voice-fit fail
 - Feasibility only
 - No Kokoro install yet
 - No Kokoro model download yet
-- No audio generated
+- No runtime TTS or app integration
+- First gated Kokoro WAV test has been run locally
 - No app/runtime TTS
 - No autoplay
 - No microphone or audio capture
@@ -44,6 +45,17 @@ Kokoro 82M is the next local TTS lane to evaluate after the Piper voice-fit fail
 - `-SkipPackageInstall` allows a venv-only setup with pip upgrade only.
 - No audio generation happens in this milestone.
 - The setup doc is `docs/RELAY_KOKORO_VENV_SETUP.md`.
+
+### v2.5.3 first gated WAV lane
+
+- Generate the first local Kokoro WAV only when `-AllowGenerate` is passed.
+- Use `-AllowModelDownload` when the Kokoro cache needs to be prefetched locally.
+- Keep the cache under `tools\kokoro\models` and the WAV under `outputs\tts_tests`.
+- Use the Smartmouth Relay planning line as the first test utterance.
+- `af_heart` is the technical baseline voice for this first local test.
+- No application runtime integration happens in this milestone.
+- The first WAV test doc is `docs/RELAY_KOKORO_FIRST_WAV_TEST.md`.
+- The generated WAV remains local and ignored by Git.
 
 ## Safety
 
@@ -85,4 +97,6 @@ No command in this document authorizes installation, download, generation, playb
 - `scripts/check_kokoro_prereqs.ps1`
 - `scripts/setup_kokoro_venv_gated.ps1`
 - [Relay Kokoro Venv Setup](RELAY_KOKORO_VENV_SETUP.md)
+- [Relay Kokoro First WAV Test](RELAY_KOKORO_FIRST_WAV_TEST.md)
+- `scripts/run_kokoro_first_wav_gated.ps1`
 - `scripts/check_kokoro_feasibility.ps1`

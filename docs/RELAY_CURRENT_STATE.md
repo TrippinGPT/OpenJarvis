@@ -76,6 +76,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - `relay-v2.5-kokoro-feasibility`
 - `relay-v2.5.1-kokoro-prereqs`
 - `relay-v2.5.2-kokoro-venv-setup`
+- `relay-v2.5.3-kokoro-first-wav`
 
 ## 6. Current features
 
@@ -95,6 +96,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - Piper-local sandbox folders with boundary README files and a constrained preparation script
 - Dry-run-first gated Piper install and test-line scripts
 - Read-only Piper Python runtime compatibility checker
+- First gated Kokoro WAV test runner
 - Isolated Python 3.11 Piper installation under `tools\piper.venv`
 - Approved Piper voice-model gate with local files under `tools\piper\voices`
 - First gated local Relay test WAV under `outputs\tts_tests`
@@ -115,11 +117,13 @@ After startup commands are sent, the launcher automatically opens the frontend i
 ## 8. Current TTS status
 
 - No TTS runtime or application integration exists.
-- No audio has been generated.
+- A first gated Kokoro WAV has been generated locally.
 - Piper is installed locally; Kokoro is installed locally in `tools\kokoro.venv`.
 - The local TTS feasibility check passed for a planning-only prototype.
 - The Kokoro prerequisite checker now reports ready for future gated setup.
 - v2.5.2 created `tools\kokoro.venv` and installed `kokoro` 0.9.4 locally without generating audio.
+- v2.5.3 generated `outputs\tts_tests\relay_kokoro_first_20260623_161539.wav` using the gated Kokoro runner.
+- The Kokoro cache now lives under `tools\kokoro\models` and remains ignored by Git.
 - The Piper prototype plan and read-only setup checker exist.
 - v2.0 prepares only the Relay-local Piper and TTS-test sandbox folders.
 - v2.1 adds gated scripts only. The install gate is a manual-review placeholder.
@@ -137,6 +141,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - v2.5 adds a Kokoro feasibility lane after the Piper fit failures.
 - v2.5.1 adds Kokoro prerequisite prep before any install.
 - v2.5.2 adds a gated Kokoro venv setup lane. No audio generation or runtime TTS has happened yet.
+- v2.5.3 adds the first gated Kokoro WAV test runner and keeps audio generation local and ignored.
 - No Piper package was installed globally.
 - The selected voice-model pair lives under `tools\piper\voices` and no audio has been generated.
 - Generated WAV files are local test artifacts and ignored by Git.
@@ -165,6 +170,14 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - The gated Kokoro venv setup has completed.
 - `tools\kokoro.venv` now exists and contains `kokoro` 0.9.4.
 - No audio generation or runtime TTS has happened.
+
+### v2.5.3 milestone note
+
+- The first gated Kokoro WAV runner is available.
+- The baseline first-test voice is `af_heart`.
+- The Smartmouth Relay planning line is the first local Kokoro test line.
+- The first WAV file was generated locally and remains ignored by Git.
+- Audio generation remains local, gated, and ignored by Git.
 
 ### v2.4.1 milestone note
 
@@ -198,6 +211,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - **v2.5:** Kokoro feasibility lane
 - **v2.5.1:** Kokoro prerequisite prep
 - **v2.5.2:** Kokoro gated venv setup
+- **v2.5.3:** First gated Kokoro WAV test
 - **v2.6:** Approved Kokoro install/test
 - **v2.7:** User-controlled Relay Popout voice toggle
 - **v2.8:** Agent-specific original voice profiles
@@ -218,6 +232,8 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_re
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_piper_setup.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_kokoro_feasibility.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_kokoro_prereqs.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_first_wav_gated.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_first_wav_gated.ps1 -AllowModelDownload -AllowGenerate
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\download_piper_voice_model_gated.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\download_piper_voice_model_gated.ps1 -AllowDownload
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_test_line_gated.ps1 -AllowGenerate

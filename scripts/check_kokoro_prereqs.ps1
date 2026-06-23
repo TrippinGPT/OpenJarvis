@@ -10,6 +10,7 @@ $ttsPlanPath = Join-Path $repoRoot "docs\RELAY_TTS_PLAN.md"
 $kokoroPlanPath = Join-Path $repoRoot "docs\RELAY_KOKORO_TTS_PLAN.md"
 $voiceProfilesPath = Join-Path $repoRoot "config\relay_voice_profiles.json"
 $kokoroToolsPath = Join-Path $repoRoot "tools\kokoro"
+$kokoroCachePath = Join-Path $repoRoot "tools\kokoro\models"
 $kokoroVenvPath = Join-Path $repoRoot "tools\kokoro.venv"
 $kokoroVenvPythonPath = Join-Path $kokoroVenvPath "Scripts\python.exe"
 $ttsTestsPath = Join-Path $repoRoot "outputs\tts_tests"
@@ -208,6 +209,42 @@ function Get-PythonExecutableInfo {
         Version = $versionText
         VersionOk = $versionOk
     }
+}
+
+function Get-LatestFile {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Folder,
+
+        [Parameter(Mandatory = $true)]
+        [string]$Filter
+    )
+
+    if (-not (Test-Path -LiteralPath $Folder -PathType Container)) {
+        return $null
+    }
+
+    return Get-ChildItem -LiteralPath $Folder -Recurse -File -Filter $Filter -ErrorAction SilentlyContinue |
+        Sort-Object LastWriteTime -Descending |
+        Select-Object -First 1
+}
+
+function Get-Count {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Folder,
+
+        [Parameter(Mandatory = $true)]
+        [string]$Filter
+    )
+
+    if (-not (Test-Path -LiteralPath $Folder -PathType Container)) {
+        return 0
+    }
+
+    return @(
+        Get-ChildItem -LiteralPath $Folder -Recurse -File -Filter $Filter -ErrorAction SilentlyContinue
+    ).Count
 }
 
 function Get-EspeakNgInfo {
@@ -421,9 +458,14 @@ $python311Ready = $py311LauncherFound -or $uvManagedFound
 $defaultPythonPath = if ($python.Available) { $python.Path } else { "Not found" }
 $defaultPythonVersion = if ($python.Available) { $python.Version } else { "Not found" }
 $kokoroToolsExists = Test-Path -LiteralPath $kokoroToolsPath -PathType Container
+$kokoroCacheExists = Test-Path -LiteralPath $kokoroCachePath -PathType Container
 $kokoroVenvExists = Test-Path -LiteralPath $kokoroVenvPath -PathType Container
 $kokoroVenvPythonExists = Test-Path -LiteralPath $kokoroVenvPythonPath -PathType Leaf
 $ttsTestsExists = Test-Path -LiteralPath $ttsTestsPath -PathType Container
+$kokoroCacheFileCount = Get-Count -Folder $kokoroCachePath -Filter "*"
+$kokoroFirstWavCount = Get-Count -Folder $ttsTestsPath -Filter "relay_kokoro_first_*.wav"
+$kokoroLatestWav = Get-LatestFile -Folder $ttsTestsPath -Filter "relay_kokoro_first_*.wav"
+$kokoroLatestWavPath = if ($null -ne $kokoroLatestWav) { $kokoroLatestWav.FullName } else { "None" }
 $kokoroVenvPythonInfo = if ($kokoroVenvPythonExists) { Get-PythonExecutableInfo -Path $kokoroVenvPythonPath } else { $null }
 $kokoroPackageInfo = if ($kokoroVenvPythonExists) { Get-PipShowStatus -PythonPath $kokoroVenvPythonPath -PackageName "kokoro" } else { $null }
 
@@ -498,6 +540,7 @@ if ($uvManagedFound) {
 Write-Host ""
 Write-Host "Kokoro local paths" -ForegroundColor Cyan
 Write-CheckLine -Label "tools\kokoro" -Value $(if ($kokoroToolsExists) { "Present: $kokoroToolsPath" } else { "Missing" })
+Write-CheckLine -Label "tools\kokoro\models" -Value $(if ($kokoroCacheExists) { "Present: $kokoroCachePath" } else { "Missing, expected before first WAV test." })
 Write-CheckLine -Label "tools\kokoro.venv" -Value $(if ($kokoroVenvExists) { "Present: $kokoroVenvPath" } else { "Missing" })
 Write-CheckLine -Label "tools\kokoro.venv\Scripts\python.exe" -Value $(if ($kokoroVenvPythonExists) { "Present: $kokoroVenvPythonPath" } else { "Missing" })
 if ($kokoroVenvPythonExists) {
@@ -508,6 +551,9 @@ else {
     Write-CheckLine -Label "Venv Python version" -Value "Not available"
     Write-CheckLine -Label "kokoro package in venv" -Value "Not checked"
 }
+Write-CheckLine -Label "Kokoro cache file count" -Value $kokoroCacheFileCount.ToString()
+Write-CheckLine -Label "First Kokoro WAV count" -Value $kokoroFirstWavCount.ToString()
+Write-CheckLine -Label "Latest Kokoro WAV" -Value $kokoroLatestWavPath
 Write-CheckLine -Label "outputs\tts_tests" -Value $(if ($ttsTestsExists) { "Present: $ttsTestsPath" } else { "Missing" })
 
 Write-Host ""

@@ -35,6 +35,12 @@ Danny test WAV naming convention:
 - One file per selected length scale when Danny testing is run with `-AllowGenerate`
 - Danny test WAVs remain ignored by Git
 
+Kokoro first WAV naming convention:
+
+- `relay_kokoro_first_<YYYYMMDD_HHMMSS>.wav`
+- One file per first gated Kokoro WAV test when `scripts\run_kokoro_first_wav_gated.ps1` is run with `-AllowModelDownload -AllowGenerate`
+- Kokoro first WAVs remain ignored by Git
+
 ## Boundaries
 
 - Do not commit generated audio unless explicitly approved.

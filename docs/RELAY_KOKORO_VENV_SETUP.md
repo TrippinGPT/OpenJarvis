@@ -9,6 +9,7 @@ This document defines the gated setup lane for an isolated Kokoro Python environ
 - Python 3.11 is available through the verified uv-managed CPython 3.11.15 runtime
 - `espeak-ng` is installed and available
 - Default Python 3.14 should not be used for Kokoro
+- The next gated lane after setup is the first Kokoro WAV test
 
 ## Setup boundary
 
@@ -52,3 +53,5 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\setup_ko
 ## Manual setup note
 
 Manual setup happens only after explicit approval. The gated script must remain dry-run by default and must not download Kokoro model weights or generate audio.
+
+After the venv exists, the first gated WAV test is handled by `scripts/run_kokoro_first_wav_gated.ps1`.
