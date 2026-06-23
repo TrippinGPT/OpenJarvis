@@ -9,7 +9,10 @@ The Relay Popout HUD is the intended future voicebox surface. The main planned p
 ## Current status
 
 - **Mode:** Planning only
-- **TTS implementation:** Not implemented
+- **Piper package:** Installed locally only in `tools\piper.venv`
+- **Piper runtime:** Python 3.11.15 / `piper-tts` 1.4.2
+- **Voice model:** Not selected or downloaded
+- **Application TTS integration:** Not implemented
 - **Audio playback:** Not implemented
 - **Microphone or audio capture:** Not implemented
 - **Voice cloning:** Prohibited
@@ -156,6 +159,18 @@ Run:
 ```powershell
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_piper_python_runtime.ps1
 ```
+
+### v2.2 — Isolated local Piper install
+
+- Create `tools\piper.venv` with the approved Python 3.11.15 runtime.
+- Install pinned `piper-tts` 1.4.2 inside that venv only.
+- Keep global Python and global site packages unchanged.
+- Ignore the complete venv from Git.
+- Do not download a voice model.
+- Do not generate or play audio.
+- Do not add Relay Popout runtime integration or a voice toggle.
+
+The next planned step is v2.3: approved voice-model selection/download planning and license review.
 
 ## Future implementation acceptance criteria
 

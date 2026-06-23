@@ -7,7 +7,9 @@ Piper is the first candidate for a future local/offline Relay voice prototype. T
 ## Current status
 
 - **Prototype candidate:** Piper
-- **Piper installation:** Not installed
+- **Piper installation:** Installed locally in `tools\piper.venv`
+- **Piper package:** `piper-tts` 1.4.2
+- **Piper Python:** 3.11.15
 - **Voice model:** Not selected or downloaded
 - **Audio generation:** Not implemented
 - **Audio playback:** Not implemented
@@ -127,7 +129,31 @@ Runtime preference:
 2. Python 3.12 in a Relay-local venv
 3. Python 3.13 or 3.14 only with additional compatibility review
 
-The current recommendation is the available uv-managed Python 3.11 runtime. The planned future venv path is `D:\AI\TRIPPIN_AI_RELAY\tools\piper.venv`. The checker does not create it, install Python, install Piper, download models, or generate audio. The `-AllowInstall` gate remains manual-only until that runtime is explicitly approved.
+The compatibility checker identified the available uv-managed Python 3.11 runtime as preferred. v2.2 subsequently approved that runtime for `D:\AI\TRIPPIN_AI_RELAY\tools\piper.venv`. The checker itself remains read-only and never creates a venv, installs packages, downloads models, or generates audio.
+
+## v2.2 isolated local Piper install
+
+v2.2 used the approved Python 3.11.15 runtime to create:
+
+```text
+D:\AI\TRIPPIN_AI_RELAY\tools\piper.venv
+```
+
+Installed locally:
+
+- `piper-tts` 1.4.2
+- Piper command: `tools\piper.venv\Scripts\piper.exe`
+- Dependencies contained within the Relay-local venv
+
+The approved install command remains:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\install_piper_gated.ps1 -AllowInstall
+```
+
+The script remains dry-run by default. It refuses non-Python-3.11 environments and does not use global site packages.
+
+No voice model was selected or downloaded. No audio was generated or played. The next planned milestone is v2.3: an explicit voice-model selection and download plan with license review.
 
 ## Related files
 

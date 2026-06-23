@@ -8,6 +8,10 @@ $repoRoot = Split-Path -Parent $PSScriptRoot
 $voiceConfigPath = Join-Path $repoRoot "config\relay_voice_profiles.json"
 $plannedPiperPath = Join-Path $repoRoot "tools\piper"
 $plannedOutputPath = Join-Path $repoRoot "outputs\tts_tests"
+$localVenvPath = Join-Path $repoRoot "tools\piper.venv"
+$localPython = Join-Path $localVenvPath "Scripts\python.exe"
+$localPiperCommand = Join-Path $localVenvPath "Scripts\piper.exe"
+$modelsPath = Join-Path $plannedPiperPath "models"
 
 function Get-CommandVersion {
     param(
@@ -68,6 +72,21 @@ function Write-CheckLine {
 $python = Get-CommandVersion -Name "python"
 $uv = Get-CommandVersion -Name "uv"
 $piperCommand = Get-Command "piper" -ErrorAction SilentlyContinue | Select-Object -First 1
+$localPiperInstalled = $false
+$localPiperVersion = "Not installed"
+
+if (Test-Path -LiteralPath $localPython -PathType Leaf) {
+    & $localPython -c "import piper" 2>$null
+    $localPiperInstalled = ($LASTEXITCODE -eq 0)
+    if ($localPiperInstalled) {
+        $localPiperVersion = (& $localPython -c "from importlib.metadata import version; print(version('piper-tts'))" 2>$null | Select-Object -First 1).ToString()
+    }
+}
+
+$voiceModels = @()
+if (Test-Path -LiteralPath $modelsPath -PathType Container) {
+    $voiceModels = @(Get-ChildItem -LiteralPath $modelsPath -Recurse -File -Filter "*.onnx")
+}
 
 $configExists = Test-Path -LiteralPath $voiceConfigPath -PathType Leaf
 $configValid = $false
@@ -107,15 +126,20 @@ Write-CheckLine -Label "uv" -Value $uv.Version
 Write-Host ""
 Write-Host "Piper planning state" -ForegroundColor Cyan
 if ($null -ne $piperCommand) {
-    Write-CheckLine -Label "Piper command" -Value "Available at $($piperCommand.Source)"
+    Write-CheckLine -Label "Global Piper command" -Value "Available at $($piperCommand.Source)"
 }
 else {
-    Write-CheckLine -Label "Piper command" -Value "Not installed yet. This is expected during planning."
+    Write-CheckLine -Label "Global Piper command" -Value "Not installed (expected; Relay uses the local venv)"
 }
 Write-CheckLine -Label "Planned Piper folder" -Value (Get-PathStatus -Path $plannedPiperPath)
 Write-CheckLine -Label "Piper folder path" -Value $plannedPiperPath
 Write-CheckLine -Label "Output test folder" -Value (Get-PathStatus -Path $plannedOutputPath)
 Write-CheckLine -Label "Output folder path" -Value $plannedOutputPath
+Write-CheckLine -Label "Local Piper venv" -Value (Get-PathStatus -Path $localVenvPath)
+Write-CheckLine -Label "Local venv Python" -Value $(if (Test-Path -LiteralPath $localPython -PathType Leaf) { (& $localPython --version 2>&1 | Select-Object -First 1).ToString() } else { "Not found" })
+Write-CheckLine -Label "Local Piper package" -Value $(if ($localPiperInstalled) { "Installed: $localPiperVersion" } else { "Not installed" })
+Write-CheckLine -Label "Local Piper command" -Value $(if (Test-Path -LiteralPath $localPiperCommand -PathType Leaf) { $localPiperCommand } else { "Not found" })
+Write-CheckLine -Label "Voice models" -Value $(if ($voiceModels.Count -gt 0) { "$($voiceModels.Count) found" } else { "Missing, expected before next step." })
 
 Write-Host ""
 Write-Host "Relay voice profile" -ForegroundColor Cyan
@@ -135,9 +159,12 @@ Write-Host "- No files modified"
 Write-Host "- No OpenClaw modifications made"
 
 Write-Host ""
-if ($null -eq $piperCommand) {
-    Write-Host "Status: Piper is not installed. Manual setup requires explicit user approval." -ForegroundColor Yellow
+if ($localPiperInstalled -and $voiceModels.Count -eq 0) {
+    Write-Host "Status: Piper is installed in the Relay-local venv. Voice model missing, expected before next step." -ForegroundColor Green
+}
+elseif ($localPiperInstalled) {
+    Write-Host "Status: Piper is installed locally and voice model files are present for review." -ForegroundColor Green
 }
 else {
-    Write-Host "Status: Piper command detected. Installation and model readiness still require manual review." -ForegroundColor Green
+    Write-Host "Status: Piper is not installed in the Relay-local venv." -ForegroundColor Yellow
 }

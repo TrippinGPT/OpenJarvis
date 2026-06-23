@@ -6,23 +6,28 @@ This directory is the local sandbox location reserved for a future approved Pipe
 
 ## Current status
 
-- Empty planning folder
-- Piper is not installed
-- No Piper binary or voice model has been downloaded
+- Piper runtime support folder
+- `piper-tts` 1.4.2 is installed in the sibling `tools\piper.venv`
+- No standalone Piper bundle or voice model has been downloaded
 - No TTS runtime or audio generation is configured
 
 A future explicitly approved setup may place reviewed Piper binaries and local configuration notes here.
 
 The maintained candidate lane is `piper-tts` from [OHF-Voice/piper1-gpl](https://github.com/OHF-Voice/piper1-gpl). v2.1 adds gated scripts, but no package or model is installed.
 
-Expected future local layout:
+Local layout:
 
 ```text
-tools\piper\.venv
+tools\piper.venv
 tools\piper\models
 ```
 
-`scripts\install_piper_gated.ps1` defaults to dry-run and keeps `-AllowInstall` as a manual-only placeholder. Do not manually populate this directory without reviewing source, version, license, and compatibility.
+`scripts\install_piper_gated.ps1` defaults to dry-run. With explicit `-AllowInstall`, v2.2 creates `tools\piper.venv` with Python 3.11 and installs the reviewed `piper-tts` package there only.
+
+- Do not commit `tools\piper.venv`.
+- Do not copy packages into system Python or global site packages.
+- Do not commit downloaded model files without review.
+- Model selection/download and audio generation remain separate approval-gated steps.
 
 ## Boundaries
 

@@ -8,6 +8,7 @@ $expectedRepoRoot = [System.IO.Path]::GetFullPath("D:\AI\TRIPPIN_AI_RELAY")
 $repoRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot ".."))
 $piperSandbox = Join-Path $repoRoot "tools\piper"
 $futureVenv = Join-Path $repoRoot "tools\piper.venv"
+$futureVenvPython = Join-Path $futureVenv "Scripts\python.exe"
 
 if (-not $repoRoot.Equals($expectedRepoRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
     throw "Refusing to inspect Piper runtimes outside the expected Relay repo: $expectedRepoRoot"
@@ -137,7 +138,12 @@ $python312 = $runtimes | Where-Object Version -eq "3.12" | Select-Object -First 
 $python313 = $runtimes | Where-Object Version -eq "3.13" | Select-Object -First 1
 $python314 = $runtimes | Where-Object Version -eq "3.14" | Select-Object -First 1
 
-if ($python311.Available) {
+if (Test-Path -LiteralPath $futureVenvPython -PathType Leaf) {
+    $venvPythonVersion = (& $futureVenvPython --version 2>&1 | Select-Object -First 1).ToString()
+    $recommendation = "Relay-local Piper venv is present: $venvPythonVersion"
+    $nextSafeCommand = "powershell -ExecutionPolicy Bypass -File `"$repoRoot\scripts\check_piper_setup.ps1`""
+}
+elseif ($python311.Available) {
     $recommendation = "Preferred: Python 3.11 local venv"
     $nextSafeCommand = "uv venv --python 3.11 `"$futureVenv`""
 }
@@ -184,7 +190,7 @@ foreach ($runtime in $runtimes) {
 }
 Write-CheckLine -Label "uv" -Value $(if ($uv.Available) { "$($uv.Version) [$($uv.Path)]" } else { "Not found" })
 Write-CheckLine -Label "Piper sandbox" -Value $(if (Test-Path -LiteralPath $piperSandbox -PathType Container) { "Present: $piperSandbox" } else { "Missing: $piperSandbox" })
-Write-CheckLine -Label "Future venv path" -Value $(if (Test-Path -LiteralPath $futureVenv -PathType Container) { "Present: $futureVenv" } else { "Not created: $futureVenv" })
+Write-CheckLine -Label "Piper venv path" -Value $(if (Test-Path -LiteralPath $futureVenv -PathType Container) { "Present: $futureVenv" } else { "Not created: $futureVenv" })
 
 Write-Host ""
 Write-Host "Candidate recommendation" -ForegroundColor Cyan

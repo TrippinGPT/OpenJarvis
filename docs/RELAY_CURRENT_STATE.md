@@ -65,6 +65,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - `relay-v2.0-piper-sandbox-prep`
 - `relay-v2.1-gated-piper-runner`
 - `relay-v2.1.1-piper-python-runtime-check`
+- `relay-v2.2-local-piper-install`
 
 ## 6. Current features
 
@@ -84,6 +85,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - Piper-local sandbox folders with boundary README files and a constrained preparation script
 - Dry-run-first gated Piper install and test-line scripts
 - Read-only Piper Python runtime compatibility checker
+- Isolated Python 3.11 Piper installation under `tools\piper.venv`
 
 ## 7. Safety boundaries
 
@@ -108,18 +110,20 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - v2.1 adds gated scripts only. The install gate is a manual-review placeholder.
 - v2.1.1 inventories local Python runtimes before installation. Python 3.11 is preferred and Python 3.12 is acceptable.
 - This machine defaults to Python 3.14.5; the launcher also reports Python 3.12 and uv-managed CPython 3.11.15.
-- The recommended future Piper target is the available Python 3.11 runtime, but installation remains disabled pending explicit approval.
-- No Piper binary, voice model, TTS runtime, or generated audio is present.
+- v2.2 created `tools\piper.venv` with Python 3.11.15 and installed `piper-tts` 1.4.2 locally.
+- No Piper package was installed globally.
+- No voice model or generated audio is present.
 - No Relay Popout voice toggle or automatic speech exists.
-- Installation, model download, audio generation, playback, or UI voice controls require explicit user approval in a future task.
+- Model download, audio generation, playback, or UI voice controls require explicit user approval in a future task.
 
 ## 9. Next possible milestones
 
-- **v2.2:** Approved compatible Piper installation and one controlled test
-- **v2.3:** User-controlled Relay Popout voice toggle
-- **v2.4:** Agent-specific original voice profiles
-- **v2.5:** Real routing signals connected to agent mesh animation
-- **v2.6:** Safe preflight actions
+- **v2.3:** Approved Piper voice-model selection/download plan
+- **v2.4:** One controlled local test-line generation
+- **v2.5:** User-controlled Relay Popout voice toggle
+- **v2.6:** Agent-specific original voice profiles
+- **v2.7:** Real routing signals connected to agent mesh animation
+- **v2.8:** Safe preflight actions
 
 These are proposed milestones only. They do not authorize installation, downloads, audio generation, agent execution, or OpenClaw changes.
 

@@ -93,6 +93,8 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\install_
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_test_line_gated.ps1 -AllowGenerate
 ```
 
-`-AllowInstall` is a no-install/manual-review placeholder in v2.1. `-AllowGenerate` does not download models or play audio.
+`-AllowInstall` was a no-install/manual-review placeholder in v2.1. `-AllowGenerate` does not download models or play audio.
+
+As of v2.2, `-AllowInstall` creates only `tools\piper.venv` with Python 3.11 and installs pinned `piper-tts` there. It does not download a voice model or generate audio.
 
 > Do not run `jarvis self-update` on the Trippin AI Relay fork.

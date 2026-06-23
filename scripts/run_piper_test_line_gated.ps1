@@ -14,7 +14,7 @@ $repoRootPrefix = $repoRoot.TrimEnd(
     [System.IO.Path]::AltDirectorySeparatorChar
 ) + [System.IO.Path]::DirectorySeparatorChar
 $piperRoot = Join-Path $repoRoot "tools\piper"
-$localPython = Join-Path $piperRoot ".venv\Scripts\python.exe"
+$localPython = Join-Path $repoRoot "tools\piper.venv\Scripts\python.exe"
 $modelsRoot = Join-Path $piperRoot "models"
 $outputRoot = Join-Path $repoRoot "outputs\tts_tests"
 $voiceConfigPath = Join-Path $repoRoot "config\relay_voice_profiles.json"
@@ -112,7 +112,7 @@ if (-not $AllowGenerate) {
     Write-Host "Dry run complete. Audio generation requires -AllowGenerate." -ForegroundColor Yellow
 }
 elseif (-not $localModuleAvailable) {
-    Write-Host "Generation stopped: the Relay-local Piper module was not detected at tools\piper\.venv." -ForegroundColor Yellow
+    Write-Host "Generation stopped: the Relay-local Piper module was not detected at tools\piper.venv." -ForegroundColor Yellow
     Write-Host "Run the gated install review after a compatible local Python interpreter is approved." -ForegroundColor Yellow
 }
 elseif ($models.Count -eq 0) {
