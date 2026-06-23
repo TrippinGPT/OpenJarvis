@@ -206,6 +206,13 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - Comparison testing is next.
 - Compare the baseline against additional local Piper candidates before any application integration.
 
+### v2.4.3 - Amy tuning before app integration
+
+- Amy is the best current candidate.
+- LJSpeech is rejected.
+- Lessac remains only a technical baseline.
+- Tune Amy locally before any Relay app integration or voice-toggle work.
+
 ## Future implementation acceptance criteria
 
 - User explicitly enables voice.
@@ -233,3 +240,5 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - `scripts/check_piper_python_runtime.ps1`
 - [Relay Piper Voice Comparison](RELAY_PIPER_VOICE_COMPARISON.md)
 - `scripts/run_piper_voice_comparison_gated.ps1`
+- [Relay Piper Amy Tuning](RELAY_PIPER_AMY_TUNING.md)
+- `scripts/run_piper_amy_tuning_gated.ps1`

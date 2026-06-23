@@ -169,6 +169,20 @@ if ($comparisonWavCount -gt 0) {
         Sort-Object -Property @{ Expression = "LastWriteTime"; Descending = $true }, "FullName" |
         Select-Object -First 1
 }
+$amyTuningWavs = @()
+if (Test-Path -LiteralPath $plannedOutputPath -PathType Container) {
+    $amyTuningWavs = @(
+        Get-ChildItem -LiteralPath $plannedOutputPath -Recurse -File -Filter "relay_amy_tune_*.wav" |
+            Sort-Object LastWriteTime, FullName
+    )
+}
+$amyTuningWavCount = $amyTuningWavs.Count
+$latestAmyTuningWav = $null
+if ($amyTuningWavCount -gt 0) {
+    $latestAmyTuningWav = $amyTuningWavs |
+        Sort-Object -Property @{ Expression = "LastWriteTime"; Descending = $true }, "FullName" |
+        Select-Object -First 1
+}
 $downloadedComparisonPairCount = 0
 foreach ($comparisonVoice in $comparisonVoices) {
     $comparisonModelPath = [System.IO.Path]::GetFullPath([string]$comparisonVoice.model_output_path)
@@ -222,6 +236,11 @@ Write-CheckLine -Label "Comparison candidate count" -Value $comparisonVoices.Cou
 Write-CheckLine -Label "Downloaded voice model pair count" -Value $downloadedComparisonPairCount.ToString()
 Write-CheckLine -Label "Generated comparison WAV count" -Value $comparisonWavCount.ToString()
 Write-CheckLine -Label "Latest comparison WAV path" -Value $(if ($null -ne $latestComparisonWav) { $latestComparisonWav.FullName } else { "None" })
+
+Write-Host ""
+Write-Host "Amy tuning lane" -ForegroundColor Cyan
+Write-CheckLine -Label "Amy tuning WAV count" -Value $amyTuningWavCount.ToString()
+Write-CheckLine -Label "Latest Amy tuning WAV path" -Value $(if ($null -ne $latestAmyTuningWav) { $latestAmyTuningWav.FullName } else { "None" })
 
 Write-Host ""
 Write-Host "Generated audio" -ForegroundColor Cyan

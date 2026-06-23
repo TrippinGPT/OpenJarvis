@@ -23,6 +23,12 @@ Comparison WAV naming convention:
 - One file per selected voice when the comparison lane is run with `-AllowGenerate`
 - Comparison WAVs remain ignored by Git
 
+Amy tuning WAV naming convention:
+
+- `relay_amy_tune_<NN>_<YYYYMMDD_HHMMSS>.wav`
+- One file per line when Amy tuning is run with `-AllowGenerate`
+- Amy tuning WAVs remain ignored by Git
+
 ## Boundaries
 
 - Do not commit generated audio unless explicitly approved.

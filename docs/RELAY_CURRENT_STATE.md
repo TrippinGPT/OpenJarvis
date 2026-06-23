@@ -71,6 +71,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - `relay-v2.4-first-piper-test-wav`
 - `relay-v2.4.1-piper-audio-review`
 - `relay-v2.4.2-piper-voice-comparison`
+- `relay-v2.4.3-piper-amy-tuning`
 
 ## 6. Current features
 
@@ -124,6 +125,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - v2.4 gates the first local test WAV and keeps the generated audio local/ignored.
 - v2.4.1 reviewed the first WAV and rejected `en_US_lessac_medium` as the final Relay voice.
 - v2.4.2 adds a gated comparison lane for `en_US_lessac_medium`, `en_US_amy_medium`, and `en_US_ljspeech_medium`.
+- v2.4.3 adds an Amy-only tuning lane based on the comparison review.
 - No Piper package was installed globally.
 - The selected voice-model pair lives under `tools\piper\voices` and no audio has been generated.
 - Generated WAV files are local test artifacts and ignored by Git.
@@ -141,6 +143,13 @@ After startup commands are sent, the launcher automatically opens the frontend i
 
 - A gated local comparison lane is available for `en_US_lessac_medium`, `en_US_amy_medium`, and `en_US_ljspeech_medium`.
 - The comparison lane remains offline and does not integrate voice into the app.
+
+### v2.4.3 milestone note
+
+- Amy is now the best current candidate.
+- LJSpeech is rejected.
+- Lessac remains only a technical baseline.
+- Amy tuning is local-only and still not app-integrated.
 
 ## 9. Next possible milestones
 
@@ -180,4 +189,5 @@ Related references:
 - [Relay TTS Plan](RELAY_TTS_PLAN.md)
 - [Relay Piper Prototype Plan](RELAY_PIPER_PROTOTYPE_PLAN.md)
 - [Relay Piper Voice Comparison](RELAY_PIPER_VOICE_COMPARISON.md)
+- [Relay Piper Amy Tuning](RELAY_PIPER_AMY_TUNING.md)
 - [Relay Piper Voice Model Selection](RELAY_PIPER_VOICE_MODEL_SELECTION.md)

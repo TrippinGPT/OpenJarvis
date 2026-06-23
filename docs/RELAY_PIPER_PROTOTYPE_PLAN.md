@@ -233,6 +233,14 @@ The approved line remains original Relay copy only. This milestone validates the
 - Use the results to choose a better original Relay voice before any app integration.
 - Do not treat the comparison lane as runtime TTS or voice-toggle work.
 
+### v2.4.3 Amy tuning lane
+
+- Use `en_US_amy_medium` as the best current candidate.
+- Test whether Amy can be tuned enough to fit Relay Companion / Smartmouth Relay.
+- Keep the tuning lane local and offline.
+- Favor shorter, punchier lines before adding any new controls or runtime integration.
+- Do not treat Amy as final until review confirms the fit.
+
 ## Related files
 
 - [Relay TTS Plan](RELAY_TTS_PLAN.md)
@@ -251,3 +259,5 @@ The approved line remains original Relay copy only. This milestone validates the
 - `outputs/tts_tests/README.md`
 - [Relay Piper Voice Comparison](RELAY_PIPER_VOICE_COMPARISON.md)
 - `scripts/run_piper_voice_comparison_gated.ps1`
+- [Relay Piper Amy Tuning](RELAY_PIPER_AMY_TUNING.md)
+- `scripts/run_piper_amy_tuning_gated.ps1`

@@ -37,6 +37,9 @@
       "quality": "medium",
       "status": "candidate_for_local_comparison",
       "comparison_candidate": true,
+      "review_status": "reviewed_candidate",
+      "relay_fit": "possible",
+      "technical_status": "best_current_candidate",
       "license_review_status": "needs_review_before_distribution",
       "model_filename": "en_US-amy-medium.onnx",
       "config_filename": "en_US-amy-medium.onnx.json",
@@ -45,6 +48,8 @@
       "model_url": "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/amy/medium/en_US-amy-medium.onnx",
       "config_url": "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/amy/medium/en_US-amy-medium.onnx.json",
       "source_note": "rhasspy/piper-voices Hugging Face repository",
+      "review_notes": "Decent clarity, a little slow, possible Relay fit, needs tuning.",
+      "tuning_status": "needs_speed_and_delivery_tests",
       "usage_boundary": "Local testing only."
     },
     {
@@ -54,6 +59,9 @@
       "quality": "medium",
       "status": "candidate_for_local_comparison",
       "comparison_candidate": true,
+      "review_status": "reviewed_rejected",
+      "relay_fit": "failed",
+      "technical_status": "comparison_rejected",
       "license_review_status": "needs_review_before_distribution",
       "model_filename": "en_US-ljspeech-medium.onnx",
       "config_filename": "en_US-ljspeech-medium.onnx.json",

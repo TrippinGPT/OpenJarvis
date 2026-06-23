@@ -135,4 +135,16 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_pipe
 D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_PIPER_VOICE_COMPARISON.md
 ```
 
+Amy tuning:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_amy_tuning_gated.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_amy_tuning_gated.ps1 -AllowGenerate -UseDefaultLineSet
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_amy_tuning_gated.ps1 -AllowGenerate -Line "Routing that now. Shocking development: we are using a plan."
+```
+
+```text
+D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_PIPER_AMY_TUNING.md
+```
+
 > Do not run `jarvis self-update` on the Trippin AI Relay fork.

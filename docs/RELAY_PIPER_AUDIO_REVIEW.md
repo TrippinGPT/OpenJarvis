@@ -22,8 +22,10 @@ Track subjective review results for local Relay voice tests without changing run
 
 `en_US_lessac_medium` is a working technical baseline for the local Piper pipeline, but it is not approved as the final Relay Companion / Smartmouth Relay voice.
 
+Across the comparison lane, Amy is the best current candidate, but it is not final yet. LJSpeech is rejected.
+
 ## Next recommendation
 
-v2.4.2 should add a gated voice comparison lane before any app integration. That comparison should stay local, read-only, and focused on approval of a better original Relay voice.
+v2.4.3 adds an Amy-only tuning lane before any app integration. That tuning stays local, read-only, and focuses on proving whether Amy can fit Relay after speed/delivery adjustments.
 
 Related comparison plan: [RELAY_PIPER_VOICE_COMPARISON.md](RELAY_PIPER_VOICE_COMPARISON.md)

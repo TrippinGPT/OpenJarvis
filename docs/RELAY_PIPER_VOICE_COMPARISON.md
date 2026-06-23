@@ -7,8 +7,10 @@ This lane compares a small set of local Piper voices before any app integration.
 ## Current baseline
 
 - `en_US_lessac_medium` generated the first working local WAV.
-- Lessac is a useful technical baseline.
+- Lessac is a useful technical baseline only.
 - Lessac failed the Relay persona fit review and is not the final Relay voice.
+- `en_US_amy_medium` is the best current candidate, but it is not final yet.
+- `en_US_ljspeech_medium` is rejected.
 
 ## Comparison candidates
 
@@ -26,6 +28,12 @@ Review each candidate against:
 - tone
 - persona fit
 - final decision
+
+## Comparison outcome so far
+
+- Lessac: technical baseline only
+- Amy: best current candidate, but still needs tuning
+- LJSpeech: rejected
 
 ## Safety rules
 
