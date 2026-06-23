@@ -246,7 +246,14 @@ The approved line remains original Relay copy only. This milestone validates the
 - Test `en_US_danny_low` next.
 - Use Danny only as a gated local candidate.
 - Keep the lane offline and focused on the polished human command-center assistant feel.
+- Danny was tested and rejected as robotic/unclear.
 - Do not integrate Danny into the app until review proves the fit.
+
+### v2.5 Kokoro feasibility lane
+
+- Piper remains the working baseline only.
+- Evaluate Kokoro 82M next, but keep the lane planning-only until explicit approval.
+- Do not install Kokoro, download models, generate audio, or add runtime integration in this stage.
 
 ## Related files
 
@@ -270,3 +277,5 @@ The approved line remains original Relay copy only. This milestone validates the
 - `scripts/run_piper_amy_tuning_gated.ps1`
 - [Relay Piper Danny Test](RELAY_PIPER_DANNY_TEST.md)
 - `scripts/run_piper_danny_test_gated.ps1`
+- [Relay Kokoro TTS Plan](RELAY_KOKORO_TTS_PLAN.md)
+- `scripts/check_kokoro_feasibility.ps1`

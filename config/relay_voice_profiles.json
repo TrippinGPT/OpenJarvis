@@ -50,6 +50,9 @@
         "kokoro"
       ],
       "first_prototype_candidate": "piper",
+      "next_tts_candidate": "kokoro_82m",
+      "piper_status": "working_pipeline_voice_fit_failed",
+      "voice_selection_status": "unresolved",
       "status": "planned"
     }
   ],

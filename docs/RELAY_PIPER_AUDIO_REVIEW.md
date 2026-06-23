@@ -27,6 +27,6 @@ Amy at length scale 0.85 was the strongest Amy variant so far, but it still is n
 
 ## Next recommendation
 
-v2.4.5 adds a Danny candidate gate before any app integration. Amy tuning remains useful, but Danny is now the next voice to test.
+v2.4.5 added a Danny candidate gate before any app integration. Danny was tested and rejected as robotic/unclear. Amy tuning remains useful, but Kokoro feasibility is now the next lane.
 
 Related comparison plan: [RELAY_PIPER_VOICE_COMPARISON.md](RELAY_PIPER_VOICE_COMPARISON.md)

@@ -72,6 +72,16 @@ Piper setup check:
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_piper_setup.ps1
 ```
 
+Kokoro feasibility check:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_kokoro_feasibility.ps1
+```
+
+```text
+D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_KOKORO_TTS_PLAN.md
+```
+
 Piper voice model selection:
 
 ```powershell

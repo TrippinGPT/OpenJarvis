@@ -36,6 +36,8 @@ Review each candidate against:
 - Lessac: technical baseline only
 - Amy: best current candidate, but still needs tuning
 - LJSpeech: rejected
+- Danny: tested and rejected as robotic/unclear
+- Kokoro feasibility: next planning lane after Piper fit failures
 
 ## Safety rules
 

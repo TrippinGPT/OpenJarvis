@@ -11,7 +11,8 @@ The Relay Popout HUD is the intended future voicebox surface. The main planned p
 - **Mode:** Planning only
 - **Piper package:** Installed locally only in `tools\piper.venv`
 - **Piper runtime:** Python 3.11.15 / `piper-tts` 1.4.2
-- **Voice model candidate:** `en_US_lessac_medium`
+- **Piper review result:** technical pipeline works, but the tested voices did not reach the final Relay Companion fit
+- **Next TTS lane:** Kokoro feasibility only
 - **Voice-model gate:** `config\piper_voice_models.json`
 - **Application TTS integration:** Not implemented
 - **Audio playback:** Not implemented
@@ -217,7 +218,15 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 
 - Test Danny next as a possible better Piper candidate.
 - Keep runtime/app TTS blocked until a voice is approved.
-- If Piper voices fail, Kokoro or Voicebox-style comparison remains an alternative lane.
+- Danny was tested and rejected as robotic/unclear.
+- If Piper voices fail, Kokoro remains the next planning/checking lane.
+
+### v2.5 - Kokoro feasibility lane
+
+- Evaluate Kokoro 82M as the next local/offline TTS candidate after the Piper fit failures.
+- Keep the lane planning-only until an explicit install approval is given.
+- Do not add app runtime TTS, autoplay, microphone access, or voice cloning.
+- Use the official Kokoro GitHub repository and official model page as the primary references.
 
 ## Future implementation acceptance criteria
 
@@ -250,3 +259,5 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - `scripts/run_piper_amy_tuning_gated.ps1`
 - [Relay Piper Danny Test](RELAY_PIPER_DANNY_TEST.md)
 - `scripts/run_piper_danny_test_gated.ps1`
+- [Relay Kokoro TTS Plan](RELAY_KOKORO_TTS_PLAN.md)
+- `scripts/check_kokoro_feasibility.ps1`

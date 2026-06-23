@@ -73,6 +73,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - `relay-v2.4.2-piper-voice-comparison`
 - `relay-v2.4.3-piper-amy-tuning`
 - `relay-v2.4.5-piper-danny-test`
+- `relay-v2.5-kokoro-feasibility`
 
 ## 6. Current features
 
@@ -128,12 +129,20 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - v2.4.2 adds a gated comparison lane for `en_US_lessac_medium`, `en_US_amy_medium`, and `en_US_ljspeech_medium`.
 - v2.4.3 adds an Amy-only tuning lane based on the comparison review.
 - v2.4.5 adds a Danny candidate gate based on the Piper samples page.
+- v2.5 adds a Kokoro feasibility lane after the Piper fit failures.
 - No Piper package was installed globally.
 - The selected voice-model pair lives under `tools\piper\voices` and no audio has been generated.
 - Generated WAV files are local test artifacts and ignored by Git.
 - No Relay Popout voice toggle or automatic speech exists.
 - No app runtime TTS exists yet.
 - Model download, audio generation, playback, or UI voice controls require explicit user approval in a future task.
+
+### v2.5 milestone note
+
+- Kokoro feasibility is now the next local/offline TTS lane.
+- No Kokoro install has happened yet.
+- No new audio or model downloads were performed for Kokoro.
+- Piper remains the baseline only; the final Relay voice is still unresolved.
 
 ### v2.4.1 milestone note
 
@@ -158,15 +167,18 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - Danny is the next candidate under test.
 - The target is a polished human command-center assistant feel, not a cloned character.
 - Runtime/app TTS is still blocked until a voice is approved.
+- Kokoro feasibility is the next lane after Danny.
 
 ## 9. Next possible milestones
 
 - **v2.3:** Approved Piper voice-model selection/download gate
 - **v2.4:** First gated local test WAV
-- **v2.5:** User-controlled Relay Popout voice toggle
-- **v2.6:** Agent-specific original voice profiles
-- **v2.7:** Real routing signals connected to agent mesh animation
-- **v2.8:** Safe preflight actions
+- **v2.5:** Kokoro feasibility lane
+- **v2.6:** Approved Kokoro install/test
+- **v2.7:** User-controlled Relay Popout voice toggle
+- **v2.8:** Agent-specific original voice profiles
+- **v2.9:** Real routing signals connected to agent mesh animation
+- **v3.0:** Safe preflight actions
 
 These are proposed milestones only. They do not authorize installation, downloads, audio generation, agent execution, or OpenClaw changes.
 
@@ -180,6 +192,7 @@ git --no-pager log --oneline -10
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_openclaw_bridge.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_relay_tts_feasibility.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_piper_setup.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_kokoro_feasibility.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\download_piper_voice_model_gated.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\download_piper_voice_model_gated.ps1 -AllowDownload
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_test_line_gated.ps1 -AllowGenerate
