@@ -9,6 +9,9 @@ This directory is reserved for future local Relay TTS test output.
 - No audio has been generated.
 - No voice samples are stored here.
 - No playback or application integration is configured.
+- Generated WAV files in this folder are local test artifacts.
+- Generated WAV and MP3 files are ignored by Git.
+- Do not commit generated audio without explicit review.
 
 Future explicitly approved tests may save temporary Relay voice samples here.
 

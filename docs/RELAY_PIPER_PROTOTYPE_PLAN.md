@@ -205,6 +205,18 @@ Safety boundary:
 - No real-person or copyrighted-character impersonation
 - Model card and license review are required before any distribution discussion
 
+## v2.4 first gated local test WAV
+
+v2.4 is the first controlled local audio milestone:
+
+- Run `scripts/run_piper_test_line_gated.ps1` with `-AllowGenerate` only after the approved voice model pair is present.
+- Generate exactly one local WAV under `outputs\tts_tests`.
+- Do not autoplay the result.
+- Do not add application runtime TTS integration.
+- Keep generated WAVs ignored by Git and local to the Relay repo.
+
+The approved line remains original Relay copy only. This milestone validates the local Piper path, not the dashboard or popout audio runtime.
+
 ## Related files
 
 - [Relay TTS Plan](RELAY_TTS_PLAN.md)
@@ -220,3 +232,4 @@ Safety boundary:
 - `scripts/install_piper_gated.ps1`
 - `scripts/run_piper_test_line_gated.ps1`
 - `scripts/check_piper_python_runtime.ps1`
+- `outputs/tts_tests/README.md`

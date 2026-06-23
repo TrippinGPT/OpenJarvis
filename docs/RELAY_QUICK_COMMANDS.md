@@ -84,6 +84,14 @@ D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_PIPER_VOICE_MODEL_SELECTION.md
 D:\AI\TRIPPIN_AI_RELAY\config\piper_voice_models.json
 ```
 
+Piper first test WAV:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_test_line_gated.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_test_line_gated.ps1 -AllowGenerate
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_test_line_gated.ps1 -AllowGenerate -Line "Relay online. Try not to break anything expensive."
+```
+
 Piper sandbox prep:
 
 ```powershell

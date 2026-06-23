@@ -19,6 +19,8 @@ The Relay Popout HUD is the intended future voicebox surface. The main planned p
 - **Voice cloning:** Prohibited
 - **Automatic speech:** Prohibited until a future user-controlled feature explicitly enables it
 - **Default future behavior:** Off
+- **Local offline test WAV generation:** Gated
+- **Relay Popout voice toggle:** Future work
 
 ## Identity and safety boundaries
 
@@ -180,6 +182,16 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_pi
 - Do not add application runtime integration or audio generation yet.
 
 The approved local voice candidate is `en_US_lessac_medium` from the `rhasspy/piper-voices` repository. The selected voice pair lives only under `tools\piper\voices` and remains separate from `tools\piper.venv`.
+
+### v2.4 - First gated local test WAV
+
+- Generate one local Relay test WAV only when `-AllowGenerate` is passed to `scripts/run_piper_test_line_gated.ps1`.
+- Use the approved voice pair under `tools\piper\voices`.
+- Keep the output inside `outputs\tts_tests` and leave it ignored by Git.
+- Do not autoplay the result.
+- Do not add application runtime TTS integration yet.
+
+The first WAV validates the local Piper path only. Popout voice toggle work remains future implementation.
 
 ## Future implementation acceptance criteria
 

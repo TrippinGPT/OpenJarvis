@@ -68,6 +68,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - `relay-v2.2-local-piper-install`
 - `relay-v2.2.1-piper-venv-path-normalized`
 - `relay-v2.3-piper-voice-model-gate`
+- `relay-v2.4-first-piper-test-wav`
 
 ## 6. Current features
 
@@ -89,6 +90,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - Read-only Piper Python runtime compatibility checker
 - Isolated Python 3.11 Piper installation under `tools\piper.venv`
 - Approved Piper voice-model gate with local files under `tools\piper\voices`
+- First gated local Relay test WAV under `outputs\tts_tests`
 
 ## 7. Safety boundaries
 
@@ -117,15 +119,18 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - v2.2.1 verified `tools\piper.venv` as the canonical active path; legacy `tools\piper\.venv` is absent and unused.
 - v2.3 adds the approved local test voice `en_US_lessac_medium` and the gated download script.
 - Voice-model files live only under `tools\piper\voices` and remain ignored by Git.
+- v2.4 gates the first local test WAV and keeps the generated audio local/ignored.
 - No Piper package was installed globally.
 - The selected voice-model pair lives under `tools\piper\voices` and no audio has been generated.
+- Generated WAV files are local test artifacts and ignored by Git.
 - No Relay Popout voice toggle or automatic speech exists.
+- No app runtime TTS exists yet.
 - Model download, audio generation, playback, or UI voice controls require explicit user approval in a future task.
 
 ## 9. Next possible milestones
 
 - **v2.3:** Approved Piper voice-model selection/download gate
-- **v2.4:** One controlled local test-line generation
+- **v2.4:** First gated local test WAV
 - **v2.5:** User-controlled Relay Popout voice toggle
 - **v2.6:** Agent-specific original voice profiles
 - **v2.7:** Real routing signals connected to agent mesh animation
@@ -145,6 +150,7 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_re
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_piper_setup.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\download_piper_voice_model_gated.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\download_piper_voice_model_gated.ps1 -AllowDownload
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_test_line_gated.ps1 -AllowGenerate
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\prepare_piper_sandbox.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_piper_python_runtime.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\install_piper_gated.ps1

@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
     [switch]$AllowGenerate,
+    [string]$VoiceId = "en_US_lessac_medium",
     [string]$Line
 )
 
@@ -13,10 +14,10 @@ $repoRootPrefix = $repoRoot.TrimEnd(
     [System.IO.Path]::DirectorySeparatorChar,
     [System.IO.Path]::AltDirectorySeparatorChar
 ) + [System.IO.Path]::DirectorySeparatorChar
-$configPath = Join-Path $repoRoot "config\piper_voice_models.json"
+$voiceConfigPath = Join-Path $repoRoot "config\piper_voice_models.json"
+$relayVoiceProfilePath = Join-Path $repoRoot "config\relay_voice_profiles.json"
 $localVenvPath = Join-Path $repoRoot "tools\piper.venv"
 $localPython = Join-Path $localVenvPath "Scripts\python.exe"
-$localPiperCommand = Join-Path $localVenvPath "Scripts\piper.exe"
 $voicesRoot = Join-Path $repoRoot "tools\piper\voices"
 $outputRoot = Join-Path $repoRoot "outputs\tts_tests"
 
@@ -38,34 +39,88 @@ function Assert-RelayPath {
     return $fullPath
 }
 
-function Get-CommandVersion {
+function Get-VoiceConfig {
+    if (-not (Test-Path -LiteralPath $voiceConfigPath -PathType Leaf)) {
+        throw "Missing voice-model config: $voiceConfigPath"
+    }
+
+    try {
+        return Get-Content -LiteralPath $voiceConfigPath -Raw | ConvertFrom-Json
+    }
+    catch {
+        throw "Voice-model config is invalid: $($_.Exception.Message)"
+    }
+}
+
+function Get-SelectedVoice {
     param(
         [Parameter(Mandatory = $true)]
-        [string]$Name
+        $Config,
+
+        [Parameter(Mandatory = $true)]
+        [string]$RequestedVoiceId
     )
 
-    $command = Get-Command $Name -ErrorAction SilentlyContinue | Select-Object -First 1
-    if ($null -eq $command) {
+    $selectedVoice = $Config.voices |
+        Where-Object { $_.id -eq $RequestedVoiceId } |
+        Select-Object -First 1
+
+    if ($null -eq $selectedVoice) {
+        throw "VoiceId '$RequestedVoiceId' was not found in $voiceConfigPath."
+    }
+
+    return $selectedVoice
+}
+
+function Get-SmartmouthLine {
+    if (-not (Test-Path -LiteralPath $relayVoiceProfilePath -PathType Leaf)) {
         return [pscustomobject]@{
-            Available = $false
-            Version = "Not found"
+            Line = $null
+            Source = "fallback"
         }
     }
 
     try {
-        $output = & $command.Source --version 2>&1
-        $version = ($output | ForEach-Object { "$_".Trim() } | Where-Object { $_ }) -join " "
-        if ([string]::IsNullOrWhiteSpace($version)) {
-            $version = "Available (version not reported)"
-        }
+        $relayProfiles = Get-Content -LiteralPath $relayVoiceProfilePath -Raw | ConvertFrom-Json
     }
     catch {
-        $version = "Available (version check failed: $($_.Exception.Message))"
+        return [pscustomobject]@{
+            Line = $null
+            Source = "fallback"
+        }
+    }
+
+    $defaultProfileId = $null
+    if ($relayProfiles.PSObject.Properties.Name -contains "default_voice") {
+        $defaultProfileId = [string]$relayProfiles.default_voice
+    }
+    elseif ($relayProfiles.PSObject.Properties.Name -contains "default_voice_id") {
+        $defaultProfileId = [string]$relayProfiles.default_voice_id
+    }
+
+    if ([string]::IsNullOrWhiteSpace($defaultProfileId)) {
+        $defaultProfileId = "smartmouth_relay"
+    }
+
+    $profile = $relayProfiles.voices |
+        Where-Object { $_.id -eq $defaultProfileId } |
+        Select-Object -First 1
+    if ($null -eq $profile) {
+        $profile = $relayProfiles.voices |
+            Where-Object { $_.id -eq "smartmouth_relay" } |
+            Select-Object -First 1
+    }
+
+    if ($null -eq $profile -or @($profile.do_say).Count -eq 0) {
+        return [pscustomobject]@{
+            Line = $null
+            Source = "fallback"
+        }
     }
 
     return [pscustomobject]@{
-        Available = $true
-        Version = $version
+        Line = [string]$profile.do_say[0]
+        Source = "config\relay_voice_profiles.json:$($profile.id)"
     }
 }
 
@@ -101,94 +156,138 @@ function Get-Count {
     ).Count
 }
 
-function Write-SectionLine {
+function Format-FileSize {
     param(
         [Parameter(Mandatory = $true)]
-        [string]$Label,
-
-        [Parameter(Mandatory = $true)]
-        [string]$Value
+        [string]$Path
     )
 
-    Write-Host ("{0,-34} {1}" -f "${Label}:", $Value)
+    $item = Get-Item -LiteralPath $Path
+    return ("{0:N0} bytes" -f $item.Length)
 }
 
-if ($AllowGenerate) {
-    Write-Error "Audio generation is reserved for v2.4 after voice model gate validation."
-    exit 1
+$voiceConfig = Get-VoiceConfig
+$selectedVoice = Get-SelectedVoice -Config $voiceConfig -RequestedVoiceId $VoiceId
+$lineSelection = if (-not [string]::IsNullOrWhiteSpace($Line)) {
+    [pscustomobject]@{
+        Line = $Line.Trim()
+        Source = "command line"
+    }
+}
+else {
+    Get-SmartmouthLine
 }
 
-if (-not (Test-Path -LiteralPath $configPath -PathType Leaf)) {
-    throw "Missing voice-model config: $configPath"
-}
-
-try {
-    $voiceConfig = Get-Content -LiteralPath $configPath -Raw | ConvertFrom-Json
-}
-catch {
-    throw "Voice-model config is invalid: $($_.Exception.Message)"
-}
-
-$selectedVoice = $voiceConfig.voices |
-    Where-Object { $_.id -eq $voiceConfig.default_voice_id } |
-    Select-Object -First 1
-
-if ($null -eq $selectedVoice) {
-    throw "Default voice id '$($voiceConfig.default_voice_id)' was not found in $configPath."
+$selectedLine = $lineSelection.Line
+if ([string]::IsNullOrWhiteSpace($selectedLine)) {
+    $selectedLine = "Relay online. Try not to break anything expensive."
+    $lineSelection = [pscustomobject]@{
+        Line = $selectedLine
+        Source = "fallback"
+    }
 }
 
 $modelPath = Assert-RelayPath -Path $selectedVoice.model_output_path
 $configOutputPath = Assert-RelayPath -Path $selectedVoice.config_output_path
-$voiceFolderExists = Test-Path -LiteralPath $voicesRoot -PathType Container
 $modelExists = Test-Path -LiteralPath $modelPath -PathType Leaf
 $configExists = Test-Path -LiteralPath $configOutputPath -PathType Leaf
+$voiceFolderExists = Test-Path -LiteralPath $voicesRoot -PathType Container
 $voiceModelCount = Get-Count -Folder $voicesRoot -Filter "*.onnx"
 $voiceConfigCount = Get-Count -Folder $voicesRoot -Filter "*.onnx.json"
 $localPiperInstalled = Test-PiperModule -PythonPath $localPython
-$piperCommand = Get-Command "piper" -ErrorAction SilentlyContinue | Select-Object -First 1
-$plannedLine = if (-not [string]::IsNullOrWhiteSpace($Line)) {
-    $Line.Trim()
-}
-else {
-    "Relay online. Ready for the next safe step."
-}
-$plannedOutput = Assert-RelayPath -Path (Join-Path $outputRoot "relay-test-line-preview.wav")
+$timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+$plannedOutput = Assert-RelayPath -Path (Join-Path $outputRoot "relay_test_smartmouth_$timestamp.wav")
 
 Write-Host ""
-Write-Host "Relay Piper Gated Test Line" -ForegroundColor Magenta
+Write-Host "Relay Piper Gated Test WAV" -ForegroundColor Magenta
 Write-Host "Repo root: $repoRoot" -ForegroundColor Cyan
-Write-Host "Mode: DRY RUN" -ForegroundColor Cyan
+Write-Host "Mode: $(if ($AllowGenerate) { 'GENERATION GATE REQUESTED' } else { 'DRY RUN' })" -ForegroundColor Cyan
 Write-Host ""
 
 Write-Host "Selected voice" -ForegroundColor Cyan
-Write-SectionLine -Label "Voice id" -Value $selectedVoice.id
-Write-SectionLine -Label "Display name" -Value $selectedVoice.display_name
-Write-SectionLine -Label "Model output path" -Value $modelPath
-Write-SectionLine -Label "Config output path" -Value $configOutputPath
-Write-SectionLine -Label "Model present" -Value $modelExists.ToString()
-Write-SectionLine -Label "Config present" -Value $configExists.ToString()
-Write-SectionLine -Label "Voice folder" -Value $(if ($voiceFolderExists) { "Present" } else { "Missing, expected before model download." })
-Write-SectionLine -Label ".onnx count" -Value $voiceModelCount.ToString()
-Write-SectionLine -Label ".onnx.json count" -Value $voiceConfigCount.ToString()
-Write-SectionLine -Label "Planned test line" -Value $plannedLine
-Write-SectionLine -Label "Planned output path" -Value $plannedOutput
-Write-SectionLine -Label "Local Piper module" -Value $(if ($localPiperInstalled) { "Installed in the Relay venv" } else { "Missing" })
-Write-SectionLine -Label "Local Piper command" -Value $(if (Test-Path -LiteralPath $localPiperCommand -PathType Leaf) { $localPiperCommand } else { "Not found" })
+Write-Host "- id: $($selectedVoice.id)"
+Write-Host "- display name: $($selectedVoice.display_name)"
+Write-Host "- language: $($selectedVoice.language)"
+Write-Host "- quality: $($selectedVoice.quality)"
+Write-Host "- model output path: $modelPath"
+Write-Host "- config output path: $configOutputPath"
+Write-Host "- model present: $modelExists"
+Write-Host "- config present: $configExists"
+Write-Host "- voice folder present: $voiceFolderExists"
+Write-Host "- .onnx count: $voiceModelCount"
+Write-Host "- .onnx.json count: $voiceConfigCount"
+Write-Host ""
+
+Write-Host "Selected line" -ForegroundColor Cyan
+Write-Host "- source: $($lineSelection.Source)"
+Write-Host "- text: $selectedLine"
+Write-Host "- planned output: $plannedOutput"
+Write-Host "- generation requires -AllowGenerate"
+Write-Host ""
+
+if (-not $AllowGenerate) {
+    Write-Host "Dry run complete. No audio was generated." -ForegroundColor Yellow
+    Write-Host "No playback occurred."
+    Write-Host "No microphone access occurred."
+    Write-Host "No app runtime TTS was added."
+    Write-Host "OpenClaw was not touched."
+    return
+}
+
+if (-not $modelExists -or -not $configExists) {
+    throw "Approved Piper voice model files are missing. Run the gated voice-model download first."
+}
+
+if (-not $localPiperInstalled) {
+    throw "Piper is not available in the local Relay venv: $localPython"
+}
+
+if (-not (Test-Path -LiteralPath $outputRoot -PathType Container)) {
+    New-Item -ItemType Directory -Path $outputRoot | Out-Null
+}
+
+if (Test-Path -LiteralPath $plannedOutput -PathType Leaf) {
+    throw "Planned output already exists: $plannedOutput"
+}
+
+$modelName = [System.IO.Path]::GetFileNameWithoutExtension($selectedVoice.model_filename)
+$piperArgs = @(
+    '-m', 'piper',
+    '-m', $modelName,
+    '--data-dir', $voicesRoot,
+    '-f', $plannedOutput,
+    '--',
+    $selectedLine
+)
 
 Write-Host ""
-if (-not $modelExists -or -not $configExists) {
-    Write-Host "Model files are missing. This is expected before the approved voice-model download." -ForegroundColor Yellow
-}
-else {
-    Write-Host "Model files are present. Generation would still remain gated until a later task." -ForegroundColor Green
+Write-Host "Piper invocation" -ForegroundColor Cyan
+Write-Host ("{0} -m piper -m {1} --data-dir {2} -f {3} -- <approved line>" -f $localPython, $modelName, $voicesRoot, $plannedOutput)
+Write-Host "No playback command will run."
+Write-Host ""
+
+& $localPython @piperArgs
+if ($LASTEXITCODE -ne 0) {
+    throw "Piper exited with code $LASTEXITCODE."
 }
 
-Write-Host "Dry run complete. Audio generation is not available in v2.3." -ForegroundColor Yellow
+if (-not (Test-Path -LiteralPath $plannedOutput -PathType Leaf)) {
+    throw "Piper reported success but the expected WAV was not created: $plannedOutput"
+}
+
+$generatedFile = Get-Item -LiteralPath $plannedOutput
+
+Write-Host ""
+Write-Host "Generation result" -ForegroundColor Green
+Write-Host "- Output WAV: $plannedOutput"
+Write-Host "- File size: $($generatedFile.Length) bytes"
+Write-Host "- No playback occurred."
+Write-Host "- No microphone access occurred."
+Write-Host "- No app runtime TTS was added."
+Write-Host "- OpenClaw was not touched."
 
 Write-Host ""
 Write-Host "Safety confirmation" -ForegroundColor Cyan
-Write-Host "- No model download attempted"
-Write-Host "- No audio playback attempted"
-Write-Host "- No microphone/audio capture used"
+Write-Host "- No autoplay"
+Write-Host "- No browser shell execution"
 Write-Host "- No voice cloning or impersonation requested"
-Write-Host "- OpenClaw was not touched"

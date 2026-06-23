@@ -86,6 +86,16 @@ function Write-CheckLine {
     Write-Host ("{0,-34} {1}" -f "${Label}:", $Value)
 }
 
+function Test-GitIgnoredPath {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    & git -C $repoRoot check-ignore -q -- $Path 2>$null
+    return ($LASTEXITCODE -eq 0)
+}
+
 $python = Get-CommandVersion -Name "python"
 $uv = Get-CommandVersion -Name "uv"
 $piperCommand = Get-Command "piper" -ErrorAction SilentlyContinue | Select-Object -First 1
@@ -123,13 +133,27 @@ if ($configExists) {
 $voiceFolderExists = Test-Path -LiteralPath $voiceFolderPath -PathType Container
 $voiceModelCount = Get-Count -Folder $voiceFolderPath -Filter "*.onnx"
 $voiceConfigCount = Get-Count -Folder $voiceFolderPath -Filter "*.onnx.json"
-$audioOutputCount = 0
+$generatedWavs = @()
 if (Test-Path -LiteralPath $plannedOutputPath -PathType Container) {
-    $audioOutputCount = @(
-        Get-ChildItem -LiteralPath $plannedOutputPath -Recurse -File |
-            Where-Object { $_.Extension -in ".wav", ".mp3" }
-    ).Count
+    $generatedWavs = @(
+        Get-ChildItem -LiteralPath $plannedOutputPath -Recurse -File -Filter "*.wav" |
+            Sort-Object LastWriteTime, FullName
+    )
 }
+$generatedWavCount = $generatedWavs.Count
+$latestGeneratedWav = $null
+if ($generatedWavCount -gt 0) {
+    $latestGeneratedWav = $generatedWavs |
+        Sort-Object -Property @{ Expression = "LastWriteTime"; Descending = $true }, "FullName" |
+        Select-Object -First 1
+}
+$ignoreProbePath = if ($null -ne $latestGeneratedWav) {
+    $latestGeneratedWav.FullName
+}
+else {
+    Join-Path $plannedOutputPath "relay_test_smartmouth_probe.wav"
+}
+$generatedAudioIgnoredByGit = Test-GitIgnoredPath -Path $ignoreProbePath
 
 Write-Host ""
 Write-Host "Relay Piper Setup Check" -ForegroundColor Magenta
@@ -161,7 +185,12 @@ Write-CheckLine -Label ".onnx.json count" -Value $voiceConfigCount.ToString()
 Write-CheckLine -Label "Default voice id" -Value $defaultVoiceId
 Write-CheckLine -Label "Selected model_output_path" -Value $(if ($null -ne $defaultVoice) { if (Test-Path -LiteralPath $defaultVoice.model_output_path -PathType Leaf) { "Present" } else { "Missing, expected before download." } } else { "Unavailable" })
 Write-CheckLine -Label "Selected config_output_path" -Value $(if ($null -ne $defaultVoice) { if (Test-Path -LiteralPath $defaultVoice.config_output_path -PathType Leaf) { "Present" } else { "Missing, expected before download." } } else { "Unavailable" })
-Write-CheckLine -Label "Audio output count" -Value $audioOutputCount.ToString()
+
+Write-Host ""
+Write-Host "Generated audio" -ForegroundColor Cyan
+Write-CheckLine -Label "WAV count" -Value $generatedWavCount.ToString()
+Write-CheckLine -Label "Latest generated WAV" -Value $(if ($null -ne $latestGeneratedWav) { $latestGeneratedWav.FullName } else { "None" })
+Write-CheckLine -Label "Generated WAVs ignored by Git" -Value $(if ($generatedAudioIgnoredByGit) { "Yes" } else { "No" })
 
 Write-Host ""
 Write-Host "Safety confirmation" -ForegroundColor Cyan
