@@ -10,7 +10,9 @@ This lane compares a small set of local Piper voices before any app integration.
 - Lessac is a useful technical baseline only.
 - Lessac failed the Relay persona fit review and is not the final Relay voice.
 - `en_US_amy_medium` is the best current candidate, but it is not final yet.
+- Amy at length scale 0.85 was the strongest Amy variant so far, but it still is not final.
 - `en_US_ljspeech_medium` is rejected.
+- Danny is being tested next.
 
 ## Comparison candidates
 

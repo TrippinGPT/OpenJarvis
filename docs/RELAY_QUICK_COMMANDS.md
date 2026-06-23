@@ -147,4 +147,16 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_pipe
 D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_PIPER_AMY_TUNING.md
 ```
 
+Danny candidate test:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_danny_test_gated.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_danny_test_gated.ps1 -AllowDownload -AllowGenerate
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_danny_test_gated.ps1 -AllowDownload -AllowGenerate -LengthScales 0.9,0.85
+```
+
+```text
+D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_PIPER_DANNY_TEST.md
+```
+
 > Do not run `jarvis self-update` on the Trippin AI Relay fork.

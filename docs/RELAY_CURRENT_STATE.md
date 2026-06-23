@@ -72,6 +72,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - `relay-v2.4.1-piper-audio-review`
 - `relay-v2.4.2-piper-voice-comparison`
 - `relay-v2.4.3-piper-amy-tuning`
+- `relay-v2.4.5-piper-danny-test`
 
 ## 6. Current features
 
@@ -126,6 +127,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - v2.4.1 reviewed the first WAV and rejected `en_US_lessac_medium` as the final Relay voice.
 - v2.4.2 adds a gated comparison lane for `en_US_lessac_medium`, `en_US_amy_medium`, and `en_US_ljspeech_medium`.
 - v2.4.3 adds an Amy-only tuning lane based on the comparison review.
+- v2.4.5 adds a Danny candidate gate based on the Piper samples page.
 - No Piper package was installed globally.
 - The selected voice-model pair lives under `tools\piper\voices` and no audio has been generated.
 - Generated WAV files are local test artifacts and ignored by Git.
@@ -150,6 +152,12 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - LJSpeech is rejected.
 - Lessac remains only a technical baseline.
 - Amy tuning is local-only and still not app-integrated.
+
+### v2.4.5 milestone note
+
+- Danny is the next candidate under test.
+- The target is a polished human command-center assistant feel, not a cloned character.
+- Runtime/app TTS is still blocked until a voice is approved.
 
 ## 9. Next possible milestones
 

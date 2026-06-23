@@ -29,6 +29,12 @@ Amy tuning WAV naming convention:
 - One file per line when Amy tuning is run with `-AllowGenerate`
 - Amy tuning WAVs remain ignored by Git
 
+Danny test WAV naming convention:
+
+- `relay_danny_test_ls<scale>_<YYYYMMDD_HHMMSS>.wav`
+- One file per selected length scale when Danny testing is run with `-AllowGenerate`
+- Danny test WAVs remain ignored by Git
+
 ## Boundaries
 
 - Do not commit generated audio unless explicitly approved.

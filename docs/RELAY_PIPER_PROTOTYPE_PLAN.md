@@ -241,6 +241,13 @@ The approved line remains original Relay copy only. This milestone validates the
 - Favor shorter, punchier lines before adding any new controls or runtime integration.
 - Do not treat Amy as final until review confirms the fit.
 
+### v2.4.5 Danny candidate gate
+
+- Test `en_US_danny_low` next.
+- Use Danny only as a gated local candidate.
+- Keep the lane offline and focused on the polished human command-center assistant feel.
+- Do not integrate Danny into the app until review proves the fit.
+
 ## Related files
 
 - [Relay TTS Plan](RELAY_TTS_PLAN.md)
@@ -261,3 +268,5 @@ The approved line remains original Relay copy only. This milestone validates the
 - `scripts/run_piper_voice_comparison_gated.ps1`
 - [Relay Piper Amy Tuning](RELAY_PIPER_AMY_TUNING.md)
 - `scripts/run_piper_amy_tuning_gated.ps1`
+- [Relay Piper Danny Test](RELAY_PIPER_DANNY_TEST.md)
+- `scripts/run_piper_danny_test_gated.ps1`

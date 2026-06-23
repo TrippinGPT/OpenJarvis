@@ -213,6 +213,12 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - Lessac remains only a technical baseline.
 - Tune Amy locally before any Relay app integration or voice-toggle work.
 
+### v2.4.5 - Danny candidate gate
+
+- Test Danny next as a possible better Piper candidate.
+- Keep runtime/app TTS blocked until a voice is approved.
+- If Piper voices fail, Kokoro or Voicebox-style comparison remains an alternative lane.
+
 ## Future implementation acceptance criteria
 
 - User explicitly enables voice.
@@ -242,3 +248,5 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - `scripts/run_piper_voice_comparison_gated.ps1`
 - [Relay Piper Amy Tuning](RELAY_PIPER_AMY_TUNING.md)
 - `scripts/run_piper_amy_tuning_gated.ps1`
+- [Relay Piper Danny Test](RELAY_PIPER_DANNY_TEST.md)
+- `scripts/run_piper_danny_test_gated.ps1`

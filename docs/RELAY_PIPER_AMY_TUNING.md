@@ -8,6 +8,8 @@ Test whether `en_US_amy_medium` can be tuned enough to become a credible Relay C
 
 Amy is the best current Piper candidate, but it is not final yet.
 
+The 0.85 length-scale sweep sounded better than the default run, but still did not reach final Relay fit.
+
 ## Problems to test
 
 - Slow delivery

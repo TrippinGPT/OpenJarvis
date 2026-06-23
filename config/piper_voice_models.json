@@ -71,6 +71,25 @@
       "config_url": "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/ljspeech/medium/en_US-ljspeech-medium.onnx.json",
       "source_note": "rhasspy/piper-voices Hugging Face repository",
       "usage_boundary": "Local testing only."
+    },
+    {
+      "id": "en_US_danny_low",
+      "display_name": "English US Danny Low",
+      "language": "en_US",
+      "quality": "low",
+      "status": "candidate_for_local_comparison",
+      "review_status": "unreviewed_candidate",
+      "relay_fit": "unknown",
+      "technical_status": "candidate_for_relay_fit_test",
+      "license_review_status": "needs_review_before_distribution",
+      "model_filename": "en_US-danny-low.onnx",
+      "config_filename": "en_US-danny-low.onnx.json",
+      "model_output_path": "D:\\AI\\TRIPPIN_AI_RELAY\\tools\\piper\\voices\\en_US-danny-low.onnx",
+      "config_output_path": "D:\\AI\\TRIPPIN_AI_RELAY\\tools\\piper\\voices\\en_US-danny-low.onnx.json",
+      "model_url": "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/danny/low/en_US-danny-low.onnx",
+      "config_url": "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/danny/low/en_US-danny-low.onnx.json",
+      "source_note": "rhasspy/piper-voices Hugging Face repository; discovered from Piper samples page",
+      "usage_boundary": "Local testing only."
     }
   ]
 }
