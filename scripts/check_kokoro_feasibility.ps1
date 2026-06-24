@@ -232,6 +232,7 @@ Write-Host ("- Kokoro package: {0}" -f $(if ($kokoroPackageStatus.Installed) { "
 Write-Host ("- Kokoro cache: {0}" -f $(if ($kokoroCachePresent) { "Present ($kokoroCacheFileCount files)" } else { "Missing" }))
 Write-Host ("- First WAV: {0}" -f $(if ($kokoroFirstWavCount -gt 0) { "Present ($kokoroFirstWavCount file(s))" } else { "Missing" }))
 Write-Host ("- Comparison sweep: {0}" -f $(if ($kokoroSweepWavCount -gt 0) { "Present ($kokoroSweepWavCount file(s))" } else { "Missing" }))
+Write-Host ("- Sweep runner: {0}" -f (Join-Path $repoRoot 'scripts\run_kokoro_voice_sweep_gated.ps1'))
 
 Write-Host ""
 Write-Host "Prerequisite prep lane" -ForegroundColor Cyan

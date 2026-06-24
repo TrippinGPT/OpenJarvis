@@ -15,6 +15,7 @@ The Relay Popout HUD is the intended future voicebox surface. The main planned p
 - **Next TTS lane:** Kokoro voice/style comparison sweep after the first WAV baseline
 - **Kokoro runtime target:** uv-managed CPython 3.11.15, not default Python 3.14.5
 - **Kokoro status:** gated venv setup completed; first WAV test has been run locally and the comparison sweep lane is ready
+- **Kokoro sweep runner:** accepts `-PythonExe` and defaults to the Kokoro venv Python
 - **Voice-model gate:** `config\piper_voice_models.json`
 - **Application TTS integration:** Not implemented
 - **Audio playback:** Not implemented
@@ -268,6 +269,12 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - The sweep runner is `scripts/run_kokoro_voice_sweep_gated.ps1`.
 - The sweep doc is `docs/RELAY_KOKORO_VOICE_SWEEP.md`.
 - No application/runtime TTS, autoplay, microphone access, or voice cloning.
+
+### v2.5.4.1 - Kokoro sweep runner fix
+
+- The sweep runner now accepts `-PythonExe`.
+- The default interpreter is `tools\kokoro.venv\Scripts\python.exe`.
+- The runner validates the venv Python directly before generating anything.
 
 ## Future implementation acceptance criteria
 

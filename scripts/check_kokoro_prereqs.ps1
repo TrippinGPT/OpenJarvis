@@ -559,6 +559,7 @@ Write-CheckLine -Label "First Kokoro WAV count" -Value $kokoroFirstWavCount.ToSt
 Write-CheckLine -Label "Latest Kokoro WAV" -Value $kokoroLatestWavPath
 Write-CheckLine -Label "Kokoro sweep WAV count" -Value $kokoroSweepWavCount.ToString()
 Write-CheckLine -Label "Latest Kokoro sweep WAV" -Value $kokoroLatestSweepWavPath
+Write-CheckLine -Label "Kokoro sweep runner" -Value (Join-Path $repoRoot "scripts\run_kokoro_voice_sweep_gated.ps1")
 Write-CheckLine -Label "outputs\tts_tests" -Value $(if ($ttsTestsExists) { "Present: $ttsTestsPath" } else { "Missing" })
 
 Write-Host ""

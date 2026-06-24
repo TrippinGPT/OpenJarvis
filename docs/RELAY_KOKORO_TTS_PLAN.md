@@ -111,4 +111,5 @@ No command in this document authorizes installation, download, generation, playb
 - [Relay Kokoro Voice/Style Sweep](RELAY_KOKORO_VOICE_SWEEP.md)
 - `scripts/run_kokoro_first_wav_gated.ps1`
 - `scripts/run_kokoro_voice_sweep_gated.ps1`
+- `scripts/run_kokoro_voice_sweep_gated.ps1 -PythonExe D:\AI\TRIPPIN_AI_RELAY\tools\kokoro.venv\Scripts\python.exe`
 - `scripts/check_kokoro_feasibility.ps1`

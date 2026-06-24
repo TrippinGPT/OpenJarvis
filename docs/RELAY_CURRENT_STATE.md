@@ -78,6 +78,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - `relay-v2.5.2-kokoro-venv-setup`
 - `relay-v2.5.3-kokoro-first-wav`
 - `relay-v2.5.4-kokoro-voice-sweep`
+- `relay-v2.5.4.1-kokoro-sweep-runner-fix`
 
 ## 6. Current features
 
@@ -99,6 +100,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - Read-only Piper Python runtime compatibility checker
 - First gated Kokoro WAV test runner
 - Gated Kokoro voice/style comparison sweep
+- Kokoro voice sweep runner with explicit venv Python validation
 - Isolated Python 3.11 Piper installation under `tools\piper.venv`
 - Approved Piper voice-model gate with local files under `tools\piper\voices`
 - First gated local Relay test WAV under `outputs\tts_tests`
@@ -126,6 +128,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - v2.5.2 created `tools\kokoro.venv` and installed `kokoro` 0.9.4 locally without generating audio.
 - v2.5.3 generated `outputs\tts_tests\relay_kokoro_first_20260623_161539.wav` using the gated Kokoro runner.
 - v2.5.4 adds a gated Kokoro voice/style comparison sweep using several official Kokoro voices against several Smartmouth Relay lines.
+- v2.5.4.1 fixes the Kokoro sweep runner so it accepts an explicit `-PythonExe` and validates the Kokoro venv interpreter directly.
 - The Kokoro cache now lives under `tools\kokoro\models` and remains ignored by Git.
 - The Piper prototype plan and read-only setup checker exist.
 - v2.0 prepares only the Relay-local Piper and TTS-test sandbox folders.
@@ -146,6 +149,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - v2.5.2 adds a gated Kokoro venv setup lane. No audio generation or runtime TTS has happened yet.
 - v2.5.3 adds the first gated Kokoro WAV test runner and keeps audio generation local and ignored.
 - v2.5.4 adds the gated Kokoro voice/style comparison sweep.
+- v2.5.4.1 fixes Kokoro sweep runner Python selection and venv detection.
 - No Piper package was installed globally.
 - The selected voice-model pair lives under `tools\piper\voices` and no audio has been generated.
 - Generated WAV files are local test artifacts and ignored by Git.
@@ -223,6 +227,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - **v2.5.2:** Kokoro gated venv setup
 - **v2.5.3:** First gated Kokoro WAV test
 - **v2.5.4:** Kokoro voice/style comparison sweep
+- **v2.5.4.1:** Kokoro sweep runner fix
 - **v2.6:** Approved Kokoro install/test
 - **v2.7:** User-controlled Relay Popout voice toggle
 - **v2.8:** Agent-specific original voice profiles
@@ -246,7 +251,9 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_ko
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_first_wav_gated.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_first_wav_gated.ps1 -AllowModelDownload -AllowGenerate
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_voice_sweep_gated.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_voice_sweep_gated.ps1 -PythonExe D:\AI\TRIPPIN_AI_RELAY\tools\kokoro.venv\Scripts\python.exe
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_voice_sweep_gated.ps1 -AllowModelDownload -AllowGenerate
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_voice_sweep_gated.ps1 -AllowModelDownload -AllowGenerate -PythonExe D:\AI\TRIPPIN_AI_RELAY\tools\kokoro.venv\Scripts\python.exe
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\download_piper_voice_model_gated.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\download_piper_voice_model_gated.ps1 -AllowDownload
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_test_line_gated.ps1 -AllowGenerate

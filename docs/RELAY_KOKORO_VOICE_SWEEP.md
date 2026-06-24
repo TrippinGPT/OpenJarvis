@@ -34,6 +34,16 @@ Those lines are:
 2. `Routing that now. Shocking development: we are using a plan.`
 3. `I can make this faster, cleaner, and less cursed.`
 
+## Python selection
+
+The sweep runner defaults to:
+
+```text
+D:\AI\TRIPPIN_AI_RELAY\tools\kokoro.venv\Scripts\python.exe
+```
+
+If you need to be explicit, pass `-PythonExe` with that exact path. The runner validates that interpreter directly, not the default system Python.
+
 ## Output naming
 
 The sweep writes one WAV per voice/line combination under `outputs\tts_tests`:
@@ -50,6 +60,12 @@ Dry run:
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_voice_sweep_gated.ps1
 ```
 
+Dry run with explicit venv Python:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_voice_sweep_gated.ps1 -PythonExe D:\AI\TRIPPIN_AI_RELAY\tools\kokoro.venv\Scripts\python.exe
+```
+
 Prefetch only:
 
 ```powershell
@@ -60,6 +76,12 @@ Generate the sweep WAVs:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_voice_sweep_gated.ps1 -AllowModelDownload -AllowGenerate
+```
+
+Generate the sweep WAVs with explicit venv Python:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_voice_sweep_gated.ps1 -AllowModelDownload -AllowGenerate -PythonExe D:\AI\TRIPPIN_AI_RELAY\tools\kokoro.venv\Scripts\python.exe
 ```
 
 ## Safety rules
