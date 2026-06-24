@@ -122,6 +122,18 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_koko
 D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_KOKORO_VOICE_SWEEP.md
 ```
 
+Smartmouth delivery pack:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\format_smartmouth_lines.ps1 -Line "Routing that now. Shocking development: we are using a plan." -Mode sarcastic
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_smartmouth_test_gated.ps1 -Line "Routing that now. Shocking development: we are using a plan."
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_smartmouth_test_gated.ps1 -Line "Routing that now. Shocking development: we are using a plan." -Mode sarcastic -AllowGenerate
+```
+
+```text
+D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_SMARTMOUTH_DELIVERY.md
+```
+
 Piper voice model selection:
 
 ```powershell
