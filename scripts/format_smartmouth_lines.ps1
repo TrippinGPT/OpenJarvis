@@ -10,6 +10,25 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+function New-SmartmouthEntry {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Text,
+
+        [ValidateSet('none', 'slight', 'caps')]
+        [string]$Emphasis = 'none',
+
+        [ValidateSet('none', 'short', 'medium', 'long')]
+        [string]$PauseAfter = 'none'
+    )
+
+    return [pscustomobject]@{
+        Text = $Text
+        PauseAfter = $PauseAfter
+        Emphasis = $Emphasis
+    }
+}
+
 function Normalize-SmartmouthText {
     param([Parameter(Mandatory = $true)][string]$Text)
 
@@ -31,18 +50,25 @@ function Remove-SmartmouthFillers {
 }
 
 function Add-TerminalPunctuation {
-    param([Parameter(Mandatory = $true)][string]$Text)
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Text,
 
-    $trimmed = $Text.Trim()
+        [ValidateSet('none', 'short', 'medium', 'long')]
+        [string]$PauseAfter = 'none'
+    )
+
+    $trimmed = [regex]::Replace($Text.Trim(), '[.!?]+$', '')
     if ([string]::IsNullOrWhiteSpace($trimmed)) {
         return $null
     }
 
-    if ($trimmed -notmatch '[.!?]$') {
-        $trimmed += '.'
+    switch ($PauseAfter) {
+        'short' { return "$trimmed." }
+        'medium' { return "$trimmed..." }
+        'long' { return "$trimmed... ..." }
+        default { return "$trimmed." }
     }
-
-    return $trimmed
 }
 
 function Set-SentenceCase {
@@ -103,7 +129,55 @@ function Split-ChunkedLine {
     return $subChunks
 }
 
-function Get-ModeSpecificSmartmouthLines {
+function Apply-Emphasis {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Text,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('neutral', 'dry', 'sarcastic', 'command')]
+        [string]$Mode,
+
+        [ValidateSet('none', 'slight', 'caps')]
+        [string]$Emphasis = 'none'
+    )
+
+    if ($Mode -notin @('sarcastic', 'command')) {
+        return $Text
+    }
+
+    $candidateMap = switch ($Mode) {
+        'sarcastic' { @('have', 'now', 'plan', 'ruin', 'stop', 'actually') }
+        'command' { @('stay', 'stop', 'now', 'task', 'route', 'move', 'go') }
+        default { @() }
+    }
+
+    if ($candidateMap.Count -eq 0) {
+        return $Text
+    }
+
+    if ($Emphasis -eq 'caps') {
+        foreach ($candidate in $candidateMap) {
+            $pattern = "(?i)\b$([regex]::Escape($candidate))\b"
+            if ($Text -match $pattern) {
+                return [regex]::Replace($Text, $pattern, { param($m) $m.Value.ToUpperInvariant() }, 1)
+            }
+        }
+    }
+
+    if ($Emphasis -eq 'slight') {
+        foreach ($candidate in $candidateMap) {
+            $pattern = "(?i)\b$([regex]::Escape($candidate))\b"
+            if ($Text -match $pattern) {
+                return [regex]::Replace($Text, $pattern, { param($m) $m.Value.Substring(0,1).ToUpperInvariant() + $m.Value.Substring(1).ToLowerInvariant() }, 1)
+            }
+        }
+    }
+
+    return $Text
+}
+
+function Get-ModeSpecificSmartmouthEntries {
     param(
         [Parameter(Mandatory = $true)]
         [string]$Text,
@@ -113,33 +187,34 @@ function Get-ModeSpecificSmartmouthLines {
     )
 
     $normalized = ($Text -replace '[.!?]+', '.').ToLowerInvariant().Trim()
+    $normalized = Remove-SmartmouthFillers -Text $normalized
 
     if ($normalized -match '^routing now\.?\s*shocking development:\s*we are using a plan\.?$') {
         switch ($Mode) {
             'dry' {
                 return @(
-                    'Routing now.',
-                    'We actually have a plan.'
+                    (New-SmartmouthEntry -Text 'Routing now.' -PauseAfter 'short'),
+                    (New-SmartmouthEntry -Text 'We actually have a plan.' -PauseAfter 'medium' -Emphasis 'slight')
                 )
             }
             'sarcastic' {
                 return @(
-                    'Routing now.',
-                    'We have a plan.',
-                    'Try not to ruin it.'
+                    (New-SmartmouthEntry -Text 'Routing now.' -PauseAfter 'short'),
+                    (New-SmartmouthEntry -Text 'We have a plan.' -PauseAfter 'none' -Emphasis 'caps'),
+                    (New-SmartmouthEntry -Text 'Try not to ruin it.' -PauseAfter 'medium')
                 )
             }
             'command' {
                 return @(
-                    'Routing now.',
-                    'Stay on task.'
+                    (New-SmartmouthEntry -Text 'Routing now.' -PauseAfter 'short'),
+                    (New-SmartmouthEntry -Text 'Stay on task.' -PauseAfter 'none' -Emphasis 'slight')
                 )
             }
             default {
                 return @(
-                    'Routing now.',
-                    'Shocking development.',
-                    'We are using a plan.'
+                    (New-SmartmouthEntry -Text 'Routing now.' -PauseAfter 'short'),
+                    (New-SmartmouthEntry -Text 'Shocking development.' -PauseAfter 'short'),
+                    (New-SmartmouthEntry -Text 'We are using a plan.' -PauseAfter 'medium')
                 )
             }
         }
@@ -149,26 +224,26 @@ function Get-ModeSpecificSmartmouthLines {
         switch ($Mode) {
             'dry' {
                 return @(
-                    'Relay online.',
-                    'Try not to break anything expensive.'
+                    (New-SmartmouthEntry -Text 'Relay online.' -PauseAfter 'short'),
+                    (New-SmartmouthEntry -Text 'Try not to break anything expensive.' -PauseAfter 'medium')
                 )
             }
             'sarcastic' {
                 return @(
-                    'Relay online.',
-                    'Try not to break anything expensive.'
+                    (New-SmartmouthEntry -Text 'Relay online.' -PauseAfter 'short'),
+                    (New-SmartmouthEntry -Text 'Try not to break anything expensive.' -PauseAfter 'medium')
                 )
             }
             'command' {
                 return @(
-                    'Relay online.',
-                    'Do not break expensive things.'
+                    (New-SmartmouthEntry -Text 'Relay online.' -PauseAfter 'short'),
+                    (New-SmartmouthEntry -Text 'Do not break expensive things.' -PauseAfter 'none' -Emphasis 'slight')
                 )
             }
             default {
                 return @(
-                    'Relay online.',
-                    'Try not to break anything expensive.'
+                    (New-SmartmouthEntry -Text 'Relay online.' -PauseAfter 'short'),
+                    (New-SmartmouthEntry -Text 'Try not to break anything expensive.' -PauseAfter 'medium')
                 )
             }
         }
@@ -178,30 +253,30 @@ function Get-ModeSpecificSmartmouthLines {
         switch ($Mode) {
             'dry' {
                 return @(
-                    'I can make this faster.',
-                    'Cleaner.',
-                    'Less cursed.'
+                    (New-SmartmouthEntry -Text 'I can make this faster.' -PauseAfter 'short'),
+                    (New-SmartmouthEntry -Text 'Cleaner.' -PauseAfter 'short'),
+                    (New-SmartmouthEntry -Text 'Less cursed.' -PauseAfter 'medium')
                 )
             }
             'sarcastic' {
                 return @(
-                    'I can make this faster.',
-                    'Cleaner.',
-                    'Less cursed.'
+                    (New-SmartmouthEntry -Text 'I can make this faster.' -PauseAfter 'short'),
+                    (New-SmartmouthEntry -Text 'Cleaner.' -PauseAfter 'short'),
+                    (New-SmartmouthEntry -Text 'Less cursed.' -PauseAfter 'medium')
                 )
             }
             'command' {
                 return @(
-                    'Make it faster.',
-                    'Keep it clean.',
-                    'Keep it less cursed.'
+                    (New-SmartmouthEntry -Text 'Make it faster.' -PauseAfter 'short' -Emphasis 'slight'),
+                    (New-SmartmouthEntry -Text 'Keep it clean.' -PauseAfter 'short' -Emphasis 'slight'),
+                    (New-SmartmouthEntry -Text 'Keep it less cursed.' -PauseAfter 'none')
                 )
             }
             default {
                 return @(
-                    'I can make this faster.',
-                    'Cleaner.',
-                    'Less cursed.'
+                    (New-SmartmouthEntry -Text 'I can make this faster.' -PauseAfter 'short'),
+                    (New-SmartmouthEntry -Text 'Cleaner.' -PauseAfter 'short'),
+                    (New-SmartmouthEntry -Text 'Less cursed.' -PauseAfter 'medium')
                 )
             }
         }
@@ -210,7 +285,71 @@ function Get-ModeSpecificSmartmouthLines {
     return $null
 }
 
-function Format-SmartmouthLines {
+function Get-ModeDefaultPause {
+    param(
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('neutral', 'dry', 'sarcastic', 'command')]
+        [string]$Mode,
+
+        [Parameter(Mandatory = $true)]
+        [int]$Index,
+
+        [Parameter(Mandatory = $true)]
+        [int]$Total
+    )
+
+    if ($Total -le 1) {
+        return 'none'
+    }
+
+    switch ($Mode) {
+        'neutral' {
+            if ($Index -eq $Total) { return 'medium' }
+            return 'short'
+        }
+        'dry' {
+            if ($Index -eq $Total) { return 'medium' }
+            return 'short'
+        }
+        'sarcastic' {
+            if ($Index -eq $Total) { return 'medium' }
+            if ($Index -eq 2 -and $Total -ge 3) { return 'none' }
+            return 'short'
+        }
+        'command' {
+            if ($Index -eq 1) { return 'short' }
+            return 'none'
+        }
+    }
+
+    return 'short'
+}
+
+function Get-ModeDefaultEmphasis {
+    param(
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('neutral', 'dry', 'sarcastic', 'command')]
+        [string]$Mode,
+
+        [Parameter(Mandatory = $true)]
+        [string]$Text
+    )
+
+    if ($Mode -eq 'sarcastic') {
+        if ($Text -match '(?i)\b(have|now|plan|ruin|stop)\b') {
+            return 'caps'
+        }
+    }
+    elseif ($Mode -eq 'command') {
+        if ($Text -match '(?i)\b(stay|stop|now|task|route|move|go)\b') {
+            return 'slight'
+        }
+    }
+
+    return 'none'
+}
+
+function Format-SmartmouthEntries {
     param(
         [Parameter(Mandatory = $true)]
         [string]$Text,
@@ -219,15 +358,18 @@ function Format-SmartmouthLines {
         [string]$Mode
     )
 
-    $modeLines = Get-ModeSpecificSmartmouthLines -Text $Text -Mode $Mode
-    if ($null -ne $modeLines -and $modeLines.Count -gt 0) {
-        return @(
-            $modeLines |
-                ForEach-Object {
-                    Set-SentenceCase -Text (Add-TerminalPunctuation -Text (Normalize-SmartmouthText -Text $_))
-                } |
-                Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
-        )
+    $modeEntries = Get-ModeSpecificSmartmouthEntries -Text $Text -Mode $Mode
+    if ($null -ne $modeEntries -and @($modeEntries).Count -gt 0) {
+        $formattedModeEntries = @()
+        foreach ($modeEntry in @($modeEntries)) {
+            $text = Set-SentenceCase -Text (Normalize-SmartmouthText -Text $modeEntry.Text)
+            $text = Add-TerminalPunctuation -Text $text -PauseAfter $modeEntry.PauseAfter
+            if (-not [string]::IsNullOrWhiteSpace($text)) {
+                $formattedModeEntries += (New-SmartmouthEntry -Text $text -PauseAfter $modeEntry.PauseAfter -Emphasis $modeEntry.Emphasis)
+            }
+        }
+
+        return $formattedModeEntries
     }
 
     $normalized = Normalize-SmartmouthText -Text $Text
@@ -237,9 +379,11 @@ function Format-SmartmouthLines {
         return @()
     }
 
-    $segments = New-Object System.Collections.Generic.List[string]
+    $segments = @()
+    $sentences = @($normalized -split '(?<=[.!?])\s+')
+    $sentenceIndex = 0
 
-    foreach ($sentence in ($normalized -split '(?<=[.!?])\s+')) {
+    foreach ($sentence in $sentences) {
         $trimmedSentence = $sentence.Trim()
         if ([string]::IsNullOrWhiteSpace($trimmedSentence)) {
             continue
@@ -252,22 +396,22 @@ function Format-SmartmouthLines {
             }
 
             foreach ($chunk in (Split-ChunkedLine -Text $trimmedClause -MaxWords 6)) {
-                $finalLine = Set-SentenceCase -Text (Add-TerminalPunctuation -Text (Remove-SmartmouthFillers -Text $chunk))
-                if (-not [string]::IsNullOrWhiteSpace($finalLine)) {
-                    [void]$segments.Add($finalLine)
+                $sentenceIndex++
+                $pause = Get-ModeDefaultPause -Mode $Mode -Index $sentenceIndex -Total $sentences.Count
+                $emphasis = Get-ModeDefaultEmphasis -Mode $Mode -Text $chunk
+                $spokenText = Set-SentenceCase -Text (Remove-SmartmouthFillers -Text $chunk)
+                $spokenText = Add-TerminalPunctuation -Text $spokenText -PauseAfter $pause
+                if (-not [string]::IsNullOrWhiteSpace($spokenText)) {
+                    $segments += (New-SmartmouthEntry -Text $spokenText -PauseAfter $pause -Emphasis $emphasis)
                 }
             }
         }
     }
 
-    return @($segments)
+    return $segments
 }
 
-$formattedLines = Format-SmartmouthLines -Text $Line -Mode $Mode
-if ($formattedLines.Count -eq 0) {
-    return
-}
-
-foreach ($formattedLine in $formattedLines) {
-    $formattedLine
+$formattedEntries = Format-SmartmouthEntries -Text $Line -Mode $Mode
+foreach ($entry in $formattedEntries) {
+    $entry
 }

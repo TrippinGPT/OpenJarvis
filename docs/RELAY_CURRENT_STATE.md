@@ -80,6 +80,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - `relay-v2.5.4-kokoro-voice-sweep`
 - `relay-v2.5.4.1-kokoro-sweep-runner-fix`
 - `relay-v2.5.5-smartmouth-delivery`
+- `relay-v2.5.6-smartmouth-cadence`
 
 ## 6. Current features
 
@@ -131,6 +132,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - v2.5.4 adds a gated Kokoro voice/style comparison sweep using several official Kokoro voices against several Smartmouth Relay lines.
 - v2.5.4.1 fixes the Kokoro sweep runner so it accepts an explicit `-PythonExe` and validates the Kokoro venv interpreter directly.
 - v2.5.5 adds the Smartmouth delivery pack and a gated Kokoro Smartmouth test runner for short, punchy TTS-optimized lines.
+- v2.5.6 adds cadence and timing metadata so Smartmouth lines can carry pause and emphasis hints into Kokoro synthesis.
 - The Kokoro cache now lives under `tools\kokoro\models` and remains ignored by Git.
 - The Piper prototype plan and read-only setup checker exist.
 - v2.0 prepares only the Relay-local Piper and TTS-test sandbox folders.
@@ -153,6 +155,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - v2.5.4 adds the gated Kokoro voice/style comparison sweep.
 - v2.5.4.1 fixes Kokoro sweep runner Python selection and venv detection.
 - v2.5.5 adds the Smartmouth delivery pack.
+- v2.5.6 adds Smartmouth cadence/timing metadata and rendered pause control.
 - No Piper package was installed globally.
 - The selected voice-model pair lives under `tools\piper\voices` and no audio has been generated.
 - Generated WAV files are local test artifacts and ignored by Git.
@@ -197,6 +200,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - No app/runtime TTS or voice toggle has been added.
 - Smartmouth line formatting now exists as a separate delivery layer for Kokoro tests.
 - `af_bella` is the current Smartmouth delivery voice.
+- Smartmouth timing now includes pause and emphasis metadata for the runner.
 
 ### v2.4.1 milestone note
 
@@ -234,6 +238,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - **v2.5.4:** Kokoro voice/style comparison sweep
 - **v2.5.4.1:** Kokoro sweep runner fix
 - **v2.5.5:** Smartmouth delivery pack
+- **v2.5.6:** Smartmouth cadence layer
 - **v2.6:** Approved Kokoro install/test
 - **v2.7:** User-controlled Relay Popout voice toggle
 - **v2.8:** Agent-specific original voice profiles

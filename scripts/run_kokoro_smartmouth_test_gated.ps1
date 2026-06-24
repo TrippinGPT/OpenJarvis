@@ -103,7 +103,6 @@ function Get-KokoroPackageStatus {
         Installed = $kokoroInstalled
         Version = if ($versionText) { $versionText } else { 'Not found' }
         ImportPath = $importText
-        VersionProbe = $versionProbe
     }
 }
 
@@ -170,13 +169,127 @@ function Test-GitIgnoredPattern {
     return ($LASTEXITCODE -eq 0)
 }
 
+function Convert-SmartmouthEntryToText {
+    param(
+        [Parameter(Mandatory = $true)]
+        $Entry
+    )
+
+    $text = [string]$Entry.Text
+    $pause = 'none'
+    $emphasis = 'none'
+
+    if ($Entry.PSObject.Properties.Name -contains 'PauseAfter') {
+        $pause = [string]$Entry.PauseAfter
+    }
+    if ($Entry.PSObject.Properties.Name -contains 'Emphasis') {
+        $emphasis = [string]$Entry.Emphasis
+    }
+
+    $spokenText = $text.Trim().TrimEnd('.','!','?')
+    if ([string]::IsNullOrWhiteSpace($spokenText)) {
+        return [pscustomobject]@{
+            Rendered = $null
+            PauseAfter = $pause
+            Emphasis = $emphasis
+        }
+    }
+
+    switch ($pause) {
+        'short' { $spokenText = "$spokenText." }
+        'medium' { $spokenText = "$spokenText..." }
+        'long' { $spokenText = "$spokenText... ..." }
+        default {
+            if ($spokenText -notmatch '[.!?]$') {
+                $spokenText = "$spokenText."
+            }
+        }
+    }
+
+    return [pscustomobject]@{
+        Rendered = $spokenText
+        PauseAfter = $pause
+        Emphasis = $emphasis
+    }
+}
+
+function Apply-SmartmouthEmphasis {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Text,
+
+        [ValidateSet('neutral', 'dry', 'sarcastic', 'command')]
+        [string]$Mode,
+
+        [ValidateSet('none', 'slight', 'caps')]
+        [string]$Emphasis = 'none'
+    )
+
+    if ($Mode -notin @('sarcastic', 'command') -or $Emphasis -eq 'none') {
+        return $Text
+    }
+
+    $candidateMap = switch ($Mode) {
+        'sarcastic' { @('have', 'now', 'plan', 'ruin', 'stop', 'actually') }
+        'command' { @('stay', 'stop', 'now', 'task', 'route', 'move', 'go') }
+        default { @() }
+    }
+
+    foreach ($candidate in $candidateMap) {
+        $pattern = "(?i)\b$([regex]::Escape($candidate))\b"
+        if ($Text -match $pattern) {
+            if ($Emphasis -eq 'caps') {
+                return [regex]::Replace($Text, $pattern, { param($m) $m.Value.ToUpperInvariant() }, 1)
+            }
+
+            if ($Emphasis -eq 'slight') {
+                return [regex]::Replace($Text, $pattern, { param($m) $m.Value.Substring(0,1).ToUpperInvariant() + $m.Value.Substring(1).ToLowerInvariant() }, 1)
+            }
+        }
+    }
+
+    return $Text
+}
+
+function Render-SmartmouthSpeechText {
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]]$Entries,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('neutral', 'dry', 'sarcastic', 'command')]
+        [string]$Mode
+    )
+
+    $rendered = New-Object System.Collections.Generic.List[string]
+    foreach ($entry in $Entries) {
+        $converted = Convert-SmartmouthEntryToText -Entry $entry
+        if ([string]::IsNullOrWhiteSpace($converted.Rendered)) {
+            continue
+        }
+
+        $spoken = Apply-SmartmouthEmphasis -Text $converted.Rendered -Mode $Mode -Emphasis $converted.Emphasis
+        [void]$rendered.Add($spoken)
+    }
+
+    return ($rendered -join ' ')
+}
+
 $selectedLine = Get-SelectedLine -RequestedLine $Line
-$formattedLines = @(& $formatterScript -Line $selectedLine.Line -Mode $Mode)
-$formattedLines = @(
-    $formattedLines |
-        ForEach-Object { "$_".Trim() } |
-        Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+$formatterResult = @(& $formatterScript -Line $selectedLine.Line -Mode $Mode)
+$formatterResult = @(
+    $formatterResult |
+        Where-Object { $_ -ne $null }
 )
+
+if ($formatterResult.Count -eq 0) {
+    throw 'Smartmouth formatter produced no lines.'
+}
+
+$finalSpeechText = Render-SmartmouthSpeechText -Entries $formatterResult -Mode $Mode
+if ([string]::IsNullOrWhiteSpace($finalSpeechText)) {
+    throw 'Smartmouth renderer produced no speech text.'
+}
 
 $kokoroPackageStatus = Get-KokoroPackageStatus -PythonPath $kokoroPython
 $kokoroVenvPresent = Test-Path -LiteralPath $kokoroPython -PathType Leaf
@@ -209,10 +322,17 @@ Write-Host "- source: $($selectedLine.Source)"
 Write-Host "- input: $($selectedLine.Line)"
 Write-Host ''
 
-Write-Host 'Smartmouth formatted lines' -ForegroundColor Cyan
-for ($index = 0; $index -lt $formattedLines.Count; $index++) {
-    Write-Host ("[{0}] {1}" -f ($index + 1), $formattedLines[$index])
+Write-Host 'Smartmouth structured lines' -ForegroundColor Cyan
+$lineIndex = 0
+foreach ($entry in $formatterResult) {
+    $lineIndex++
+    Write-Host ("[{0}] text: {1}" -f $lineIndex, $entry.Text)
+    Write-Host ("    pause: {0}" -f $entry.PauseAfter)
+    Write-Host ("    emphasis: {0}" -f $entry.Emphasis)
 }
+Write-Host ''
+Write-Host 'Rendered speech text' -ForegroundColor Cyan
+Write-Host $finalSpeechText
 Write-Host "- planned output: $plannedOutput"
 Write-Host ''
 
@@ -263,7 +383,7 @@ $tempInputPath = Join-Path $env:TEMP ("relay_smartmouth_input_{0}.txt" -f ([guid
 $tempPythonPath = Join-Path $env:TEMP ("relay_smartmouth_kokoro_{0}.py" -f ([guid]::NewGuid().ToString('N')))
 
 try {
-    [System.IO.File]::WriteAllText($tempInputPath, ($formattedLines -join "`n") + "`n", (New-Object System.Text.UTF8Encoding($false)))
+    [System.IO.File]::WriteAllText($tempInputPath, $finalSpeechText + "`n", (New-Object System.Text.UTF8Encoding($false)))
     $tempPythonScript = @'
 import os
 import sys

@@ -22,12 +22,19 @@ This document defines the local delivery layer for Relay lines before any future
 
 `scripts/format_smartmouth_lines.ps1` supports:
 
-- `neutral` — clean split only.
-- `dry` — slightly sarcastic delivery.
-- `sarcastic` — stronger attitude, still readable.
-- `command` — short directive phrasing.
+- `neutral` - clean split only.
+- `dry` - slightly sarcastic delivery.
+- `sarcastic` - stronger attitude, still readable.
+- `command` - short directive phrasing.
 
-It trims filler words when possible and breaks long lines into short spoken segments.
+The formatter trims filler words when possible and breaks long lines into short spoken segments.
+Each output line is structured with:
+
+- `Text`
+- `PauseAfter` (`none`, `short`, `medium`, `long`)
+- `Emphasis` (`none`, `slight`, `caps`)
+
+The runner converts those fields into timing-friendly speech text before Kokoro synthesis.
 
 ## Example
 
@@ -40,19 +47,29 @@ Routing that now. Shocking development: we are using a plan.
 Expected delivery examples:
 
 - `neutral`
-  - `Routing now.`
-  - `Shocking development.`
-  - `We are using a plan.`
+  - `Routing now.` `PauseAfter=short`
+  - `Shocking development.` `PauseAfter=short`
+  - `We are using a plan.` `PauseAfter=medium`
 - `dry`
-  - `Routing now.`
-  - `We actually have a plan.`
+  - `Routing now.` `PauseAfter=short`
+  - `We actually have a plan.` `PauseAfter=medium` `Emphasis=slight`
 - `sarcastic`
-  - `Routing now.`
-  - `We have a plan.`
-  - `Try not to ruin it.`
+  - `Routing now.` `PauseAfter=short`
+  - `We HAVE a plan.` `PauseAfter=none` `Emphasis=caps`
+  - `Try not to ruin it.` `PauseAfter=medium`
 - `command`
-  - `Routing now.`
-  - `Stay on task.`
+  - `Routing now.` `PauseAfter=short`
+  - `Stay on task.` `PauseAfter=none` `Emphasis=slight`
+
+## Cadence and timing
+
+The runner renders pauses into speech text as:
+
+- `short` -> `.`
+- `medium` -> `...`
+- `long` -> `... ...`
+
+This keeps the delivery short and punchy while still giving the voice room to breathe.
 
 ## Kokoro test runner
 
@@ -76,3 +93,4 @@ The output WAV is written under `outputs\tts_tests` and remains ignored by Git.
 - `af_bella` is the current Smartmouth delivery voice.
 - The formatter and gated runner are local-only utilities.
 - Runtime/app TTS is still not enabled.
+- The cadence layer adds pause and emphasis metadata for better delivery timing.
