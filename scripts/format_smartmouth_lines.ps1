@@ -43,10 +43,16 @@ function Remove-SmartmouthFillers {
     $result = $Text
     $result = $result -replace '\bin progress\b', ''
     $result = $result -replace '\bcurrently\b', ''
+    $result = $result -replace '\bat this time\b', ''
+    $result = $result -replace '\bwe are now\b', ''
     $result = $result -replace '\bthat\b(?=\s+(?:now|we|this|there|is|are|was|were|plan|step|move|route|go|means|looks|feels|sounds?|needs?|can|will|should|I|it))', ''
     $result = $result -replace '\bjust\b(?=\s+(?:need|need to|have|need a|need an))', ''
     $result = $result -replace '\s+', ' '
     return $result.Trim()
+}
+
+function Get-SarcasticLineCap {
+    return 3
 }
 
 function Add-TerminalPunctuation {
@@ -166,12 +172,7 @@ function Apply-Emphasis {
     }
 
     if ($Emphasis -eq 'slight') {
-        foreach ($candidate in $candidateMap) {
-            $pattern = "(?i)\b$([regex]::Escape($candidate))\b"
-            if ($Text -match $pattern) {
-                return [regex]::Replace($Text, $pattern, { param($m) $m.Value.Substring(0,1).ToUpperInvariant() + $m.Value.Substring(1).ToLowerInvariant() }, 1)
-            }
-        }
+        return $Text
     }
 
     return $Text
@@ -279,6 +280,37 @@ function Get-ModeSpecificSmartmouthEntries {
                     (New-SmartmouthEntry -Text 'Less cursed.' -PauseAfter 'medium')
                 )
             }
+        }
+    }
+
+    if ($Mode -eq 'sarcastic') {
+        if ($normalized -match '^routing now\.?\s*we have a plan\.?\s*try not to ruin it\.?$') {
+            return @(
+                (New-SmartmouthEntry -Text 'Routing now.' -PauseAfter 'short'),
+                (New-SmartmouthEntry -Text 'We HAVE a plan.' -PauseAfter 'none' -Emphasis 'caps'),
+                (New-SmartmouthEntry -Text 'Try not to ruin it.' -PauseAfter 'medium')
+            )
+        }
+
+        if ($normalized -match "^routing now\.?\s*don'?t screw it up\.?$") {
+            return @(
+                (New-SmartmouthEntry -Text 'Routing now.' -PauseAfter 'short'),
+                (New-SmartmouthEntry -Text "Don't screw it up." -PauseAfter 'medium' -Emphasis 'slight')
+            )
+        }
+
+        if ($normalized -match '^we have a plan\.?\s*miracles happen\.?$') {
+            return @(
+                (New-SmartmouthEntry -Text 'We HAVE a plan.' -PauseAfter 'short' -Emphasis 'caps'),
+                (New-SmartmouthEntry -Text 'Miracles happen.' -PauseAfter 'medium')
+            )
+        }
+
+        if ($normalized -match '^relax\.?\s*i already fixed it\.?$') {
+            return @(
+                (New-SmartmouthEntry -Text 'Relax.' -PauseAfter 'short'),
+                (New-SmartmouthEntry -Text 'I already fixed it.' -PauseAfter 'medium')
+            )
         }
     }
 
@@ -406,6 +438,10 @@ function Format-SmartmouthEntries {
                 }
             }
         }
+    }
+
+    if ($Mode -eq 'sarcastic' -and $segments.Count -gt (Get-SarcasticLineCap)) {
+        $segments = @($segments | Select-Object -First (Get-SarcasticLineCap))
     }
 
     return $segments

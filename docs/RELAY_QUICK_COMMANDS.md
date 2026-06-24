@@ -134,6 +134,17 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_koko
 D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_SMARTMOUTH_DELIVERY.md
 ```
 
+Sarcastic polish lane:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_sarcastic_polish_gated.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_sarcastic_polish_gated.ps1 -AllowGenerate
+```
+
+```text
+D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_SARCASTIC_POLISH.md
+```
+
 Piper voice model selection:
 
 ```powershell

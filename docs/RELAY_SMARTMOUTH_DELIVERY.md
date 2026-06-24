@@ -91,6 +91,8 @@ The output WAV is written under `outputs\tts_tests` and remains ignored by Git.
 ## Current status
 
 - `af_bella` is the current Smartmouth delivery voice.
+- `sarcastic` is the active polish mode.
 - The formatter and gated runner are local-only utilities.
 - Runtime/app TTS is still not enabled.
 - The cadence layer adds pause and emphasis metadata for better delivery timing.
+- The sarcastic-only polish lane is the current quality target.

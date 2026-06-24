@@ -81,6 +81,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - `relay-v2.5.4.1-kokoro-sweep-runner-fix`
 - `relay-v2.5.5-smartmouth-delivery`
 - `relay-v2.5.6-smartmouth-cadence`
+- `relay-v2.5.9-sarcastic-polish`
 
 ## 6. Current features
 
@@ -133,6 +134,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - v2.5.4.1 fixes the Kokoro sweep runner so it accepts an explicit `-PythonExe` and validates the Kokoro venv interpreter directly.
 - v2.5.5 adds the Smartmouth delivery pack and a gated Kokoro Smartmouth test runner for short, punchy TTS-optimized lines.
 - v2.5.6 adds cadence and timing metadata so Smartmouth lines can carry pause and emphasis hints into Kokoro synthesis.
+- v2.5.9 narrows the lane to sarcastic-only polish for `af_bella`.
 - The Kokoro cache now lives under `tools\kokoro\models` and remains ignored by Git.
 - The Piper prototype plan and read-only setup checker exist.
 - v2.0 prepares only the Relay-local Piper and TTS-test sandbox folders.
@@ -156,6 +158,8 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - v2.5.4.1 fixes Kokoro sweep runner Python selection and venv detection.
 - v2.5.5 adds the Smartmouth delivery pack.
 - v2.5.6 adds Smartmouth cadence/timing metadata and rendered pause control.
+- v2.5.9 adds a sarcastic-only Relay polish lane.
+- Current polish target: `af_bella` in `sarcastic` mode.
 - No Piper package was installed globally.
 - The selected voice-model pair lives under `tools\piper\voices` and no audio has been generated.
 - Generated WAV files are local test artifacts and ignored by Git.
@@ -201,6 +205,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - Smartmouth line formatting now exists as a separate delivery layer for Kokoro tests.
 - `af_bella` is the current Smartmouth delivery voice.
 - Smartmouth timing now includes pause and emphasis metadata for the runner.
+- `sarcastic` is the active polish mode; `dry` and `command` remain available but are not the current target.
 
 ### v2.4.1 milestone note
 
@@ -239,6 +244,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - **v2.5.4.1:** Kokoro sweep runner fix
 - **v2.5.5:** Smartmouth delivery pack
 - **v2.5.6:** Smartmouth cadence layer
+- **v2.5.9:** Sarcastic polish lane
 - **v2.6:** Approved Kokoro install/test
 - **v2.7:** User-controlled Relay Popout voice toggle
 - **v2.8:** Agent-specific original voice profiles
@@ -268,6 +274,8 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_koko
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\format_smartmouth_lines.ps1 -Line "Routing that now. Shocking development: we are using a plan." -Mode sarcastic
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_smartmouth_test_gated.ps1 -Line "Routing that now. Shocking development: we are using a plan."
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_smartmouth_test_gated.ps1 -Line "Routing that now. Shocking development: we are using a plan." -Mode sarcastic -AllowGenerate
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_sarcastic_polish_gated.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_sarcastic_polish_gated.ps1 -AllowGenerate
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\download_piper_voice_model_gated.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\download_piper_voice_model_gated.ps1 -AllowDownload
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_test_line_gated.ps1 -AllowGenerate

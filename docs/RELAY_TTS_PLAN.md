@@ -16,6 +16,7 @@ The Relay Popout HUD is the intended future voicebox surface. The main planned p
 - **Kokoro runtime target:** uv-managed CPython 3.11.15, not default Python 3.14.5
 - **Kokoro status:** gated venv setup completed; first WAV test has been run locally and the comparison sweep lane is ready
 - **Kokoro sweep runner:** accepts `-PythonExe` and defaults to the Kokoro venv Python
+- **Current delivery focus:** `af_bella` with sarcastic-only polish
 - **Voice-model gate:** `config\piper_voice_models.json`
 - **Application TTS integration:** Not implemented
 - **Audio playback:** Not implemented
@@ -275,6 +276,14 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - The sweep runner now accepts `-PythonExe`.
 - The default interpreter is `tools\kokoro.venv\Scripts\python.exe`.
 - The runner validates the venv Python directly before generating anything.
+
+### v2.5.9 - Sarcastic polish lane
+
+- Lock the current delivery target to `af_bella`.
+- Use `sarcastic` as the active polish mode.
+- Keep `dry` and `command` available but not as the current quality target.
+- Focus on short, sharp, original Relay delivery.
+- Use the sarcastic polish runner for the strongest short-form comparison.
 
 ## Future implementation acceptance criteria
 
