@@ -41,6 +41,12 @@ Kokoro first WAV naming convention:
 - One file per first gated Kokoro WAV test when `scripts\run_kokoro_first_wav_gated.ps1` is run with `-AllowModelDownload -AllowGenerate`
 - Kokoro first WAVs remain ignored by Git
 
+Kokoro voice/style sweep naming convention:
+
+- `relay_kokoro_sweep_<voice>_line<NN>_<YYYYMMDD_HHMMSS>.wav`
+- One file per voice/line combination when `scripts\run_kokoro_voice_sweep_gated.ps1` is run with `-AllowModelDownload -AllowGenerate`
+- Kokoro sweep WAVs remain ignored by Git
+
 ## Boundaries
 
 - Do not commit generated audio unless explicitly approved.

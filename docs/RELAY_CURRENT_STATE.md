@@ -77,6 +77,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - `relay-v2.5.1-kokoro-prereqs`
 - `relay-v2.5.2-kokoro-venv-setup`
 - `relay-v2.5.3-kokoro-first-wav`
+- `relay-v2.5.4-kokoro-voice-sweep`
 
 ## 6. Current features
 
@@ -97,6 +98,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - Dry-run-first gated Piper install and test-line scripts
 - Read-only Piper Python runtime compatibility checker
 - First gated Kokoro WAV test runner
+- Gated Kokoro voice/style comparison sweep
 - Isolated Python 3.11 Piper installation under `tools\piper.venv`
 - Approved Piper voice-model gate with local files under `tools\piper\voices`
 - First gated local Relay test WAV under `outputs\tts_tests`
@@ -117,12 +119,13 @@ After startup commands are sent, the launcher automatically opens the frontend i
 ## 8. Current TTS status
 
 - No TTS runtime or application integration exists.
-- A first gated Kokoro WAV has been generated locally.
+- A first gated Kokoro WAV has been generated locally and now serves as the baseline for a voice/style comparison sweep.
 - Piper is installed locally; Kokoro is installed locally in `tools\kokoro.venv`.
 - The local TTS feasibility check passed for a planning-only prototype.
 - The Kokoro prerequisite checker now reports ready for future gated setup.
 - v2.5.2 created `tools\kokoro.venv` and installed `kokoro` 0.9.4 locally without generating audio.
 - v2.5.3 generated `outputs\tts_tests\relay_kokoro_first_20260623_161539.wav` using the gated Kokoro runner.
+- v2.5.4 adds a gated Kokoro voice/style comparison sweep using several official Kokoro voices against several Smartmouth Relay lines.
 - The Kokoro cache now lives under `tools\kokoro\models` and remains ignored by Git.
 - The Piper prototype plan and read-only setup checker exist.
 - v2.0 prepares only the Relay-local Piper and TTS-test sandbox folders.
@@ -142,6 +145,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - v2.5.1 adds Kokoro prerequisite prep before any install.
 - v2.5.2 adds a gated Kokoro venv setup lane. No audio generation or runtime TTS has happened yet.
 - v2.5.3 adds the first gated Kokoro WAV test runner and keeps audio generation local and ignored.
+- v2.5.4 adds the gated Kokoro voice/style comparison sweep.
 - No Piper package was installed globally.
 - The selected voice-model pair lives under `tools\piper\voices` and no audio has been generated.
 - Generated WAV files are local test artifacts and ignored by Git.
@@ -179,6 +183,12 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - The first WAV file was generated locally and remains ignored by Git.
 - Audio generation remains local, gated, and ignored by Git.
 
+### v2.5.4 milestone note
+
+- The first Kokoro WAV is now the baseline for a local voice/style comparison sweep.
+- The sweep compares several official Kokoro voices against several Smartmouth Relay planning lines.
+- No app/runtime TTS or voice toggle has been added.
+
 ### v2.4.1 milestone note
 
 - First local Piper WAV was reviewed.
@@ -212,6 +222,7 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - **v2.5.1:** Kokoro prerequisite prep
 - **v2.5.2:** Kokoro gated venv setup
 - **v2.5.3:** First gated Kokoro WAV test
+- **v2.5.4:** Kokoro voice/style comparison sweep
 - **v2.6:** Approved Kokoro install/test
 - **v2.7:** User-controlled Relay Popout voice toggle
 - **v2.8:** Agent-specific original voice profiles
@@ -234,6 +245,8 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_ko
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\check_kokoro_prereqs.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_first_wav_gated.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_first_wav_gated.ps1 -AllowModelDownload -AllowGenerate
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_voice_sweep_gated.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_voice_sweep_gated.ps1 -AllowModelDownload -AllowGenerate
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\download_piper_voice_model_gated.ps1
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\download_piper_voice_model_gated.ps1 -AllowDownload
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_piper_test_line_gated.ps1 -AllowGenerate
@@ -253,3 +266,5 @@ Related references:
 - [Relay Piper Voice Comparison](RELAY_PIPER_VOICE_COMPARISON.md)
 - [Relay Piper Amy Tuning](RELAY_PIPER_AMY_TUNING.md)
 - [Relay Piper Voice Model Selection](RELAY_PIPER_VOICE_MODEL_SELECTION.md)
+- [Relay Kokoro TTS Plan](RELAY_KOKORO_TTS_PLAN.md)
+- [Relay Kokoro Voice/Style Sweep](RELAY_KOKORO_VOICE_SWEEP.md)

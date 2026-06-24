@@ -7,7 +7,7 @@ This document defines the first gated local Kokoro WAV test lane for Relay. It i
 ## Current status
 
 - Kokoro is installed locally in `tools\kokoro.venv`
-- The first WAV test has been run locally
+- The first WAV test has been run locally and is the baseline for the comparison sweep
 - The local cache lives under `tools\kokoro\models`
 - Output WAV files are ignored by Git
 
@@ -23,6 +23,8 @@ This document defines the first gated local Kokoro WAV test lane for Relay. It i
 - Default line: `Relay online. Try not to break anything expensive.`
 
 This is a technical baseline only. It is not a final Relay voice decision.
+
+The next local review lane is the gated Kokoro voice/style comparison sweep in `docs/RELAY_KOKORO_VOICE_SWEEP.md`.
 
 ## Output naming
 
@@ -63,4 +65,4 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_koko
 
 ## Next step
 
-After the first WAV exists, the next work is review and comparison only. App integration remains blocked until a later approved milestone.
+After the first WAV exists, the next work is the gated voice/style comparison sweep and review only. App integration remains blocked until a later approved milestone.

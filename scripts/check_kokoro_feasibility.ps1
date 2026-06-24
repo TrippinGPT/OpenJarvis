@@ -201,6 +201,13 @@ $kokoroFirstWavCount = if (Test-Path -LiteralPath (Join-Path $repoRoot 'outputs\
 } else { 0 }
 $kokoroLatestWav = Get-LatestFile -Folder (Join-Path $repoRoot 'outputs\tts_tests') -Filter 'relay_kokoro_first_*.wav'
 $kokoroLatestWavPath = if ($null -ne $kokoroLatestWav) { $kokoroLatestWav.FullName } else { 'None' }
+$kokoroSweepWavCount = if (Test-Path -LiteralPath (Join-Path $repoRoot 'outputs\tts_tests') -PathType Container) {
+    @(
+        Get-ChildItem -LiteralPath (Join-Path $repoRoot 'outputs\tts_tests') -Recurse -File -Filter 'relay_kokoro_sweep_*.wav' -ErrorAction SilentlyContinue
+    ).Count
+} else { 0 }
+$kokoroLatestSweepWav = Get-LatestFile -Folder (Join-Path $repoRoot 'outputs\tts_tests') -Filter 'relay_kokoro_sweep_*.wav'
+$kokoroLatestSweepWavPath = if ($null -ne $kokoroLatestSweepWav) { $kokoroLatestSweepWav.FullName } else { 'None' }
 $ttsTestsPresent = Test-Path -LiteralPath (Join-Path $repoRoot 'outputs\tts_tests') -PathType Container
 $ignoreChecks = [ordered]@{
     "tools/kokoro.venv/" = (Test-GitIgnoredPattern -Path "tools/kokoro.venv/")
@@ -224,6 +231,7 @@ Write-Host ("- Venv setup: {0}" -f $(if ($kokoroVenvPresent) { "Present" } else 
 Write-Host ("- Kokoro package: {0}" -f $(if ($kokoroPackageStatus.Installed) { "Installed ($($kokoroPackageStatus.Version))" } else { "Missing" }))
 Write-Host ("- Kokoro cache: {0}" -f $(if ($kokoroCachePresent) { "Present ($kokoroCacheFileCount files)" } else { "Missing" }))
 Write-Host ("- First WAV: {0}" -f $(if ($kokoroFirstWavCount -gt 0) { "Present ($kokoroFirstWavCount file(s))" } else { "Missing" }))
+Write-Host ("- Comparison sweep: {0}" -f $(if ($kokoroSweepWavCount -gt 0) { "Present ($kokoroSweepWavCount file(s))" } else { "Missing" }))
 
 Write-Host ""
 Write-Host "Prerequisite prep lane" -ForegroundColor Cyan
@@ -243,3 +251,4 @@ Write-Host "- No app/runtime TTS"
 Write-Host "- No microphone/audio capture"
 Write-Host "- No OpenClaw changes"
 Write-Host ("- Latest first WAV: {0}" -f $kokoroLatestWavPath)
+Write-Host ("- Latest sweep WAV: {0}" -f $kokoroLatestSweepWavPath)

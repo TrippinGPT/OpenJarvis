@@ -12,9 +12,9 @@ The Relay Popout HUD is the intended future voicebox surface. The main planned p
 - **Piper package:** Installed locally only in `tools\piper.venv`
 - **Piper runtime:** Python 3.11.15 / `piper-tts` 1.4.2
 - **Piper review result:** technical pipeline works, but the tested voices did not reach the final Relay Companion fit
-- **Next TTS lane:** Kokoro first WAV review after gated setup
+- **Next TTS lane:** Kokoro voice/style comparison sweep after the first WAV baseline
 - **Kokoro runtime target:** uv-managed CPython 3.11.15, not default Python 3.14.5
-- **Kokoro status:** gated venv setup completed; first WAV test has been run locally
+- **Kokoro status:** gated venv setup completed; first WAV test has been run locally and the comparison sweep lane is ready
 - **Voice-model gate:** `config\piper_voice_models.json`
 - **Application TTS integration:** Not implemented
 - **Audio playback:** Not implemented
@@ -260,6 +260,15 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - Do not add application runtime TTS or a voice toggle yet.
 - The generated WAV remains local and ignored by Git.
 
+### v2.5.4 - Kokoro voice/style comparison sweep
+
+- Compare several official Kokoro voices against several Smartmouth Relay lines.
+- Keep the comparison sweep local, gated, and ignored by Git.
+- Use the first WAV as the baseline reference.
+- The sweep runner is `scripts/run_kokoro_voice_sweep_gated.ps1`.
+- The sweep doc is `docs/RELAY_KOKORO_VOICE_SWEEP.md`.
+- No application/runtime TTS, autoplay, microphone access, or voice cloning.
+
 ## Future implementation acceptance criteria
 
 - User explicitly enables voice.
@@ -299,3 +308,5 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - `scripts/setup_kokoro_venv_gated.ps1`
 - [Relay Kokoro First WAV Test](RELAY_KOKORO_FIRST_WAV_TEST.md)
 - `scripts/run_kokoro_first_wav_gated.ps1`
+- [Relay Kokoro Voice/Style Sweep](RELAY_KOKORO_VOICE_SWEEP.md)
+- `scripts/run_kokoro_voice_sweep_gated.ps1`

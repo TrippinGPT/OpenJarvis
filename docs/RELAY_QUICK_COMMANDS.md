@@ -110,6 +110,18 @@ powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_koko
 D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_KOKORO_FIRST_WAV_TEST.md
 ```
 
+Kokoro voice/style comparison sweep:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_voice_sweep_gated.ps1
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_voice_sweep_gated.ps1 -AllowModelDownload
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\run_kokoro_voice_sweep_gated.ps1 -AllowModelDownload -AllowGenerate
+```
+
+```text
+D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_KOKORO_VOICE_SWEEP.md
+```
+
 Piper voice model selection:
 
 ```powershell

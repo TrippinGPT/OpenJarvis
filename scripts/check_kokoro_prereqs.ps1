@@ -466,6 +466,9 @@ $kokoroCacheFileCount = Get-Count -Folder $kokoroCachePath -Filter "*"
 $kokoroFirstWavCount = Get-Count -Folder $ttsTestsPath -Filter "relay_kokoro_first_*.wav"
 $kokoroLatestWav = Get-LatestFile -Folder $ttsTestsPath -Filter "relay_kokoro_first_*.wav"
 $kokoroLatestWavPath = if ($null -ne $kokoroLatestWav) { $kokoroLatestWav.FullName } else { "None" }
+$kokoroSweepWavCount = Get-Count -Folder $ttsTestsPath -Filter "relay_kokoro_sweep_*.wav"
+$kokoroLatestSweepWav = Get-LatestFile -Folder $ttsTestsPath -Filter "relay_kokoro_sweep_*.wav"
+$kokoroLatestSweepWavPath = if ($null -ne $kokoroLatestSweepWav) { $kokoroLatestSweepWav.FullName } else { "None" }
 $kokoroVenvPythonInfo = if ($kokoroVenvPythonExists) { Get-PythonExecutableInfo -Path $kokoroVenvPythonPath } else { $null }
 $kokoroPackageInfo = if ($kokoroVenvPythonExists) { Get-PipShowStatus -PythonPath $kokoroVenvPythonPath -PackageName "kokoro" } else { $null }
 
@@ -554,6 +557,8 @@ else {
 Write-CheckLine -Label "Kokoro cache file count" -Value $kokoroCacheFileCount.ToString()
 Write-CheckLine -Label "First Kokoro WAV count" -Value $kokoroFirstWavCount.ToString()
 Write-CheckLine -Label "Latest Kokoro WAV" -Value $kokoroLatestWavPath
+Write-CheckLine -Label "Kokoro sweep WAV count" -Value $kokoroSweepWavCount.ToString()
+Write-CheckLine -Label "Latest Kokoro sweep WAV" -Value $kokoroLatestSweepWavPath
 Write-CheckLine -Label "outputs\tts_tests" -Value $(if ($ttsTestsExists) { "Present: $ttsTestsPath" } else { "Missing" })
 
 Write-Host ""

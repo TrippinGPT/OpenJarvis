@@ -23,6 +23,7 @@ Kokoro 82M is the next local TTS lane to evaluate after the Piper voice-fit fail
 - No Kokoro model download yet
 - No runtime TTS or app integration
 - First gated Kokoro WAV test has been run locally
+- The first WAV is now the baseline for the voice/style comparison sweep
 - No app/runtime TTS
 - No autoplay
 - No microphone or audio capture
@@ -56,6 +57,15 @@ Kokoro 82M is the next local TTS lane to evaluate after the Piper voice-fit fail
 - No application runtime integration happens in this milestone.
 - The first WAV test doc is `docs/RELAY_KOKORO_FIRST_WAV_TEST.md`.
 - The generated WAV remains local and ignored by Git.
+
+### v2.5.4 voice/style comparison sweep
+
+- Compare several official Kokoro voices against several Smartmouth Relay lines.
+- Keep the sweep gated and local-only.
+- Use the first WAV as the baseline reference for the comparison.
+- The sweep doc is `docs/RELAY_KOKORO_VOICE_SWEEP.md`.
+- The sweep runner is `scripts/run_kokoro_voice_sweep_gated.ps1`.
+- Do not add runtime/app TTS, autoplay, microphone access, or voice cloning.
 
 ## Safety
 
@@ -98,5 +108,7 @@ No command in this document authorizes installation, download, generation, playb
 - `scripts/setup_kokoro_venv_gated.ps1`
 - [Relay Kokoro Venv Setup](RELAY_KOKORO_VENV_SETUP.md)
 - [Relay Kokoro First WAV Test](RELAY_KOKORO_FIRST_WAV_TEST.md)
+- [Relay Kokoro Voice/Style Sweep](RELAY_KOKORO_VOICE_SWEEP.md)
 - `scripts/run_kokoro_first_wav_gated.ps1`
+- `scripts/run_kokoro_voice_sweep_gated.ps1`
 - `scripts/check_kokoro_feasibility.ps1`
