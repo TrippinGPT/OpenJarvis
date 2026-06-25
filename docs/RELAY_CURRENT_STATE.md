@@ -84,6 +84,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - `relay-v2.5.9-sarcastic-polish`
 - `relay-v2.5.10-startup-fix`
 - `relay-v2.5.10.2-quiet-launcher`
+- `relay-v3.0-placeholder-voice-ui`
 
 ## 6. Current features
 
@@ -164,6 +165,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - v2.5.10 fixes startup sequencing so the backend is ready before the frontend is treated as ready.
 - v2.5.10.2 makes the desktop launcher quiet and manual-open only.
 - v2.5.11 locks the placeholder voice pack to the sarcastic polish results.
+- v3.0 adds gated placeholder Relay voice wiring to the popout UI.
 - Current polish target: `af_bella` in `sarcastic` mode.
 - Placeholder pack target: `sarcastic_polish_04`.
 - No Piper package was installed globally.
@@ -173,6 +175,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - No app runtime TTS exists yet.
 - Model download, audio generation, playback, or UI voice controls require explicit user approval in a future task.
 - The current placeholder pack is locked to the sarcastic polish results: default `sarcastic_polish_04`, secondary `sarcastic_polish_03`, backup `sarcastic_polish_02`.
+- Placeholder voice playback is available only behind a manual popout toggle and play button, and remains off by default.
 
 ### v2.5 milestone note
 
@@ -213,6 +216,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - `af_bella` is the current Smartmouth delivery voice.
 - Smartmouth timing now includes pause and emphasis metadata for the runner.
 - `sarcastic` is the active polish mode; `dry` and `command` remain available but are not the current target.
+- Placeholder voice playback is gated to a popout UI toggle and play button.
 
 ### v2.4.1 milestone note
 
@@ -252,11 +256,11 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - **v2.5.5:** Smartmouth delivery pack
 - **v2.5.6:** Smartmouth cadence layer
 - **v2.5.9:** Sarcastic polish lane
-- **v2.6:** Approved Kokoro install/test
-- **v2.7:** User-controlled Relay Popout voice toggle
-- **v2.8:** Agent-specific original voice profiles
-- **v2.9:** Real routing signals connected to agent mesh animation
-- **v3.0:** Safe preflight actions
+- **v3.0:** Gated placeholder Relay voice UI
+- **v3.1:** Optional response playback after visible Relay responses
+- **v3.2:** Agent-specific original voice profiles
+- **v3.3:** Real routing signals connected to agent mesh animation
+- **v3.4:** Safe preflight actions
 
 These are proposed milestones only. They do not authorize installation, downloads, audio generation, agent execution, or OpenClaw changes.
 

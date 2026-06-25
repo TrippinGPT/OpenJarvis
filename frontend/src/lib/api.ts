@@ -350,6 +350,28 @@ export interface SpeechHealth {
   reason?: string;
 }
 
+export interface RelayVoicePack {
+  relay_name: string;
+  public_label: string;
+  alternate_public_label: string;
+  active_voice: string;
+  active_mode: string;
+  active_placeholder_style: string;
+  secondary_placeholder_style: string;
+  backup_placeholder_style: string;
+  default_placeholder_text: string;
+  secondary_placeholder_text: string;
+  backup_placeholder_text: string;
+  manual_only: boolean;
+  autoplay: boolean;
+  microphone: boolean;
+  openclaw: string;
+  checked_at: string;
+  warning?: string | null;
+  synthesis_available: boolean;
+  backend?: string | null;
+}
+
 export async function transcribeAudio(audioBlob: Blob, filename = 'recording.webm'): Promise<TranscriptionResult> {
   if (isTauri()) {
     try {
@@ -383,6 +405,25 @@ export async function fetchSpeechHealth(): Promise<SpeechHealth> {
   const res = await apiFetch(`/v1/speech/health`);
   if (!res.ok) return { available: false };
   return res.json();
+}
+
+export async function fetchRelayVoicePack(): Promise<RelayVoicePack> {
+  const res = await apiFetch(`/api/relay/voice/config`);
+  if (!res.ok) throw new Error(`Failed: ${res.status}`);
+  return res.json();
+}
+
+export async function playRelayPlaceholderVoice(text?: string): Promise<Blob> {
+  const res = await apiFetch(`/api/relay/voice/play`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(text ? { text } : {}),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(body.detail || `Failed: ${res.status}`);
+  }
+  return res.blob();
 }
 
 // ---------------------------------------------------------------------------

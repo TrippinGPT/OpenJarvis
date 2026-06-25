@@ -18,6 +18,7 @@ The Relay Popout HUD is the intended future voicebox surface. The main planned p
 - **Kokoro sweep runner:** accepts `-PythonExe` and defaults to the Kokoro venv Python
 - **Current delivery focus:** `af_bella` with sarcastic-only polish
 - **Placeholder pack:** locked to `sarcastic_polish_04` with `sarcastic_polish_03` and `sarcastic_polish_02` as secondary/backup
+- **Placeholder UI:** gated, manual-only popout playback wiring is now available
 - **Voice-model gate:** `config\piper_voice_models.json`
 - **Application TTS integration:** Not implemented
 - **Audio playback:** Not implemented
@@ -298,6 +299,14 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - Secondary style: `sarcastic_polish_03`.
 - Backup style: `sarcastic_polish_02`.
 - The current lane is stable enough for placeholder use; do not resume model hunting unless a future task asks for it.
+
+### v3.0 - Gated placeholder voice UI
+
+- Add a manual-only Relay popout voice toggle and play button.
+- Keep playback off by default.
+- Use the locked placeholder pack values from `config\relay_voice_profiles.json`.
+- Keep the path local-only; no microphone, no autoplay, no cloud TTS, and no OpenClaw changes.
+- This is placeholder wiring only, not conversational runtime speech.
 
 ## Future implementation acceptance criteria
 

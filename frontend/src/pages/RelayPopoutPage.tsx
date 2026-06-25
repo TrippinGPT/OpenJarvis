@@ -10,9 +10,19 @@ import {
   Radio,
   ShieldCheck,
   Sparkles,
+  ToggleLeft,
+  ToggleRight,
+  Volume2,
+  PlayCircle,
 } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { checkHealth, fetchOpenClawBridgeStatus } from '../lib/api';
+import {
+  checkHealth,
+  fetchOpenClawBridgeStatus,
+  fetchRelayVoicePack,
+  playRelayPlaceholderVoice,
+  type RelayVoicePack,
+} from '../lib/api';
 import {
   readRelayPopoutActivity,
   RELAY_POPOUT_ACTIVITY_KEY,
@@ -126,11 +136,17 @@ export function RelayPopoutPage() {
   const navigate = useNavigate();
   const selectedModel = useAppStore((state) => state.selectedModel);
   const localStreamState = useAppStore((state) => state.streamState);
+  const relayPlaceholderVoiceEnabled = useAppStore((state) => state.settings.relayPlaceholderVoiceEnabled);
+  const updateSettings = useAppStore((state) => state.updateSettings);
   const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
   const [bridgeState, setBridgeState] = useState<BridgeState>('checking');
   const [sharedActivity, setSharedActivity] = useState<RelayPopoutActivity | null>(() =>
     readRelayPopoutActivity(),
   );
+  const [voicePack, setVoicePack] = useState<RelayVoicePack | null>(null);
+  const [voicePackError, setVoicePackError] = useState<string | null>(null);
+  const [voicePlaybackState, setVoicePlaybackState] = useState<'idle' | 'playing' | 'error'>('idle');
+  const [voicePlaybackNote, setVoicePlaybackNote] = useState<string>('Manual only');
 
   useEffect(() => {
     const refreshHealth = () => {
@@ -168,6 +184,24 @@ export function RelayPopoutPage() {
     return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    fetchRelayVoicePack()
+      .then((pack) => {
+        if (cancelled) return;
+        setVoicePack(pack);
+        setVoicePackError(pack.warning || null);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        setVoicePack(null);
+        setVoicePackError(error instanceof Error ? error.message : 'Relay voice pack unavailable');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const isResponding = localStreamState.isStreaming || Boolean(sharedActivity?.isResponding);
   const activePhase = localStreamState.isStreaming
     ? localStreamState.phase
@@ -179,6 +213,49 @@ export function RelayPopoutPage() {
     bridgeState === 'connected' ? 'Connected' : bridgeState === 'fallback' ? 'Manifest' : 'Checking';
   const statusLabel = isResponding ? 'RELAY RESPONDING' : 'RELAY ONLINE';
   const lastSync = formatActivityTime(sharedActivity?.updatedAt || 0);
+  const voiceStatusLabel = relayPlaceholderVoiceEnabled
+    ? voicePlaybackState === 'playing'
+      ? 'Playing'
+      : voicePack?.synthesis_available
+        ? 'Ready'
+        : 'Unavailable'
+    : 'Off';
+  const voiceStyleLabel = voicePack?.active_placeholder_style || 'sarcastic_polish_04';
+  const voiceLine = voicePack?.default_placeholder_text || 'Relax. I already fixed it.';
+
+  const handleTogglePlaceholderVoice = () => {
+    updateSettings({ relayPlaceholderVoiceEnabled: !relayPlaceholderVoiceEnabled });
+    setVoicePlaybackNote('Manual only');
+  };
+
+  const handlePlayPlaceholderVoice = async () => {
+    if (!relayPlaceholderVoiceEnabled || !voicePack?.synthesis_available || voicePlaybackState === 'playing') {
+      return;
+    }
+
+    const text = voiceLine;
+    setVoicePlaybackState('playing');
+    setVoicePlaybackNote(text);
+
+    try {
+      const blob = await playRelayPlaceholderVoice(text);
+      const objectUrl = URL.createObjectURL(blob);
+      const audio = new Audio(objectUrl);
+      audio.onended = () => {
+        URL.revokeObjectURL(objectUrl);
+        setVoicePlaybackState('idle');
+      };
+      audio.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        setVoicePlaybackState('error');
+        setVoicePlaybackNote('Playback failed');
+      };
+      await audio.play();
+    } catch (error) {
+      setVoicePlaybackState('error');
+      setVoicePlaybackNote(error instanceof Error ? error.message : 'Playback failed');
+    }
+  };
 
   return (
     <div className="relay-popout-screen h-screen overflow-y-auto">
@@ -376,6 +453,84 @@ export function RelayPopoutPage() {
             <div><span style={{ color: 'rgba(148, 163, 184, 0.70)' }}>System:</span> {systemState}</div>
             <div><span style={{ color: 'rgba(148, 163, 184, 0.70)' }}>Mesh:</span> {meshState}</div>
             <div><span style={{ color: 'rgba(148, 163, 184, 0.70)' }}>Mode:</span> Companion</div>
+          </div>
+        </HudPanel>
+
+        <HudPanel className="relay-popout-voice-panel px-3 py-2.5" cyan>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5">
+              <Volume2 size={10} style={{ color: 'rgb(103, 232, 249)' }} />
+              <h2 className="text-[7px] font-semibold uppercase tracking-[0.18em]">Placeholder Voice</h2>
+            </div>
+            <span className="text-[6px] uppercase tracking-[0.14em]" style={{ color: 'rgb(134, 239, 172)' }}>
+              Manual only
+            </span>
+          </div>
+          <div className="mt-2 grid gap-2">
+            <div className="grid grid-cols-2 gap-2">
+              <MicroReadout
+                label="Voice"
+                value={voicePack?.active_voice || 'af_bella'}
+                color="rgb(216, 180, 254)"
+              />
+              <MicroReadout
+                label="Mode"
+                value={voicePack?.active_mode || 'sarcastic'}
+                color="rgb(103, 232, 249)"
+              />
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <MicroReadout label="Style" value={voiceStyleLabel} color="rgb(134, 239, 172)" />
+              <MicroReadout label="State" value={voiceStatusLabel} color="rgb(103, 232, 249)" />
+              <MicroReadout label="Config" value={voicePack?.manual_only ? 'Gated' : 'Open'} color="rgb(196, 181, 253)" />
+            </div>
+            <div className="rounded-sm border border-white/10 bg-black/25 px-2 py-1.5 text-[7px] leading-relaxed">
+              <div className="font-semibold uppercase tracking-[0.14em]" style={{ color: 'rgb(216, 180, 254)' }}>
+                {voicePack?.public_label || 'Relay Companion'}
+              </div>
+              <div className="mt-1 truncate" style={{ color: 'rgba(165, 243, 252, 0.84)' }}>
+                {voiceLine}
+              </div>
+              <div className="mt-1 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+                {voicePackError || 'Voice playback remains off until you toggle it on.'}
+              </div>
+            </div>
+            <div className="grid grid-cols-[auto_auto_1fr] gap-2">
+              <button
+                type="button"
+                onClick={handleTogglePlaceholderVoice}
+                className="relay-popout-nav-button justify-center"
+                style={{
+                  color: relayPlaceholderVoiceEnabled ? 'rgb(134, 239, 172)' : 'rgb(216, 180, 254)',
+                  borderColor: relayPlaceholderVoiceEnabled ? 'rgba(74, 222, 128, 0.24)' : 'rgba(192, 132, 252, 0.24)',
+                }}
+              >
+                {relayPlaceholderVoiceEnabled ? <ToggleRight size={11} /> : <ToggleLeft size={11} />}
+                {relayPlaceholderVoiceEnabled ? 'Voice On' : 'Voice Off'}
+              </button>
+              <button
+                type="button"
+                onClick={handlePlayPlaceholderVoice}
+                disabled={!relayPlaceholderVoiceEnabled || !voicePack?.synthesis_available || voicePlaybackState === 'playing'}
+                className="relay-popout-nav-button justify-center"
+                style={{
+                  color: !relayPlaceholderVoiceEnabled || !voicePack?.synthesis_available
+                    ? 'rgba(148, 163, 184, 0.56)'
+                    : 'rgb(103, 232, 249)',
+                  borderColor: !relayPlaceholderVoiceEnabled || !voicePack?.synthesis_available
+                    ? 'rgba(148, 163, 184, 0.16)'
+                    : 'rgba(34, 211, 238, 0.24)',
+                  opacity: !relayPlaceholderVoiceEnabled || !voicePack?.synthesis_available ? 0.6 : 1,
+                }}
+              >
+                <PlayCircle size={11} />
+                Play test line
+              </button>
+              <div className="min-w-0 text-[6px] uppercase tracking-[0.14em]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
+                <div className="truncate">Style: {voiceStyleLabel}</div>
+                <div className="truncate">Line: {voicePlaybackNote}</div>
+              </div>
+            </div>
           </div>
         </HudPanel>
 

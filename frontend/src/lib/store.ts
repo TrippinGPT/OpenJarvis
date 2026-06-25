@@ -80,6 +80,7 @@ interface Settings {
   temperature: number;
   maxTokens: number;
   speechEnabled: boolean;
+  relayPlaceholderVoiceEnabled: boolean;
 }
 
 function loadSettings(): Settings {
@@ -93,6 +94,7 @@ function loadSettings(): Settings {
     temperature: 0.7,
     maxTokens: 4096,
     speechEnabled: false,
+    relayPlaceholderVoiceEnabled: false,
   };
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
