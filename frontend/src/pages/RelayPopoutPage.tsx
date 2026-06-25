@@ -152,6 +152,7 @@ export function RelayPopoutPage() {
   const [voicePlaybackNote, setVoicePlaybackNote] = useState<string>('Voice disabled until you toggle it on.');
   const [voicePlaybackDetail, setVoicePlaybackDetail] = useState<string>('Manual only. No autoplay.');
   const [voiceCategory, setVoiceCategory] = useState<string>('manual_test');
+  const [statusRefreshPending, setStatusRefreshPending] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioUrlRef = useRef<string | null>(null);
   const activePlaybackIdRef = useRef(0);
@@ -263,30 +264,29 @@ export function RelayPopoutPage() {
     || voicePack?.default_placeholder_text
     || 'Relay online. Voice check complete.';
   const voiceCategoryOptions = voicePack?.available_placeholder_categories || ['manual_test'];
+  const selectedEventCategory = ['routing', 'success', 'warning'].includes(voiceCategory)
+    ? voiceCategory
+    : null;
   const eventTriggerStates = [
     {
       key: 'relayVoiceStartupEventEnabled' as const,
       category: 'startup',
       label: 'Startup Event',
-      buttonLabel: 'Test startup line',
     },
     {
       key: 'relayVoiceRoutingEventEnabled' as const,
       category: 'routing',
       label: 'Routing Event',
-      buttonLabel: 'Test routing line',
     },
     {
       key: 'relayVoiceSuccessEventEnabled' as const,
       category: 'success',
       label: 'Success Event',
-      buttonLabel: 'Test success line',
     },
     {
       key: 'relayVoiceWarningEventEnabled' as const,
       category: 'warning',
       label: 'Warning Event',
-      buttonLabel: 'Test warning line',
     },
   ];
 
@@ -407,12 +407,71 @@ export function RelayPopoutPage() {
     await runVoicePlayback(voiceCategory, 'manual');
   };
 
-  const handleEventTriggerPlayback = async (category: string) => {
-    await runVoicePlayback(category, 'event', true);
-  };
-
   const handleVoiceCategoryChange = (category: string) => {
     setVoiceCategory(category);
+  };
+
+  const handleRunSelectedEvent = async () => {
+    if (!selectedEventCategory) {
+      setVoicePlaybackState('idle');
+      setVoicePlaybackNote('No event hook selected.');
+      setVoicePlaybackDetail(
+        voiceCategory === 'startup'
+          ? 'Startup runs from Voice On when the startup event toggle is enabled.'
+          : 'Use Play test line for manual_test, or select routing, success, or warning first.',
+      );
+      return;
+    }
+
+    await runVoicePlayback(selectedEventCategory, 'event', true);
+  };
+
+  const handleRefreshRelayStatus = async () => {
+    if (statusRefreshPending) {
+      return;
+    }
+
+    setStatusRefreshPending(true);
+    setVoicePlaybackNote('Refreshing Relay status...');
+    setVoicePlaybackDetail('Checking backend health and OpenClaw bridge readiness.');
+
+    try {
+      const [healthResult, bridgeResult] = await Promise.allSettled([checkHealth(), fetchOpenClawBridgeStatus()]);
+      const backendReady = healthResult.status === 'fulfilled' && healthResult.value === true;
+      const bridgeReady = bridgeResult.status === 'fulfilled';
+
+      setBackendOnline(backendReady);
+      setBridgeState(bridgeReady ? 'connected' : 'fallback');
+
+      if (backendReady && bridgeReady) {
+        setVoicePlaybackNote('Relay status refreshed.');
+        setVoicePlaybackDetail('Backend online. Bridge connected.');
+        if (voiceControlsEnabled && settings.relayVoiceSuccessEventEnabled && !voiceRequestActive) {
+          await runVoicePlayback('success', 'event', true);
+        }
+        return;
+      }
+
+      setVoicePlaybackNote('Relay status needs attention.');
+      setVoicePlaybackDetail(
+        backendReady
+          ? 'Backend online, but bridge fell back to manifest mode.'
+          : 'Backend health is unavailable. Check local services.',
+      );
+      if (voiceControlsEnabled && settings.relayVoiceWarningEventEnabled && !voiceRequestActive) {
+        await runVoicePlayback('warning', 'event', true);
+      }
+    } catch (error) {
+      setBackendOnline(false);
+      setBridgeState('fallback');
+      setVoicePlaybackNote('Relay status refresh failed.');
+      setVoicePlaybackDetail(error instanceof Error ? error.message : 'Status refresh failed.');
+      if (voiceControlsEnabled && settings.relayVoiceWarningEventEnabled && !voiceRequestActive) {
+        await runVoicePlayback('warning', 'event', true);
+      }
+    } finally {
+      setStatusRefreshPending(false);
+    }
   };
 
   useEffect(() => {
@@ -693,7 +752,7 @@ export function RelayPopoutPage() {
                 {voicePackError || 'Voice remains off by default and only plays on manual request.'}
               </div>
               <div className="mt-1 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
-                Category selection previews only. Startup can fire on Voice On, and event buttons speak only when opted in.
+                Category selection previews only. Startup can fire on Voice On. Use Run Selected Event or Refresh Relay Status for gated action speech.
               </div>
             </div>
             <label className="grid gap-1 text-[6px] uppercase tracking-[0.14em]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
@@ -714,12 +773,11 @@ export function RelayPopoutPage() {
             </label>
             <div className="grid gap-1.5">
               <div className="text-[6px] uppercase tracking-[0.14em]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
-                Event Voice Actions
+                Event Voice Gates
               </div>
               <div className="grid gap-2 md:grid-cols-2">
                 {eventTriggerStates.map((eventTrigger) => {
                   const enabled = settings[eventTrigger.key];
-                  const triggerDisabled = !voiceControlsEnabled || voiceRequestActive || !enabled;
                   return (
                     <div
                       key={eventTrigger.key}
@@ -737,7 +795,7 @@ export function RelayPopoutPage() {
                             className="truncate text-[6px] uppercase tracking-[0.1em]"
                             style={{ color: 'rgba(148, 163, 184, 0.7)' }}
                           >
-                            {eventTrigger.category} // explicit speak
+                            {eventTrigger.category} // gate only
                           </div>
                         </div>
                         <button
@@ -753,23 +811,43 @@ export function RelayPopoutPage() {
                           {enabled ? 'On' : 'Off'}
                         </button>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => handleEventTriggerPlayback(eventTrigger.category)}
-                        disabled={triggerDisabled}
-                        className="relay-popout-nav-button mt-2 w-full justify-center"
-                        style={{
-                          color: triggerDisabled ? 'rgba(148, 163, 184, 0.56)' : 'rgb(103, 232, 249)',
-                          borderColor: triggerDisabled ? 'rgba(148, 163, 184, 0.16)' : 'rgba(34, 211, 238, 0.24)',
-                          opacity: triggerDisabled ? 0.6 : 1,
-                        }}
-                      >
-                        <PlayCircle size={10} />
-                        {eventTrigger.buttonLabel}
-                      </button>
                     </div>
                   );
                 })}
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={handleRunSelectedEvent}
+                  disabled={!voiceControlsEnabled || voiceRequestActive || !selectedEventCategory}
+                  className="relay-popout-nav-button justify-center"
+                  style={{
+                    color: !voiceControlsEnabled || !selectedEventCategory
+                      ? 'rgba(148, 163, 184, 0.56)'
+                      : 'rgb(103, 232, 249)',
+                    borderColor: !voiceControlsEnabled || !selectedEventCategory
+                      ? 'rgba(148, 163, 184, 0.16)'
+                      : 'rgba(34, 211, 238, 0.24)',
+                    opacity: !voiceControlsEnabled || !selectedEventCategory ? 0.6 : 1,
+                  }}
+                >
+                  <PlayCircle size={10} />
+                  Run Selected Event
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRefreshRelayStatus}
+                  disabled={statusRefreshPending || voiceRequestActive}
+                  className="relay-popout-nav-button justify-center"
+                  style={{
+                    color: statusRefreshPending ? 'rgba(148, 163, 184, 0.56)' : 'rgb(134, 239, 172)',
+                    borderColor: statusRefreshPending ? 'rgba(148, 163, 184, 0.16)' : 'rgba(74, 222, 128, 0.24)',
+                    opacity: statusRefreshPending ? 0.6 : 1,
+                  }}
+                >
+                  <Radio size={10} />
+                  {statusRefreshPending ? 'Refreshing...' : 'Refresh Relay Status'}
+                </button>
               </div>
             </div>
             <div className="grid grid-cols-[auto_auto_1fr] gap-2">

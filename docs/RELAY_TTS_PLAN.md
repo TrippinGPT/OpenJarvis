@@ -348,6 +348,13 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - Make category selection preview-only so browsing the dropdown never speaks by itself.
 - Keep routing, success, and warning on explicit event-trigger buttons only.
 
+### v3.4 - Real-action voice hooks
+
+- Keep startup on explicit voice enable when the startup event toggle is on.
+- Use `Run Selected Event` as the explicit routed-action hook for `routing`, `success`, or `warning` after preview selection.
+- Use `Refresh Relay Status` as a real safe popout action that can trigger `success` on healthy refresh or `warning` on unavailable/fallback refresh.
+- Keep manual test playback separate from the real-action hooks.
+
 ## Future implementation acceptance criteria
 
 - User explicitly enables voice.
