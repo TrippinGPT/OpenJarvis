@@ -2,6 +2,11 @@
   "version": "1.0",
   "mode": "planning_only",
   "default_voice": "smartmouth_relay",
+  "active_tts_voice": "af_bella",
+  "active_tts_mode": "sarcastic",
+  "active_placeholder_style": "sarcastic_polish_04",
+  "secondary_placeholder_style": "sarcastic_polish_03",
+  "backup_placeholder_style": "sarcastic_polish_02",
   "implementation_status": {
     "tts": "not_implemented",
     "audio_playback": "not_implemented",

@@ -51,6 +51,12 @@ Source-of-truth handoff summary:
 D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_CURRENT_STATE.md
 ```
 
+Locked placeholder voice pack:
+
+```text
+D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_SARCASTIC_POLISH.md
+```
+
 ## Relay TTS plan
 
 Planning reference only:

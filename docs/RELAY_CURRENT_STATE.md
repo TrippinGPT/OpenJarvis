@@ -22,7 +22,7 @@ The launcher starts:
 - Backend: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
 - Frontend: [http://localhost:5173/](http://localhost:5173/)
 
-After startup commands are sent, the launcher automatically opens the frontend in the default browser.
+After startup, the launcher prints the ready URLs and waits for manual browser open.
 
 ## 3. Main routes
 
@@ -82,6 +82,8 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - `relay-v2.5.5-smartmouth-delivery`
 - `relay-v2.5.6-smartmouth-cadence`
 - `relay-v2.5.9-sarcastic-polish`
+- `relay-v2.5.10-startup-fix`
+- `relay-v2.5.10.2-quiet-launcher`
 
 ## 6. Current features
 
@@ -159,13 +161,18 @@ After startup commands are sent, the launcher automatically opens the frontend i
 - v2.5.5 adds the Smartmouth delivery pack.
 - v2.5.6 adds Smartmouth cadence/timing metadata and rendered pause control.
 - v2.5.9 adds a sarcastic-only Relay polish lane.
+- v2.5.10 fixes startup sequencing so the backend is ready before the frontend is treated as ready.
+- v2.5.10.2 makes the desktop launcher quiet and manual-open only.
+- v2.5.11 locks the placeholder voice pack to the sarcastic polish results.
 - Current polish target: `af_bella` in `sarcastic` mode.
+- Placeholder pack target: `sarcastic_polish_04`.
 - No Piper package was installed globally.
 - The selected voice-model pair lives under `tools\piper\voices` and no audio has been generated.
 - Generated WAV files are local test artifacts and ignored by Git.
 - No Relay Popout voice toggle or automatic speech exists.
 - No app runtime TTS exists yet.
 - Model download, audio generation, playback, or UI voice controls require explicit user approval in a future task.
+- The current placeholder pack is locked to the sarcastic polish results: default `sarcastic_polish_04`, secondary `sarcastic_polish_03`, backup `sarcastic_polish_02`.
 
 ### v2.5 milestone note
 

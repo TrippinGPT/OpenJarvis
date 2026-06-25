@@ -21,6 +21,26 @@ This document tracks the current sarcastic-only polish lane for Kokoro `af_bella
 - Mode: `sarcastic`
 - Status: usable placeholder, polish next
 
+## Locked placeholder pack
+
+The current placeholder order is now fixed for the project baseline:
+
+- Winner: `relay_sarcastic_polish_04_20260624_154746.wav`
+- Runner-up: `relay_sarcastic_polish_03_20260624_154746.wav`
+- Backup: `relay_sarcastic_polish_02_20260624_154746.wav`
+
+Default placeholder style:
+
+- `Relax. I already fixed it.`
+
+Secondary placeholder style:
+
+- `We HAVE a plan. Miracles happen...`
+
+Backup placeholder style:
+
+- `Routing now. Don't screw it up...`
+
 ## Evaluation criteria
 
 - Clarity
@@ -46,3 +66,12 @@ This document tracks the current sarcastic-only polish lane for Kokoro `af_bella
 - No OpenClaw changes.
 - No new model downloads.
 - No WAV/audio files should be committed.
+
+## Current status
+
+- `af_bella` remains the active placeholder voice.
+- `sarcastic` remains the active speaking mode.
+- `sarcastic_polish_04` is the current default placeholder style.
+- `sarcastic_polish_03` is the secondary style.
+- `sarcastic_polish_02` is the backup style.
+- This is still a placeholder pack, not the final production voice.

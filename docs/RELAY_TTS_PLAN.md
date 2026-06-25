@@ -17,6 +17,7 @@ The Relay Popout HUD is the intended future voicebox surface. The main planned p
 - **Kokoro status:** gated venv setup completed; first WAV test has been run locally and the comparison sweep lane is ready
 - **Kokoro sweep runner:** accepts `-PythonExe` and defaults to the Kokoro venv Python
 - **Current delivery focus:** `af_bella` with sarcastic-only polish
+- **Placeholder pack:** locked to `sarcastic_polish_04` with `sarcastic_polish_03` and `sarcastic_polish_02` as secondary/backup
 - **Voice-model gate:** `config\piper_voice_models.json`
 - **Application TTS integration:** Not implemented
 - **Audio playback:** Not implemented
@@ -284,6 +285,19 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - Keep `dry` and `command` available but not as the current quality target.
 - Focus on short, sharp, original Relay delivery.
 - Use the sarcastic polish runner for the strongest short-form comparison.
+
+### v2.5.10 - Startup flow fix
+
+- Wait for Ollama, backend health, and frontend readiness in the launcher.
+- Do not auto-open the browser or OpenClaw.
+
+### v2.5.11 - Placeholder voice pack lock
+
+- Lock the current placeholder pack to the sarcastic polish results.
+- Default style: `sarcastic_polish_04`.
+- Secondary style: `sarcastic_polish_03`.
+- Backup style: `sarcastic_polish_02`.
+- The current lane is stable enough for placeholder use; do not resume model hunting unless a future task asks for it.
 
 ## Future implementation acceptance criteria
 
