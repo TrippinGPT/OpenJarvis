@@ -335,6 +335,13 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - Keep the active delivery lane locked to `af_bella` in `sarcastic` mode.
 - Improve wording consistency only; do not change the manual/gated playback structure.
 
+### v3.3 - Gated event-to-action mapping
+
+- Keep voice off by default and require the matching event toggle before action-triggered playback.
+- Map startup playback to explicit voice enable only, never page load.
+- Map routing, success, and warning playback to explicit placeholder-category selection in the popout when the matching event toggle is enabled.
+- Keep manual category playback and event demo buttons available.
+
 ## Future implementation acceptance criteria
 
 - User explicitly enables voice.

@@ -32,6 +32,7 @@ import { useAppStore } from '../lib/store';
 
 type BridgeState = 'checking' | 'connected' | 'fallback';
 type VoicePlaybackState = 'idle' | 'generating' | 'playing' | 'complete' | 'error';
+type VoicePlaybackSource = 'manual' | 'event' | 'action';
 
 function formatActivityTime(timestamp: number): string {
   if (!timestamp) return '--:--:--';
@@ -307,10 +308,24 @@ export function RelayPopoutPage() {
         ? 'Manual only. One click generates one local playback.'
         : voicePackError || 'Local synthesis is not ready.',
     );
+
+    const startupEventEnabled = settings.relayVoiceStartupEventEnabled;
+    if (startupEventEnabled && voicePack?.synthesis_available) {
+      void runVoicePlayback('startup', 'action', true, true);
+    }
   };
 
-  const runVoicePlayback = async (category: string, source: 'manual' | 'event', requireEventEnabled = false) => {
-    if (!voiceControlsEnabled || voiceRequestActive) {
+  const runVoicePlayback = async (
+    category: string,
+    source: VoicePlaybackSource,
+    requireEventEnabled = false,
+    voiceEnabledOverride = false,
+  ) => {
+    const playbackAllowed = voiceEnabledOverride
+      ? Boolean(voicePack?.synthesis_available)
+      : voiceControlsEnabled;
+
+    if (!playbackAllowed || voiceRequestActive) {
       return;
     }
 
@@ -349,7 +364,9 @@ export function RelayPopoutPage() {
       setVoicePlaybackDetail(
         source === 'manual'
           ? 'Manual category playback in progress.'
-          : 'Explicit event demo playback in progress.',
+          : source === 'event'
+            ? 'Explicit event demo playback in progress.'
+            : 'Mapped UI action playback in progress.',
       );
 
       audio.onended = () => {
@@ -362,7 +379,9 @@ export function RelayPopoutPage() {
         setVoicePlaybackDetail(
           source === 'manual'
             ? `Manual only. Click Play test line to replay the ${category} category.`
-            : `Event demo complete. Trigger ${category} again only if you want another manual demo.`,
+            : source === 'event'
+              ? `Event demo complete. Trigger ${category} again only if you want another manual demo.`
+              : `Mapped ${category} action complete. Trigger the same action again for another playback.`,
         );
       };
 
@@ -394,6 +413,15 @@ export function RelayPopoutPage() {
 
   const handleEventTriggerPlayback = async (category: string) => {
     await runVoicePlayback(category, 'event', true);
+  };
+
+  const handleVoiceCategoryChange = async (category: string) => {
+    setVoiceCategory(category);
+    if (category === 'manual_test') {
+      return;
+    }
+
+    await runVoicePlayback(category, 'action', true);
   };
 
   useEffect(() => {
@@ -673,12 +701,15 @@ export function RelayPopoutPage() {
               <div className="mt-1 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
                 {voicePackError || 'Voice remains off by default and only plays on manual request.'}
               </div>
+              <div className="mt-1 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+                Startup fires on Voice On. Routing, success, and warning can fire from category selection when opted in.
+              </div>
             </div>
             <label className="grid gap-1 text-[6px] uppercase tracking-[0.14em]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
               <span>Placeholder Category</span>
               <select
                 value={voiceCategory}
-                onChange={(event) => setVoiceCategory(event.target.value)}
+                onChange={(event) => void handleVoiceCategoryChange(event.target.value)}
                 disabled={voiceRequestActive}
                 className="rounded-sm border border-white/10 bg-black/35 px-2 py-1.5 text-[7px] uppercase tracking-[0.08em] outline-none"
                 style={{ color: 'rgba(165, 243, 252, 0.9)' }}
