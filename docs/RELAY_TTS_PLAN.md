@@ -308,6 +308,14 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - Keep the path local-only; no microphone, no autoplay, no cloud TTS, and no OpenClaw changes.
 - This is placeholder wiring only, not conversational runtime speech.
 
+### v3.1 - Contextual placeholder line selection
+
+- Keep playback manual-only and off by default.
+- Add safe placeholder categories for `startup`, `routing`, `success`, `warning`, and `manual_test`.
+- Default the manual popout selector to `manual_test`.
+- Let the popout send the selected category to the local playback route.
+- Do not add auto-speaking, response-triggered speech, or microphone features in this pass.
+
 ## Future implementation acceptance criteria
 
 - User explicitly enables voice.

@@ -362,6 +362,9 @@ export interface RelayVoicePack {
   default_placeholder_text: string;
   secondary_placeholder_text: string;
   backup_placeholder_text: string;
+  available_placeholder_categories: string[];
+  default_placeholder_category: string;
+  placeholder_category_lines: Record<string, string>;
   manual_only: boolean;
   autoplay: boolean;
   microphone: boolean;
@@ -413,11 +416,14 @@ export async function fetchRelayVoicePack(): Promise<RelayVoicePack> {
   return res.json();
 }
 
-export async function playRelayPlaceholderVoice(text?: string): Promise<Blob> {
+export async function playRelayPlaceholderVoice(options?: { text?: string; category?: string }): Promise<Blob> {
   const res = await apiFetch(`/api/relay/voice/play`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(text ? { text } : {}),
+    body: JSON.stringify({
+      ...(options?.text ? { text: options.text } : {}),
+      ...(options?.category ? { category: options.category } : {}),
+    }),
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({ detail: res.statusText }));

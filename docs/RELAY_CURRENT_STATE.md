@@ -257,7 +257,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - **v2.5.6:** Smartmouth cadence layer
 - **v2.5.9:** Sarcastic polish lane
 - **v3.0:** Gated placeholder Relay voice UI
-- **v3.1:** Optional response playback after visible Relay responses
+- **v3.1:** Contextual placeholder line selection
 - **v3.2:** Agent-specific original voice profiles
 - **v3.3:** Real routing signals connected to agent mesh animation
 - **v3.4:** Safe preflight actions

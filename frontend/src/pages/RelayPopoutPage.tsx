@@ -149,6 +149,7 @@ export function RelayPopoutPage() {
   const [voicePlaybackState, setVoicePlaybackState] = useState<VoicePlaybackState>('idle');
   const [voicePlaybackNote, setVoicePlaybackNote] = useState<string>('Voice disabled until you toggle it on.');
   const [voicePlaybackDetail, setVoicePlaybackDetail] = useState<string>('Manual only. No autoplay.');
+  const [voiceCategory, setVoiceCategory] = useState<string>('manual_test');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioUrlRef = useRef<string | null>(null);
   const activePlaybackIdRef = useRef(0);
@@ -212,6 +213,11 @@ export function RelayPopoutPage() {
         if (cancelled) return;
         setVoicePack(pack);
         setVoicePackError(pack.warning || null);
+        setVoiceCategory((current) =>
+          pack.available_placeholder_categories.includes(current)
+            ? current
+            : pack.default_placeholder_category || 'manual_test',
+        );
       })
       .catch((error) => {
         if (cancelled) return;
@@ -250,7 +256,10 @@ export function RelayPopoutPage() {
               ? 'Failed'
               : 'Ready';
   const voiceStyleLabel = voicePack?.active_placeholder_style || 'sarcastic_polish_04';
-  const voiceLine = voicePack?.default_placeholder_text || 'Relax. I already fixed it.';
+  const voiceLine = voicePack?.placeholder_category_lines?.[voiceCategory]
+    || voicePack?.default_placeholder_text
+    || 'Relay online. Voice check complete.';
+  const voiceCategoryOptions = voicePack?.available_placeholder_categories || ['manual_test'];
 
   const handleTogglePlaceholderVoice = () => {
     updateSettings({ relayPlaceholderVoiceEnabled: !relayPlaceholderVoiceEnabled });
@@ -282,11 +291,11 @@ export function RelayPopoutPage() {
     activePlaybackIdRef.current = playbackId;
     const text = voiceLine;
     setVoicePlaybackState('generating');
-    setVoicePlaybackNote('Generating local placeholder line...');
+    setVoicePlaybackNote(`Generating ${voiceCategory} line...`);
     setVoicePlaybackDetail(text);
 
     try {
-      const blob = await playRelayPlaceholderVoice(text);
+      const blob = await playRelayPlaceholderVoice({ category: voiceCategory });
       if (activePlaybackIdRef.current !== playbackId) {
         return;
       }
@@ -296,7 +305,7 @@ export function RelayPopoutPage() {
       const audio = new Audio(objectUrl);
       audioRef.current = audio;
       setVoicePlaybackState('playing');
-      setVoicePlaybackNote('Playback in progress.');
+      setVoicePlaybackNote(`Playing ${voiceCategory} line.`);
       setVoicePlaybackDetail(text);
 
       audio.onended = () => {
@@ -306,7 +315,7 @@ export function RelayPopoutPage() {
         disposeAudio();
         setVoicePlaybackState('complete');
         setVoicePlaybackNote('Playback complete.');
-        setVoicePlaybackDetail('Manual only. Click Play test line to run it again.');
+        setVoicePlaybackDetail(`Manual only. Click Play test line to replay the ${voiceCategory} line.`);
       };
 
       audio.onerror = () => {
@@ -349,7 +358,7 @@ export function RelayPopoutPage() {
     }
 
     if (voicePlaybackState === 'idle') {
-      setVoicePlaybackNote('Ready for one manual playback test.');
+      setVoicePlaybackNote(`Ready for ${voiceCategory} playback.`);
       setVoicePlaybackDetail('Manual only. One click generates one local playback.');
     }
   }, [
@@ -358,6 +367,7 @@ export function RelayPopoutPage() {
     voicePackError,
     voicePlaybackState,
     voiceRequestActive,
+    voiceCategory,
   ]);
 
   return (
@@ -585,7 +595,7 @@ export function RelayPopoutPage() {
             <div className="grid grid-cols-3 gap-2">
               <MicroReadout label="Style" value={voiceStyleLabel} color="rgb(134, 239, 172)" />
               <MicroReadout label="State" value={voiceStatusLabel} color="rgb(103, 232, 249)" />
-              <MicroReadout label="Config" value={voicePack?.manual_only ? 'Gated' : 'Open'} color="rgb(196, 181, 253)" />
+              <MicroReadout label="Category" value={voiceCategory} color="rgb(196, 181, 253)" />
             </div>
             <div className="rounded-sm border border-white/10 bg-black/25 px-2 py-1.5 text-[7px] leading-relaxed">
               <div className="font-semibold uppercase tracking-[0.14em]" style={{ color: 'rgb(216, 180, 254)' }}>
@@ -598,6 +608,22 @@ export function RelayPopoutPage() {
                 {voicePackError || 'Voice remains off by default and only plays on manual request.'}
               </div>
             </div>
+            <label className="grid gap-1 text-[6px] uppercase tracking-[0.14em]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
+              <span>Placeholder Category</span>
+              <select
+                value={voiceCategory}
+                onChange={(event) => setVoiceCategory(event.target.value)}
+                disabled={voiceRequestActive}
+                className="rounded-sm border border-white/10 bg-black/35 px-2 py-1.5 text-[7px] uppercase tracking-[0.08em] outline-none"
+                style={{ color: 'rgba(165, 243, 252, 0.9)' }}
+              >
+                {voiceCategoryOptions.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </label>
             <div className="grid grid-cols-[auto_auto_1fr] gap-2">
               <button
                 type="button"
@@ -634,6 +660,7 @@ export function RelayPopoutPage() {
                     : 'Play test line'}
               </button>
               <div className="min-w-0 text-[6px] uppercase tracking-[0.14em]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
+                <div className="truncate">Category: {voiceCategory}</div>
                 <div className="truncate">Style: {voiceStyleLabel}</div>
                 <div className="truncate">State: {voicePlaybackNote}</div>
                 <div className="truncate">Detail: {voicePlaybackDetail}</div>

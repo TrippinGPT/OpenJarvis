@@ -19,10 +19,19 @@ PLACEHOLDER_LINES = {
     "sarcastic_polish_03": "We HAVE a plan. Miracles happen...",
     "sarcastic_polish_02": "Routing now. Don't screw it up...",
 }
+PLACEHOLDER_CATEGORY_LINES = {
+    "startup": "Relay online. Try not to break anything expensive.",
+    "routing": "Routing now. Don't screw it up...",
+    "success": "Relax. I already fixed it.",
+    "warning": "We HAVE a plan. Try not to ruin it...",
+    "manual_test": "Relay online. Voice check complete.",
+}
+DEFAULT_PLACEHOLDER_CATEGORY = "manual_test"
 
 
 class RelayVoiceSpeakRequest(BaseModel):
     text: str | None = None
+    category: str | None = None
 
 
 def _checked_at() -> str:
@@ -65,6 +74,9 @@ def _relay_profile(config: dict[str, Any]) -> dict[str, Any]:
         "default_placeholder_text": PLACEHOLDER_LINES.get(active_style, PLACEHOLDER_LINES["sarcastic_polish_04"]),
         "secondary_placeholder_text": PLACEHOLDER_LINES.get(secondary_style, PLACEHOLDER_LINES["sarcastic_polish_03"]),
         "backup_placeholder_text": PLACEHOLDER_LINES.get(backup_style, PLACEHOLDER_LINES["sarcastic_polish_02"]),
+        "available_placeholder_categories": list(PLACEHOLDER_CATEGORY_LINES.keys()),
+        "default_placeholder_category": DEFAULT_PLACEHOLDER_CATEGORY,
+        "placeholder_category_lines": PLACEHOLDER_CATEGORY_LINES,
         "manual_only": True,
         "autoplay": False,
         "microphone": False,
@@ -85,6 +97,24 @@ def _kokoro_backend():
     return backend_cls()
 
 
+def _resolve_placeholder_category(category: str | None) -> str:
+    selected = (category or DEFAULT_PLACEHOLDER_CATEGORY).strip().lower()
+    if selected not in PLACEHOLDER_CATEGORY_LINES:
+        return DEFAULT_PLACEHOLDER_CATEGORY
+    return selected
+
+
+def _resolve_placeholder_text(text: str | None, category: str | None, profile: dict[str, Any]) -> tuple[str, str]:
+    if text is not None and text.strip():
+        return text.strip(), _resolve_placeholder_category(category)
+
+    selected_category = _resolve_placeholder_category(category)
+    return PLACEHOLDER_CATEGORY_LINES.get(
+        selected_category,
+        profile["default_placeholder_text"],
+    ), selected_category
+
+
 @router.get("/config")
 async def relay_voice_config() -> dict[str, Any]:
     """Return the locked placeholder voice pack configuration."""
@@ -102,6 +132,9 @@ async def relay_voice_config() -> dict[str, Any]:
             "default_placeholder_text": PLACEHOLDER_LINES["sarcastic_polish_04"],
             "secondary_placeholder_text": PLACEHOLDER_LINES["sarcastic_polish_03"],
             "backup_placeholder_text": PLACEHOLDER_LINES["sarcastic_polish_02"],
+            "available_placeholder_categories": list(PLACEHOLDER_CATEGORY_LINES.keys()),
+            "default_placeholder_category": DEFAULT_PLACEHOLDER_CATEGORY,
+            "placeholder_category_lines": PLACEHOLDER_CATEGORY_LINES,
             "manual_only": True,
             "autoplay": False,
             "microphone": False,
@@ -146,9 +179,7 @@ async def relay_voice_play(req: RelayVoiceSpeakRequest) -> Response:
 
     try:
         profile = _relay_profile(config)
-        text = (req.text or profile["default_placeholder_text"]).strip()
-        if not text:
-            text = profile["default_placeholder_text"]
+        text, selected_category = _resolve_placeholder_text(req.text, req.category, profile)
         result = backend.synthesize(
             text,
             voice_id=profile["active_voice"],
@@ -167,6 +198,7 @@ async def relay_voice_play(req: RelayVoiceSpeakRequest) -> Response:
             "X-Relay-Placeholder-Voice": profile["active_voice"],
             "X-Relay-Placeholder-Mode": profile["active_mode"],
             "X-Relay-Placeholder-Style": profile["active_placeholder_style"],
+            "X-Relay-Placeholder-Category": selected_category,
         },
     )
 

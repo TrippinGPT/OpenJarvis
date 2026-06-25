@@ -77,6 +77,9 @@ def test_relay_voice_config_endpoint(client):
     assert data["active_voice"] == "af_bella"
     assert data["active_mode"] == "sarcastic"
     assert data["active_placeholder_style"] == "sarcastic_polish_04"
+    assert data["default_placeholder_category"] == "manual_test"
+    assert "routing" in data["available_placeholder_categories"]
+    assert data["placeholder_category_lines"]["manual_test"] == "Relay online. Voice check complete."
     assert data["manual_only"] is True
     assert data["autoplay"] is False
 
@@ -86,7 +89,39 @@ def test_relay_voice_play_endpoint(client):
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("audio/wav")
     assert response.headers["x-relay-placeholder-voice"] == "af_bella"
+    assert response.headers["x-relay-placeholder-category"] == "manual_test"
     assert response.content.startswith(b"RIFF")
+
+
+def test_relay_voice_play_endpoint_uses_requested_category(monkeypatch, voice_config_path: Path):
+    from openjarvis.server import relay_voice_routes
+
+    fake_backend = MagicMock()
+    fake_backend.backend_id = "kokoro"
+    fake_backend.health.return_value = True
+    fake_backend.synthesize.return_value = TTSResult(
+        audio=b"RIFFfakewavdata",
+        format="wav",
+        voice_id="af_bella",
+        sample_rate=24000,
+    )
+
+    monkeypatch.setattr(relay_voice_routes, "VOICE_CONFIG_PATH", voice_config_path)
+    monkeypatch.setattr(relay_voice_routes, "_kokoro_backend", lambda: fake_backend)
+
+    app = FastAPI()
+    app.include_router(relay_voice_routes.router)
+    client = TestClient(app)
+
+    response = client.post("/api/relay/voice/play", json={"category": "routing"})
+    assert response.status_code == 200
+    assert response.headers["x-relay-placeholder-category"] == "routing"
+    fake_backend.synthesize.assert_called_with(
+        "Routing now. Don't screw it up...",
+        voice_id="af_bella",
+        speed=1.0,
+        output_format="wav",
+    )
 
 
 def test_relay_voice_play_endpoint_returns_clean_error(monkeypatch, voice_config_path: Path):
