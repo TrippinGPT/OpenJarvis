@@ -342,6 +342,12 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - Map routing, success, and warning playback to explicit placeholder-category selection in the popout when the matching event toggle is enabled.
 - Keep manual category playback and event demo buttons available.
 
+### v3.3.1 - Event trigger UX polish
+
+- Keep startup on explicit voice enable when the startup event toggle is on.
+- Make category selection preview-only so browsing the dropdown never speaks by itself.
+- Keep routing, success, and warning on explicit event-trigger buttons only.
+
 ## Future implementation acceptance criteria
 
 - User explicitly enables voice.

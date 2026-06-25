@@ -178,6 +178,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - Placeholder voice playback is available only behind a manual popout toggle and play button, and remains off by default.
 - v3.2.1 tightens the event/demo placeholder wording without changing the gated manual behavior.
 - v3.3 maps startup, routing, success, and warning playback to explicit safe popout actions while keeping the same opt-in gates.
+- v3.3.1 makes category browsing preview-only so dropdown changes do not speak by themselves.
 
 ### v2.5 milestone note
 
@@ -264,6 +265,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - **v3.2:** Gated UI event triggers
 - **v3.2.1:** Event line wording polish
 - **v3.3:** Gated event-to-action mapping
+- **v3.3.1:** Event trigger UX polish
 - **v3.4:** Agent-specific original voice profiles
 - **v3.5:** Real routing signals connected to agent mesh animation
 - **v3.6:** Safe preflight actions
