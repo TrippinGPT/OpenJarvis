@@ -81,6 +81,10 @@ interface Settings {
   maxTokens: number;
   speechEnabled: boolean;
   relayPlaceholderVoiceEnabled: boolean;
+  relayVoiceStartupEventEnabled: boolean;
+  relayVoiceRoutingEventEnabled: boolean;
+  relayVoiceSuccessEventEnabled: boolean;
+  relayVoiceWarningEventEnabled: boolean;
 }
 
 function loadSettings(): Settings {
@@ -95,6 +99,10 @@ function loadSettings(): Settings {
     maxTokens: 4096,
     speechEnabled: false,
     relayPlaceholderVoiceEnabled: false,
+    relayVoiceStartupEventEnabled: false,
+    relayVoiceRoutingEventEnabled: false,
+    relayVoiceSuccessEventEnabled: false,
+    relayVoiceWarningEventEnabled: false,
   };
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);

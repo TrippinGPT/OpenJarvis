@@ -322,6 +322,13 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - Keep the popout preview lightweight and indicate that a category variant is chosen on playback.
 - Keep playback manual-only with the same single-flight protection.
 
+### v3.2 - Gated UI event triggers
+
+- Add optional popout event-trigger toggles for `startup`, `routing`, `success`, and `warning`.
+- Keep every event toggle off by default.
+- Require both the master voice toggle and the specific event toggle before any event demo line can play.
+- Do not autoplay on page load or app start.
+
 ## Future implementation acceptance criteria
 
 - User explicitly enables voice.

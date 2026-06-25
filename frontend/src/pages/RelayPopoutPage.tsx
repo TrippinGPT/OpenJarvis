@@ -137,7 +137,8 @@ export function RelayPopoutPage() {
   const navigate = useNavigate();
   const selectedModel = useAppStore((state) => state.selectedModel);
   const localStreamState = useAppStore((state) => state.streamState);
-  const relayPlaceholderVoiceEnabled = useAppStore((state) => state.settings.relayPlaceholderVoiceEnabled);
+  const settings = useAppStore((state) => state.settings);
+  const relayPlaceholderVoiceEnabled = settings.relayPlaceholderVoiceEnabled;
   const updateSettings = useAppStore((state) => state.updateSettings);
   const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
   const [bridgeState, setBridgeState] = useState<BridgeState>('checking');
@@ -261,6 +262,32 @@ export function RelayPopoutPage() {
     || voicePack?.default_placeholder_text
     || 'Relay online. Voice check complete.';
   const voiceCategoryOptions = voicePack?.available_placeholder_categories || ['manual_test'];
+  const eventTriggerStates = [
+    {
+      key: 'relayVoiceStartupEventEnabled' as const,
+      category: 'startup',
+      label: 'Startup Event',
+      buttonLabel: 'Test startup line',
+    },
+    {
+      key: 'relayVoiceRoutingEventEnabled' as const,
+      category: 'routing',
+      label: 'Routing Event',
+      buttonLabel: 'Test routing line',
+    },
+    {
+      key: 'relayVoiceSuccessEventEnabled' as const,
+      category: 'success',
+      label: 'Success Event',
+      buttonLabel: 'Test success line',
+    },
+    {
+      key: 'relayVoiceWarningEventEnabled' as const,
+      category: 'warning',
+      label: 'Warning Event',
+      buttonLabel: 'Test warning line',
+    },
+  ];
 
   const handleTogglePlaceholderVoice = () => {
     updateSettings({ relayPlaceholderVoiceEnabled: !relayPlaceholderVoiceEnabled });
@@ -282,21 +309,33 @@ export function RelayPopoutPage() {
     );
   };
 
-  const handlePlayPlaceholderVoice = async () => {
+  const runVoicePlayback = async (category: string, source: 'manual' | 'event', requireEventEnabled = false) => {
     if (!voiceControlsEnabled || voiceRequestActive) {
       return;
+    }
+
+    if (requireEventEnabled) {
+      const matchedEvent = eventTriggerStates.find((eventTrigger) => eventTrigger.category === category);
+      if (!matchedEvent || !settings[matchedEvent.key]) {
+        setVoicePlaybackState('idle');
+        setVoicePlaybackNote(`${category} event disabled.`);
+        setVoicePlaybackDetail('Enable the specific event trigger before running this demo.');
+        return;
+      }
     }
 
     disposeAudio();
     const playbackId = activePlaybackIdRef.current + 1;
     activePlaybackIdRef.current = playbackId;
-    const text = voiceLine;
+    const previewText = voicePack?.placeholder_category_lines?.[category]
+      || voicePack?.default_placeholder_text
+      || voiceLine;
     setVoicePlaybackState('generating');
-    setVoicePlaybackNote(`Generating ${voiceCategory} line...`);
-    setVoicePlaybackDetail(text);
+    setVoicePlaybackNote(`Generating ${category} line...`);
+    setVoicePlaybackDetail(previewText);
 
     try {
-      const blob = await playRelayPlaceholderVoice({ category: voiceCategory });
+      const blob = await playRelayPlaceholderVoice({ category });
       if (activePlaybackIdRef.current !== playbackId) {
         return;
       }
@@ -306,8 +345,12 @@ export function RelayPopoutPage() {
       const audio = new Audio(objectUrl);
       audioRef.current = audio;
       setVoicePlaybackState('playing');
-      setVoicePlaybackNote(`Playing ${voiceCategory} line.`);
-      setVoicePlaybackDetail(text);
+      setVoicePlaybackNote(`Playing ${category} line.`);
+      setVoicePlaybackDetail(
+        source === 'manual'
+          ? 'Manual category playback in progress.'
+          : 'Explicit event demo playback in progress.',
+      );
 
       audio.onended = () => {
         if (activePlaybackIdRef.current !== playbackId) {
@@ -316,7 +359,11 @@ export function RelayPopoutPage() {
         disposeAudio();
         setVoicePlaybackState('complete');
         setVoicePlaybackNote('Playback complete.');
-        setVoicePlaybackDetail(`Manual only. Click Play test line to replay the ${voiceCategory} line.`);
+        setVoicePlaybackDetail(
+          source === 'manual'
+            ? `Manual only. Click Play test line to replay the ${category} category.`
+            : `Event demo complete. Trigger ${category} again only if you want another manual demo.`,
+        );
       };
 
       audio.onerror = () => {
@@ -339,6 +386,14 @@ export function RelayPopoutPage() {
       setVoicePlaybackNote('Playback failed.');
       setVoicePlaybackDetail(error instanceof Error ? error.message : 'Playback failed');
     }
+  };
+
+  const handlePlayPlaceholderVoice = async () => {
+    await runVoicePlayback(voiceCategory, 'manual');
+  };
+
+  const handleEventTriggerPlayback = async (category: string) => {
+    await runVoicePlayback(category, 'event', true);
   };
 
   useEffect(() => {
@@ -635,6 +690,66 @@ export function RelayPopoutPage() {
                 ))}
               </select>
             </label>
+            <div className="grid gap-1.5">
+              <div className="text-[6px] uppercase tracking-[0.14em]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
+                Event Triggers
+              </div>
+              <div className="grid gap-2 md:grid-cols-2">
+                {eventTriggerStates.map((eventTrigger) => {
+                  const enabled = settings[eventTrigger.key];
+                  const triggerDisabled = !voiceControlsEnabled || voiceRequestActive || !enabled;
+                  return (
+                    <div
+                      key={eventTrigger.key}
+                      className="rounded-sm border border-white/10 bg-black/20 px-2 py-2"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="min-w-0">
+                          <div
+                            className="truncate text-[7px] font-semibold uppercase tracking-[0.12em]"
+                            style={{ color: enabled ? 'rgb(134, 239, 172)' : 'rgb(216, 180, 254)' }}
+                          >
+                            {eventTrigger.label}
+                          </div>
+                          <div
+                            className="truncate text-[6px] uppercase tracking-[0.1em]"
+                            style={{ color: 'rgba(148, 163, 184, 0.7)' }}
+                          >
+                            {eventTrigger.category}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => updateSettings({ [eventTrigger.key]: !enabled })}
+                          className="relay-popout-nav-button justify-center px-2 py-1"
+                          style={{
+                            color: enabled ? 'rgb(134, 239, 172)' : 'rgb(216, 180, 254)',
+                            borderColor: enabled ? 'rgba(74, 222, 128, 0.24)' : 'rgba(192, 132, 252, 0.24)',
+                          }}
+                        >
+                          {enabled ? <ToggleRight size={10} /> : <ToggleLeft size={10} />}
+                          {enabled ? 'On' : 'Off'}
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleEventTriggerPlayback(eventTrigger.category)}
+                        disabled={triggerDisabled}
+                        className="relay-popout-nav-button mt-2 w-full justify-center"
+                        style={{
+                          color: triggerDisabled ? 'rgba(148, 163, 184, 0.56)' : 'rgb(103, 232, 249)',
+                          borderColor: triggerDisabled ? 'rgba(148, 163, 184, 0.16)' : 'rgba(34, 211, 238, 0.24)',
+                          opacity: triggerDisabled ? 0.6 : 1,
+                        }}
+                      >
+                        <PlayCircle size={10} />
+                        {eventTrigger.buttonLabel}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
             <div className="grid grid-cols-[auto_auto_1fr] gap-2">
               <button
                 type="button"

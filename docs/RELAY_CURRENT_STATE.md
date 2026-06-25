@@ -259,9 +259,10 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - **v3.0:** Gated placeholder Relay voice UI
 - **v3.1:** Contextual placeholder line selection
 - **v3.1.1:** Placeholder line variants
-- **v3.2:** Agent-specific original voice profiles
-- **v3.3:** Real routing signals connected to agent mesh animation
-- **v3.4:** Safe preflight actions
+- **v3.2:** Gated UI event triggers
+- **v3.3:** Agent-specific original voice profiles
+- **v3.4:** Real routing signals connected to agent mesh animation
+- **v3.5:** Safe preflight actions
 
 These are proposed milestones only. They do not authorize installation, downloads, audio generation, agent execution, or OpenClaw changes.
 
