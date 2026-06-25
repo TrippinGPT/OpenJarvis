@@ -87,3 +87,23 @@ def test_relay_voice_play_endpoint(client):
     assert response.headers["content-type"].startswith("audio/wav")
     assert response.headers["x-relay-placeholder-voice"] == "af_bella"
     assert response.content.startswith(b"RIFF")
+
+
+def test_relay_voice_play_endpoint_returns_clean_error(monkeypatch, voice_config_path: Path):
+    from openjarvis.server import relay_voice_routes
+
+    fake_backend = MagicMock()
+    fake_backend.backend_id = "kokoro"
+    fake_backend.health.return_value = True
+    fake_backend.synthesize.side_effect = RuntimeError("kokoro offline")
+
+    monkeypatch.setattr(relay_voice_routes, "VOICE_CONFIG_PATH", voice_config_path)
+    monkeypatch.setattr(relay_voice_routes, "_kokoro_backend", lambda: fake_backend)
+
+    app = FastAPI()
+    app.include_router(relay_voice_routes.router)
+    client = TestClient(app)
+
+    response = client.post("/api/relay/voice/play", json={})
+    assert response.status_code == 503
+    assert response.json()["detail"] == "Relay placeholder voice synthesis failed: kokoro offline"

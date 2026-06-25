@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import {
   Activity,
   ArrowLeft,
@@ -31,6 +31,7 @@ import {
 import { useAppStore } from '../lib/store';
 
 type BridgeState = 'checking' | 'connected' | 'fallback';
+type VoicePlaybackState = 'idle' | 'generating' | 'playing' | 'complete' | 'error';
 
 function formatActivityTime(timestamp: number): string {
   if (!timestamp) return '--:--:--';
@@ -145,8 +146,26 @@ export function RelayPopoutPage() {
   );
   const [voicePack, setVoicePack] = useState<RelayVoicePack | null>(null);
   const [voicePackError, setVoicePackError] = useState<string | null>(null);
-  const [voicePlaybackState, setVoicePlaybackState] = useState<'idle' | 'playing' | 'error'>('idle');
-  const [voicePlaybackNote, setVoicePlaybackNote] = useState<string>('Manual only');
+  const [voicePlaybackState, setVoicePlaybackState] = useState<VoicePlaybackState>('idle');
+  const [voicePlaybackNote, setVoicePlaybackNote] = useState<string>('Voice disabled until you toggle it on.');
+  const [voicePlaybackDetail, setVoicePlaybackDetail] = useState<string>('Manual only. No autoplay.');
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioUrlRef = useRef<string | null>(null);
+  const activePlaybackIdRef = useRef(0);
+
+  const disposeAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.onended = null;
+      audioRef.current.onerror = null;
+      audioRef.current.src = '';
+      audioRef.current = null;
+    }
+    if (audioUrlRef.current) {
+      URL.revokeObjectURL(audioUrlRef.current);
+      audioUrlRef.current = null;
+    }
+  };
 
   useEffect(() => {
     const refreshHealth = () => {
@@ -170,6 +189,8 @@ export function RelayPopoutPage() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => () => disposeAudio(), []);
 
   useEffect(() => {
     const handleStorage = (event: StorageEvent) => {
@@ -213,49 +234,131 @@ export function RelayPopoutPage() {
     bridgeState === 'connected' ? 'Connected' : bridgeState === 'fallback' ? 'Manifest' : 'Checking';
   const statusLabel = isResponding ? 'RELAY RESPONDING' : 'RELAY ONLINE';
   const lastSync = formatActivityTime(sharedActivity?.updatedAt || 0);
-  const voiceStatusLabel = relayPlaceholderVoiceEnabled
-    ? voicePlaybackState === 'playing'
-      ? 'Playing'
-      : voicePack?.synthesis_available
-        ? 'Ready'
-        : 'Unavailable'
-    : 'Off';
+  const voiceControlsEnabled = relayPlaceholderVoiceEnabled && Boolean(voicePack?.synthesis_available);
+  const voiceRequestActive = voicePlaybackState === 'generating' || voicePlaybackState === 'playing';
+  const voiceStatusLabel = !relayPlaceholderVoiceEnabled
+    ? 'Disabled'
+    : !voicePack?.synthesis_available
+      ? 'Unavailable'
+      : voicePlaybackState === 'generating'
+        ? 'Generating'
+        : voicePlaybackState === 'playing'
+          ? 'Playing'
+          : voicePlaybackState === 'complete'
+            ? 'Complete'
+            : voicePlaybackState === 'error'
+              ? 'Failed'
+              : 'Ready';
   const voiceStyleLabel = voicePack?.active_placeholder_style || 'sarcastic_polish_04';
   const voiceLine = voicePack?.default_placeholder_text || 'Relax. I already fixed it.';
 
   const handleTogglePlaceholderVoice = () => {
     updateSettings({ relayPlaceholderVoiceEnabled: !relayPlaceholderVoiceEnabled });
-    setVoicePlaybackNote('Manual only');
-  };
-
-  const handlePlayPlaceholderVoice = async () => {
-    if (!relayPlaceholderVoiceEnabled || !voicePack?.synthesis_available || voicePlaybackState === 'playing') {
+    if (relayPlaceholderVoiceEnabled) {
+      activePlaybackIdRef.current += 1;
+      disposeAudio();
+      setVoicePlaybackState('idle');
+      setVoicePlaybackNote('Voice disabled until you toggle it on.');
+      setVoicePlaybackDetail('Manual only. No autoplay.');
       return;
     }
 
+    setVoicePlaybackState('idle');
+    setVoicePlaybackNote(voicePack?.synthesis_available ? 'Ready for one manual playback test.' : 'Voice backend unavailable.');
+    setVoicePlaybackDetail(
+      voicePack?.synthesis_available
+        ? 'Manual only. One click generates one local playback.'
+        : voicePackError || 'Local synthesis is not ready.',
+    );
+  };
+
+  const handlePlayPlaceholderVoice = async () => {
+    if (!voiceControlsEnabled || voiceRequestActive) {
+      return;
+    }
+
+    disposeAudio();
+    const playbackId = activePlaybackIdRef.current + 1;
+    activePlaybackIdRef.current = playbackId;
     const text = voiceLine;
-    setVoicePlaybackState('playing');
-    setVoicePlaybackNote(text);
+    setVoicePlaybackState('generating');
+    setVoicePlaybackNote('Generating local placeholder line...');
+    setVoicePlaybackDetail(text);
 
     try {
       const blob = await playRelayPlaceholderVoice(text);
+      if (activePlaybackIdRef.current !== playbackId) {
+        return;
+      }
+
       const objectUrl = URL.createObjectURL(blob);
+      audioUrlRef.current = objectUrl;
       const audio = new Audio(objectUrl);
+      audioRef.current = audio;
+      setVoicePlaybackState('playing');
+      setVoicePlaybackNote('Playback in progress.');
+      setVoicePlaybackDetail(text);
+
       audio.onended = () => {
-        URL.revokeObjectURL(objectUrl);
-        setVoicePlaybackState('idle');
+        if (activePlaybackIdRef.current !== playbackId) {
+          return;
+        }
+        disposeAudio();
+        setVoicePlaybackState('complete');
+        setVoicePlaybackNote('Playback complete.');
+        setVoicePlaybackDetail('Manual only. Click Play test line to run it again.');
       };
+
       audio.onerror = () => {
-        URL.revokeObjectURL(objectUrl);
+        if (activePlaybackIdRef.current !== playbackId) {
+          return;
+        }
+        disposeAudio();
         setVoicePlaybackState('error');
-        setVoicePlaybackNote('Playback failed');
+        setVoicePlaybackNote('Playback failed.');
+        setVoicePlaybackDetail('The audio could not be played in this browser session.');
       };
+
       await audio.play();
     } catch (error) {
+      if (activePlaybackIdRef.current !== playbackId) {
+        return;
+      }
+      disposeAudio();
       setVoicePlaybackState('error');
-      setVoicePlaybackNote(error instanceof Error ? error.message : 'Playback failed');
+      setVoicePlaybackNote('Playback failed.');
+      setVoicePlaybackDetail(error instanceof Error ? error.message : 'Playback failed');
     }
   };
+
+  useEffect(() => {
+    if (!relayPlaceholderVoiceEnabled) {
+      setVoicePlaybackState('idle');
+      setVoicePlaybackNote('Voice disabled until you toggle it on.');
+      setVoicePlaybackDetail('Manual only. No autoplay.');
+      return;
+    }
+
+    if (!voicePack?.synthesis_available) {
+      if (!voiceRequestActive) {
+        setVoicePlaybackState('idle');
+      }
+      setVoicePlaybackNote('Voice backend unavailable.');
+      setVoicePlaybackDetail(voicePackError || 'Local synthesis is not ready.');
+      return;
+    }
+
+    if (voicePlaybackState === 'idle') {
+      setVoicePlaybackNote('Ready for one manual playback test.');
+      setVoicePlaybackDetail('Manual only. One click generates one local playback.');
+    }
+  }, [
+    relayPlaceholderVoiceEnabled,
+    voicePack?.synthesis_available,
+    voicePackError,
+    voicePlaybackState,
+    voiceRequestActive,
+  ]);
 
   return (
     <div className="relay-popout-screen h-screen overflow-y-auto">
@@ -492,7 +595,7 @@ export function RelayPopoutPage() {
                 {voiceLine}
               </div>
               <div className="mt-1 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
-                {voicePackError || 'Voice playback remains off until you toggle it on.'}
+                {voicePackError || 'Voice remains off by default and only plays on manual request.'}
               </div>
             </div>
             <div className="grid grid-cols-[auto_auto_1fr] gap-2">
@@ -511,24 +614,29 @@ export function RelayPopoutPage() {
               <button
                 type="button"
                 onClick={handlePlayPlaceholderVoice}
-                disabled={!relayPlaceholderVoiceEnabled || !voicePack?.synthesis_available || voicePlaybackState === 'playing'}
+                disabled={!voiceControlsEnabled || voiceRequestActive}
                 className="relay-popout-nav-button justify-center"
                 style={{
-                  color: !relayPlaceholderVoiceEnabled || !voicePack?.synthesis_available
+                  color: !voiceControlsEnabled
                     ? 'rgba(148, 163, 184, 0.56)'
                     : 'rgb(103, 232, 249)',
-                  borderColor: !relayPlaceholderVoiceEnabled || !voicePack?.synthesis_available
+                  borderColor: !voiceControlsEnabled
                     ? 'rgba(148, 163, 184, 0.16)'
                     : 'rgba(34, 211, 238, 0.24)',
-                  opacity: !relayPlaceholderVoiceEnabled || !voicePack?.synthesis_available ? 0.6 : 1,
+                  opacity: !voiceControlsEnabled ? 0.6 : 1,
                 }}
               >
                 <PlayCircle size={11} />
-                Play test line
+                {voicePlaybackState === 'generating'
+                  ? 'Generating...'
+                  : voicePlaybackState === 'playing'
+                    ? 'Playing...'
+                    : 'Play test line'}
               </button>
               <div className="min-w-0 text-[6px] uppercase tracking-[0.14em]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
                 <div className="truncate">Style: {voiceStyleLabel}</div>
-                <div className="truncate">Line: {voicePlaybackNote}</div>
+                <div className="truncate">State: {voicePlaybackNote}</div>
+                <div className="truncate">Detail: {voicePlaybackDetail}</div>
               </div>
             </div>
           </div>
