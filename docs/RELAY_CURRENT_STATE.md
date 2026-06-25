@@ -99,6 +99,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - Relay Popout companion HUD
 - Responsive fullscreen popout monitor mode
 - Relay personality and script-pack documentation
+- Relay voice milestone summary
 - TTS feasibility plan and checker
 - Piper prototype plan and read-only setup checker
 - Piper-local sandbox folders with boundary README files and a constrained preparation script
@@ -180,6 +181,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - v3.3 maps startup, routing, success, and warning playback to explicit safe popout actions while keeping the same opt-in gates.
 - v3.3.1 makes category browsing preview-only so dropdown changes do not speak by themselves.
 - v3.4 adds explicit real-action hooks for selected events and live Relay status refresh inside the popout.
+- See [RELAY_VOICE_MILESTONE_SUMMARY.md](RELAY_VOICE_MILESTONE_SUMMARY.md) for the voice-lane timeline, winners, losses, and current stable behavior.
 
 ### v2.5 milestone note
 
@@ -319,3 +321,4 @@ Related references:
 - [Relay Kokoro TTS Plan](RELAY_KOKORO_TTS_PLAN.md)
 - [Relay Kokoro Voice/Style Sweep](RELAY_KOKORO_VOICE_SWEEP.md)
 - [Relay Smartmouth Delivery Pack](RELAY_SMARTMOUTH_DELIVERY.md)
+- [Relay Voice Milestone Summary](RELAY_VOICE_MILESTONE_SUMMARY.md)

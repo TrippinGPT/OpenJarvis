@@ -9,6 +9,7 @@ The Relay Popout HUD is the intended future voicebox surface. The main planned p
 ## Current status
 
 - **Mode:** Planning only
+- **Milestone summary:** [RELAY_VOICE_MILESTONE_SUMMARY.md](RELAY_VOICE_MILESTONE_SUMMARY.md)
 - **Piper package:** Installed locally only in `tools\piper.venv`
 - **Piper runtime:** Python 3.11.15 / `piper-tts` 1.4.2
 - **Piper review result:** technical pipeline works, but the tested voices did not reach the final Relay Companion fit
@@ -354,6 +355,13 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - Use `Run Selected Event` as the explicit routed-action hook for `routing`, `success`, or `warning` after preview selection.
 - Use `Refresh Relay Status` as a real safe popout action that can trigger `success` on healthy refresh or `warning` on unavailable/fallback refresh.
 - Keep manual test playback separate from the real-action hooks.
+
+### v3.3.2 - Voice milestone summary
+
+- Add a single summary document for the full Relay voice progression.
+- Record the Piper technical win but final-fit loss.
+- Record Kokoro as the winning local lane.
+- Record `af_bella` and `sarcastic` as the current stable placeholder voice and mode.
 
 ## Future implementation acceptance criteria
 

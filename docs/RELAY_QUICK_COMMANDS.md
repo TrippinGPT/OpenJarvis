@@ -51,6 +51,12 @@ Source-of-truth handoff summary:
 D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_CURRENT_STATE.md
 ```
 
+Relay voice milestone summary:
+
+```text
+D:\AI\TRIPPIN_AI_RELAY\docs\RELAY_VOICE_MILESTONE_SUMMARY.md
+```
+
 Locked placeholder voice pack:
 
 ```text
