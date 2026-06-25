@@ -176,6 +176,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - Model download, audio generation, playback, or UI voice controls require explicit user approval in a future task.
 - The current placeholder pack is locked to the sarcastic polish results: default `sarcastic_polish_04`, secondary `sarcastic_polish_03`, backup `sarcastic_polish_02`.
 - Placeholder voice playback is available only behind a manual popout toggle and play button, and remains off by default.
+- v3.2.1 tightens the event/demo placeholder wording without changing the gated manual behavior.
 
 ### v2.5 milestone note
 
@@ -260,6 +261,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - **v3.1:** Contextual placeholder line selection
 - **v3.1.1:** Placeholder line variants
 - **v3.2:** Gated UI event triggers
+- **v3.2.1:** Event line wording polish
 - **v3.3:** Agent-specific original voice profiles
 - **v3.4:** Real routing signals connected to agent mesh animation
 - **v3.5:** Safe preflight actions

@@ -82,7 +82,7 @@ def test_relay_voice_config_endpoint(client):
     assert data["placeholder_category_lines"]["manual_test"] == "Relay online. Voice check complete."
     assert data["placeholder_category_variants"]["manual_test"] == [
         "Relay online. Voice check complete.",
-        "Voice check complete. Miraculously functional.",
+        "Voice check complete. Still functional.",
     ]
     assert data["manual_only"] is True
     assert data["autoplay"] is False
@@ -122,7 +122,7 @@ def test_relay_voice_play_endpoint_uses_requested_category(monkeypatch, voice_co
     assert response.status_code == 200
     assert response.headers["x-relay-placeholder-category"] == "routing"
     fake_backend.synthesize.assert_called_with(
-        "Routing now. Try not to make this worse.",
+        "Routing now. Don't make it ugly.",
         voice_id="af_bella",
         speed=1.0,
         output_format="wav",

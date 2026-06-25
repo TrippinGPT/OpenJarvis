@@ -23,23 +23,23 @@ PLACEHOLDER_LINES = {
 PLACEHOLDER_CATEGORY_LINES = {
     "startup": [
         "Relay online. Try not to break anything expensive.",
-        "Relay online. Let's keep the damage minimal.",
+        "Relay online. Keep the damage optional.",
     ],
     "routing": [
         "Routing now. Don't screw it up...",
-        "Routing now. Try not to make this worse.",
+        "Routing now. Don't make it ugly.",
     ],
     "success": [
         "Relax. I already fixed it.",
         "Handled. You're welcome.",
     ],
     "warning": [
-        "We HAVE a plan. Try not to ruin it...",
+        "We HAVE a plan. Don't sabotage it...",
         "Bad idea. Let's not do that.",
     ],
     "manual_test": [
         "Relay online. Voice check complete.",
-        "Voice check complete. Miraculously functional.",
+        "Voice check complete. Still functional.",
     ],
 }
 DEFAULT_PLACEHOLDER_CATEGORY = "manual_test"

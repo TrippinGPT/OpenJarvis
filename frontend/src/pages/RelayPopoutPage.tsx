@@ -667,7 +667,7 @@ export function RelayPopoutPage() {
               </div>
               {voiceCategoryVariants.length > 1 && (
                 <div className="mt-1 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(165, 243, 252, 0.68)' }}>
-                  Random category variant on playback
+                  Category pool rotates on each manual playback
                 </div>
               )}
               <div className="mt-1 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
@@ -692,7 +692,7 @@ export function RelayPopoutPage() {
             </label>
             <div className="grid gap-1.5">
               <div className="text-[6px] uppercase tracking-[0.14em]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
-                Event Triggers
+                Event Demo Triggers
               </div>
               <div className="grid gap-2 md:grid-cols-2">
                 {eventTriggerStates.map((eventTrigger) => {

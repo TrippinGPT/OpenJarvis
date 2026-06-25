@@ -329,6 +329,12 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - Require both the master voice toggle and the specific event toggle before any event demo line can play.
 - Do not autoplay on page load or app start.
 
+### v3.2.1 - Event line polish
+
+- Tighten the existing `startup`, `routing`, `success`, `warning`, and `manual_test` line pools.
+- Keep the active delivery lane locked to `af_bella` in `sarcastic` mode.
+- Improve wording consistency only; do not change the manual/gated playback structure.
+
 ## Future implementation acceptance criteria
 
 - User explicitly enables voice.
