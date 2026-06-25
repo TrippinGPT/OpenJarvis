@@ -181,7 +181,18 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - v3.3 maps startup, routing, success, and warning playback to explicit safe popout actions while keeping the same opt-in gates.
 - v3.3.1 makes category browsing preview-only so dropdown changes do not speak by themselves.
 - v3.4 adds explicit real-action hooks for selected events and live Relay status refresh inside the popout.
+- v3.4.1 fixes the popout voice API wiring so `/api/relay/voice/config` and `/api/relay/voice/play` resolve correctly through the backend and the frontend proxy.
+- v3.4.2 freezes the current voice/UI lane as the stable placeholder milestone for now.
 - See [RELAY_VOICE_MILESTONE_SUMMARY.md](RELAY_VOICE_MILESTONE_SUMMARY.md) for the voice-lane timeline, winners, losses, and current stable behavior.
+
+### Voice/UI freeze note
+
+- The current Relay voice/UI lane is stable for now.
+- Active placeholder voice: `af_bella`
+- Active placeholder mode: `sarcastic`
+- Active placeholder style: `sarcastic_polish_04`
+- Current popout behavior is the frozen baseline: manual playback, category preview, event gates, and real-action hooks.
+- Future work should start from a deliberate new milestone, not ad hoc polish changes.
 
 ### v2.5 milestone note
 
@@ -270,6 +281,8 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - **v3.3:** Gated event-to-action mapping
 - **v3.3.1:** Event trigger UX polish
 - **v3.4:** Real-action voice hooks
+- **v3.4.1:** Voice API wiring fix
+- **v3.4.2:** Freeze current voice/UI milestone
 - **v3.5:** Agent-specific original voice profiles
 - **v3.6:** Real routing signals connected to agent mesh animation
 - **v3.7:** Safe preflight actions

@@ -19,6 +19,7 @@ This document records how Relay voice moved from early local TTS experiments int
 - No always-on listening
 - Playback remains local, gated, and user-controlled
 - Current voice surface: `/relay-popout`
+- Milestone status: frozen stable placeholder baseline
 
 ## Timeline and milestone progression
 
@@ -55,6 +56,11 @@ This document records how Relay voice moved from early local TTS experiments int
 - Event trigger toggles were added.
 - Event trigger UX was refined so dropdown browsing became preview-only.
 - Real-action hooks were added for selected event playback and live status refresh.
+
+### v3.4.1 through v3.4.2: wiring fix and freeze
+
+- The voice API pathing was corrected so the popout receives backend JSON instead of the SPA shell.
+- The current voice/UI lane is now frozen as the stable placeholder milestone.
 
 ## Piper phase summary
 
@@ -194,6 +200,7 @@ Current locked speaking direction:
 
 ## What remains future work
 
+- Treat the current milestone as stable-for-now. Resume only through a deliberate new milestone, not random polish.
 - Decide whether the current placeholder pack should remain long-term or be replaced by a more final production voice.
 - Refine real-action voice mapping further without making the UI noisy.
 - Add more contextual action-to-line selection only where the action is real, explicit, and safe.

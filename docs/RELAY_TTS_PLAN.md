@@ -19,16 +19,17 @@ The Relay Popout HUD is the intended future voicebox surface. The main planned p
 - **Kokoro sweep runner:** accepts `-PythonExe` and defaults to the Kokoro venv Python
 - **Current delivery focus:** `af_bella` with sarcastic-only polish
 - **Placeholder pack:** locked to `sarcastic_polish_04` with `sarcastic_polish_03` and `sarcastic_polish_02` as secondary/backup
-- **Placeholder UI:** gated, manual-only popout playback wiring is now available
+- **Placeholder UI:** gated popout playback, category preview, event gates, and real-action hooks are now working
+- **Milestone state:** frozen stable placeholder voice/UI baseline
 - **Voice-model gate:** `config\piper_voice_models.json`
-- **Application TTS integration:** Not implemented
-- **Audio playback:** Not implemented
+- **Application TTS integration:** limited local placeholder playback exists in `/relay-popout`
+- **Audio playback:** local-only manual/event-gated placeholder playback exists
 - **Microphone or audio capture:** Not implemented
 - **Voice cloning:** Prohibited
 - **Automatic speech:** Prohibited until a future user-controlled feature explicitly enables it
 - **Default future behavior:** Off
 - **Local offline test WAV generation:** Gated
-- **Relay Popout voice toggle:** Future work
+- **Relay Popout voice toggle:** implemented and still off by default
 - **Final voice selection:** Not decided
 
 ## Identity and safety boundaries
@@ -355,6 +356,19 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - Use `Run Selected Event` as the explicit routed-action hook for `routing`, `success`, or `warning` after preview selection.
 - Use `Refresh Relay Status` as a real safe popout action that can trigger `success` on healthy refresh or `warning` on unavailable/fallback refresh.
 - Keep manual test playback separate from the real-action hooks.
+
+### v3.4.1 - Voice API wiring fix
+
+- Fix the frontend/backend route wiring for `/api/relay/voice/config` and `/api/relay/voice/play`.
+- Keep browser requests on the correct relative API path in the popout flow.
+- Keep playback local-only, gated, and off by default.
+
+### v3.4.2 - Stable placeholder milestone freeze
+
+- Treat the current Relay voice/UI lane as stable for now.
+- Freeze the placeholder baseline around `af_bella`, `sarcastic`, and `sarcastic_polish_04`.
+- Limit further work to deliberate milestone follow-ups instead of opportunistic UI or wording tweaks.
+- Keep future scope focused on explicit new milestones such as stronger contextual mapping or a final production voice decision.
 
 ### v3.3.2 - Voice milestone summary
 

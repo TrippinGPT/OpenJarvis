@@ -745,14 +745,14 @@ export function RelayPopoutPage() {
               </div>
               {voiceCategoryVariants.length > 1 && (
                 <div className="mt-1 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(165, 243, 252, 0.68)' }}>
-                  Category pool rotates on each manual playback
+                  Variant selected on each manual playback
                 </div>
               )}
               <div className="mt-1 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
-                {voicePackError || 'Voice remains off by default and only plays on manual request.'}
+                {voicePackError || 'Voice stays off by default and plays only on user-triggered actions.'}
               </div>
               <div className="mt-1 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
-                Category selection previews only. Startup can fire on Voice On. Use Run Selected Event or Refresh Relay Status for gated action speech.
+                Category selection previews only. Startup can run on Voice On. Use Run Selected Event or Refresh Relay Status for gated voice actions.
               </div>
             </div>
             <label className="grid gap-1 text-[6px] uppercase tracking-[0.14em]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
@@ -795,7 +795,7 @@ export function RelayPopoutPage() {
                             className="truncate text-[6px] uppercase tracking-[0.1em]"
                             style={{ color: 'rgba(148, 163, 184, 0.7)' }}
                           >
-                            {eventTrigger.category} // gate only
+                            {eventTrigger.category} // opt-in
                           </div>
                         </div>
                         <button
