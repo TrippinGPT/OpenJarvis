@@ -28,10 +28,18 @@ class MemoryStorage {
 beforeEach(() => {
   (globalThis as unknown as { localStorage: MemoryStorage }).localStorage =
     new MemoryStorage();
+  (globalThis as unknown as { window: { location: { origin: string; pathname: string } } }).window = {
+    location: {
+      origin: 'http://127.0.0.1:5173',
+      pathname: '/relay-popout',
+    },
+  };
 });
 
 afterEach(() => {
   (globalThis as unknown as { localStorage?: MemoryStorage }).localStorage =
+    undefined;
+  (globalThis as unknown as { window?: { location: { origin: string; pathname: string } } }).window =
     undefined;
 });
 
@@ -81,5 +89,34 @@ describe('authHeaders', () => {
       'Content-Type': 'application/json',
       Authorization: 'Bearer sk-local-123',
     });
+  });
+});
+
+describe('getBase', () => {
+  it('keeps browser requests relative when apiUrl points at the current SPA origin', async () => {
+    localStorage.setItem(
+      SETTINGS_KEY,
+      JSON.stringify({ apiUrl: 'http://127.0.0.1:5173/relay-popout' }),
+    );
+    const { getBase } = await freshApi();
+    expect(getBase()).toBe('');
+  });
+
+  it('keeps browser requests relative when apiUrl points at the current SPA root origin', async () => {
+    localStorage.setItem(
+      SETTINGS_KEY,
+      JSON.stringify({ apiUrl: 'http://127.0.0.1:5173' }),
+    );
+    const { getBase } = await freshApi();
+    expect(getBase()).toBe('');
+  });
+
+  it('preserves explicit cross-origin backend urls in browser mode', async () => {
+    localStorage.setItem(
+      SETTINGS_KEY,
+      JSON.stringify({ apiUrl: 'http://127.0.0.1:8000' }),
+    );
+    const { getBase } = await freshApi();
+    expect(getBase()).toBe('http://127.0.0.1:8000');
   });
 });

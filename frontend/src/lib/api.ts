@@ -44,11 +44,35 @@ const getSettingsApiUrl = (): string => {
   return '';
 };
 
+const normalizeBrowserApiBase = (value: string): string => {
+  if (!value) return '';
+  if (typeof window === 'undefined' || !window.location?.origin) {
+    return value.replace(/\/+$/, '');
+  }
+
+  try {
+    const url = new URL(value, window.location.origin);
+    if (!/^https?:$/.test(url.protocol)) return '';
+    if (url.origin === window.location.origin) {
+      return '';
+    }
+
+    const pathname = url.pathname === '/' ? '' : url.pathname.replace(/\/+$/, '');
+    return `${url.origin}${pathname}`;
+  } catch {
+    return '';
+  }
+};
+
 export const getBase = (): string => {
   const settingsUrl = getSettingsApiUrl();
-  if (settingsUrl) return settingsUrl;
-  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
-  if (isTauri()) return _tauriApiBase || DESKTOP_API_FALLBACK;
+  if (isTauri()) {
+    if (settingsUrl) return settingsUrl;
+    if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+    return _tauriApiBase || DESKTOP_API_FALLBACK;
+  }
+  if (settingsUrl) return normalizeBrowserApiBase(settingsUrl);
+  if (import.meta.env.VITE_API_URL) return normalizeBrowserApiBase(import.meta.env.VITE_API_URL);
   return '';
 };
 
