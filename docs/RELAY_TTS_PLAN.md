@@ -316,6 +316,12 @@ The first WAV validates the local Piper path only. Popout voice toggle work rema
 - Let the popout send the selected category to the local playback route.
 - Do not add auto-speaking, response-triggered speech, or microphone features in this pass.
 
+### v3.1.1 - Placeholder line variants
+
+- Expand each placeholder category into a small sarcastic line pool.
+- Keep the popout preview lightweight and indicate that a category variant is chosen on playback.
+- Keep playback manual-only with the same single-flight protection.
+
 ## Future implementation acceptance criteria
 
 - User explicitly enables voice.

@@ -365,6 +365,7 @@ export interface RelayVoicePack {
   available_placeholder_categories: string[];
   default_placeholder_category: string;
   placeholder_category_lines: Record<string, string>;
+  placeholder_category_variants: Record<string, string[]>;
   manual_only: boolean;
   autoplay: boolean;
   microphone: boolean;

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import random
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -20,11 +21,26 @@ PLACEHOLDER_LINES = {
     "sarcastic_polish_02": "Routing now. Don't screw it up...",
 }
 PLACEHOLDER_CATEGORY_LINES = {
-    "startup": "Relay online. Try not to break anything expensive.",
-    "routing": "Routing now. Don't screw it up...",
-    "success": "Relax. I already fixed it.",
-    "warning": "We HAVE a plan. Try not to ruin it...",
-    "manual_test": "Relay online. Voice check complete.",
+    "startup": [
+        "Relay online. Try not to break anything expensive.",
+        "Relay online. Let's keep the damage minimal.",
+    ],
+    "routing": [
+        "Routing now. Don't screw it up...",
+        "Routing now. Try not to make this worse.",
+    ],
+    "success": [
+        "Relax. I already fixed it.",
+        "Handled. You're welcome.",
+    ],
+    "warning": [
+        "We HAVE a plan. Try not to ruin it...",
+        "Bad idea. Let's not do that.",
+    ],
+    "manual_test": [
+        "Relay online. Voice check complete.",
+        "Voice check complete. Miraculously functional.",
+    ],
 }
 DEFAULT_PLACEHOLDER_CATEGORY = "manual_test"
 
@@ -76,7 +92,10 @@ def _relay_profile(config: dict[str, Any]) -> dict[str, Any]:
         "backup_placeholder_text": PLACEHOLDER_LINES.get(backup_style, PLACEHOLDER_LINES["sarcastic_polish_02"]),
         "available_placeholder_categories": list(PLACEHOLDER_CATEGORY_LINES.keys()),
         "default_placeholder_category": DEFAULT_PLACEHOLDER_CATEGORY,
-        "placeholder_category_lines": PLACEHOLDER_CATEGORY_LINES,
+        "placeholder_category_lines": {
+            category: lines[0] for category, lines in PLACEHOLDER_CATEGORY_LINES.items()
+        },
+        "placeholder_category_variants": PLACEHOLDER_CATEGORY_LINES,
         "manual_only": True,
         "autoplay": False,
         "microphone": False,
@@ -109,10 +128,10 @@ def _resolve_placeholder_text(text: str | None, category: str | None, profile: d
         return text.strip(), _resolve_placeholder_category(category)
 
     selected_category = _resolve_placeholder_category(category)
-    return PLACEHOLDER_CATEGORY_LINES.get(
-        selected_category,
-        profile["default_placeholder_text"],
-    ), selected_category
+    category_lines = PLACEHOLDER_CATEGORY_LINES.get(selected_category)
+    if not category_lines:
+        return profile["default_placeholder_text"], selected_category
+    return random.choice(category_lines), selected_category
 
 
 @router.get("/config")
@@ -134,7 +153,10 @@ async def relay_voice_config() -> dict[str, Any]:
             "backup_placeholder_text": PLACEHOLDER_LINES["sarcastic_polish_02"],
             "available_placeholder_categories": list(PLACEHOLDER_CATEGORY_LINES.keys()),
             "default_placeholder_category": DEFAULT_PLACEHOLDER_CATEGORY,
-            "placeholder_category_lines": PLACEHOLDER_CATEGORY_LINES,
+            "placeholder_category_lines": {
+                category: lines[0] for category, lines in PLACEHOLDER_CATEGORY_LINES.items()
+            },
+            "placeholder_category_variants": PLACEHOLDER_CATEGORY_LINES,
             "manual_only": True,
             "autoplay": False,
             "microphone": False,

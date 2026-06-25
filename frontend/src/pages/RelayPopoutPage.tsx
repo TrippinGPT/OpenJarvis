@@ -256,6 +256,7 @@ export function RelayPopoutPage() {
               ? 'Failed'
               : 'Ready';
   const voiceStyleLabel = voicePack?.active_placeholder_style || 'sarcastic_polish_04';
+  const voiceCategoryVariants = voicePack?.placeholder_category_variants?.[voiceCategory] || [];
   const voiceLine = voicePack?.placeholder_category_lines?.[voiceCategory]
     || voicePack?.default_placeholder_text
     || 'Relay online. Voice check complete.';
@@ -359,7 +360,11 @@ export function RelayPopoutPage() {
 
     if (voicePlaybackState === 'idle') {
       setVoicePlaybackNote(`Ready for ${voiceCategory} playback.`);
-      setVoicePlaybackDetail('Manual only. One click generates one local playback.');
+      setVoicePlaybackDetail(
+        voiceCategoryVariants.length > 1
+          ? `${voiceCategoryVariants.length} variants available. One is picked on each manual playback.`
+          : 'Manual only. One click generates one local playback.',
+      );
     }
   }, [
     relayPlaceholderVoiceEnabled,
@@ -368,6 +373,7 @@ export function RelayPopoutPage() {
     voicePlaybackState,
     voiceRequestActive,
     voiceCategory,
+    voiceCategoryVariants.length,
   ]);
 
   return (
@@ -604,6 +610,11 @@ export function RelayPopoutPage() {
               <div className="mt-1 truncate" style={{ color: 'rgba(165, 243, 252, 0.84)' }}>
                 {voiceLine}
               </div>
+              {voiceCategoryVariants.length > 1 && (
+                <div className="mt-1 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(165, 243, 252, 0.68)' }}>
+                  Random category variant on playback
+                </div>
+              )}
               <div className="mt-1 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
                 {voicePackError || 'Voice remains off by default and only plays on manual request.'}
               </div>
@@ -661,6 +672,7 @@ export function RelayPopoutPage() {
               </button>
               <div className="min-w-0 text-[6px] uppercase tracking-[0.14em]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
                 <div className="truncate">Category: {voiceCategory}</div>
+                <div className="truncate">Variants: {voiceCategoryVariants.length || 1}</div>
                 <div className="truncate">Style: {voiceStyleLabel}</div>
                 <div className="truncate">State: {voicePlaybackNote}</div>
                 <div className="truncate">Detail: {voicePlaybackDetail}</div>
