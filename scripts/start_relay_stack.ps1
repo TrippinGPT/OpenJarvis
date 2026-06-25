@@ -112,22 +112,6 @@ function Start-RelayShellCommand {
         -PassThru
 }
 
-function Invoke-DesktopBrowserOpen {
-    param(
-        [Parameter(Mandatory = $true)]
-        [string]$Uri
-    )
-
-    try {
-        Start-Process $Uri
-        return $true
-    }
-    catch {
-        Write-Warning "Could not open the browser automatically. Open this URL manually: $Uri"
-        return $false
-    }
-}
-
 Write-Host "Starting Trippin AI Relay stack..." -ForegroundColor Magenta
 Write-Host "Repo root: $RepoRoot" -ForegroundColor DarkGray
 
@@ -191,5 +175,4 @@ else {
 Write-Host "Relay stack is ready." -ForegroundColor Green
 Write-Host "Backend:  $BackendReadyUri" -ForegroundColor Cyan
 Write-Host "Frontend: $FrontendReadyUri" -ForegroundColor Cyan
-
-Invoke-DesktopBrowserOpen -Uri $FrontendReadyUri | Out-Null
+Write-Host "Open manually at: $FrontendReadyUri" -ForegroundColor Yellow
