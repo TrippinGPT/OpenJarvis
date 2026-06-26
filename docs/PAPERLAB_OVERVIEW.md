@@ -262,6 +262,8 @@ These outputs fit the lane better than execution tooling right now.
 - replay tooling
 - advanced sub-lab flows
 
+The first practical packet now lives in [PAPERFORGE_WORKFLOW_PACKET.md](PAPERFORGE_WORKFLOW_PACKET.md).
+
 ## Next milestone recommendation
 
 The next useful milestone is:

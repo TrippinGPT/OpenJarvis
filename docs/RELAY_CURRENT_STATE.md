@@ -194,6 +194,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - v3.8 adds a SlapDesk workflow/product overview so the music lane now reads like a deliberate product lane instead of a parked concept.
 - v3.8.1 adds the first SlapDesk workflow packet so the music lane now includes practical checklists, templates, and a usable session path from cookup to bounce.
 - v3.9 adds a consolidated PaperLab overview so the paper-trading education lane now has a cleaner naming hierarchy, workflow shape, and safety-first scope.
+- v3.9.1 adds the first PaperForge workflow packet so the paper-learning lane now includes practical scenario, logging, review, and discipline templates for fake-money drills.
 - See [RELAY_VOICE_MILESTONE_SUMMARY.md](RELAY_VOICE_MILESTONE_SUMMARY.md) for the voice-lane timeline, winners, losses, and current stable behavior.
 
 ### Voice/UI freeze note
