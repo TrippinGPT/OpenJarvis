@@ -184,6 +184,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - v3.4.1 fixes the popout voice API wiring so `/api/relay/voice/config` and `/api/relay/voice/play` resolve correctly through the backend and the frontend proxy.
 - v3.4.2 freezes the current voice/UI lane as the stable placeholder milestone for now.
 - v3.5 improves Relay’s non-voice personality layer across popout, dashboard, and status microcopy so the companion tone holds even with voice disabled.
+- v3.6 adds a light multi-agent identity layer so every specialist now has defined text style and placeholder voice direction without adding runtime speech.
 - See [RELAY_VOICE_MILESTONE_SUMMARY.md](RELAY_VOICE_MILESTONE_SUMMARY.md) for the voice-lane timeline, winners, losses, and current stable behavior.
 
 ### Voice/UI freeze note
@@ -194,6 +195,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - Active placeholder style: `sarcastic_polish_04`
 - Current popout behavior is the frozen baseline: manual playback, category preview, event gates, and real-action hooks.
 - The written personality layer now matches the same sharp, controlled command-center tone without depending on voice playback.
+- Dispatch, Recon, Patch, Redline, Racket, Hermes, and Veto now have explicit identity fields for UI cards, docs, and future per-agent voice planning.
 - Future work should start from a deliberate new milestone, not ad hoc polish changes.
 
 ### v2.5 milestone note
