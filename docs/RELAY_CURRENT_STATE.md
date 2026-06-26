@@ -185,6 +185,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - v3.4.2 freezes the current voice/UI lane as the stable placeholder milestone for now.
 - v3.5 improves Relay’s non-voice personality layer across popout, dashboard, and status microcopy so the companion tone holds even with voice disabled.
 - v3.6 adds a light multi-agent identity layer so every specialist now has defined text style and placeholder voice direction without adding runtime speech.
+- v3.6.1 surfaces that multi-agent identity layer directly in the Agents UI so the team reads like distinct operators instead of flat labels.
 - See [RELAY_VOICE_MILESTONE_SUMMARY.md](RELAY_VOICE_MILESTONE_SUMMARY.md) for the voice-lane timeline, winners, losses, and current stable behavior.
 
 ### Voice/UI freeze note

@@ -412,6 +412,26 @@ function RelayAgentContextPanel({ agent }: { agent: RelayAgent }) {
       </div>
       <div className="mt-4 grid gap-3 md:grid-cols-2">
         <div
+          className="rounded-xl p-3 md:col-span-2"
+          style={{
+            border: '1px solid rgba(192, 132, 252, 0.16)',
+            background: 'linear-gradient(145deg, rgba(168, 85, 247, 0.08), rgba(34, 211, 238, 0.03))',
+          }}
+        >
+          <div
+            className="text-[9px] uppercase tracking-[0.15em]"
+            style={{ color: 'rgb(216, 180, 254)' }}
+          >
+            Identity line
+          </div>
+          <p className="mt-2 text-sm font-medium leading-relaxed" style={{ color: 'var(--color-text)' }}>
+            {agent.personalityLine}
+          </p>
+          <p className="mt-2 text-xs leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+            {agent.roleSentence}
+          </p>
+        </div>
+        <div
           className="rounded-xl p-3"
           style={{
             border: '1px solid rgba(255,255,255,0.06)',
@@ -443,6 +463,57 @@ function RelayAgentContextPanel({ agent }: { agent: RelayAgent }) {
           </div>
           <p className="mt-2 text-xs leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
             {agent.boundary}
+          </p>
+        </div>
+        <div
+          className="rounded-xl p-3"
+          style={{
+            border: '1px solid rgba(255,255,255,0.06)',
+            background: 'rgba(255,255,255,0.02)',
+          }}
+        >
+          <div
+            className="text-[9px] uppercase tracking-[0.15em]"
+            style={{ color: 'var(--color-text-tertiary)' }}
+          >
+            Text style
+          </div>
+          <p className="mt-2 text-xs leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+            {agent.textStyle}
+          </p>
+        </div>
+        <div
+          className="rounded-xl p-3"
+          style={{
+            border: '1px solid rgba(34, 211, 238, 0.10)',
+            background: 'rgba(34, 211, 238, 0.025)',
+          }}
+        >
+          <div
+            className="text-[9px] uppercase tracking-[0.15em]"
+            style={{ color: 'rgb(103, 232, 249)' }}
+          >
+            Placeholder voice direction
+          </div>
+          <p className="mt-2 text-xs leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+            {agent.placeholderVoiceDirection}
+          </p>
+        </div>
+        <div
+          className="rounded-xl p-3 md:col-span-2"
+          style={{
+            border: '1px solid rgba(74, 222, 128, 0.14)',
+            background: 'rgba(74, 222, 128, 0.035)',
+          }}
+        >
+          <div
+            className="text-[9px] uppercase tracking-[0.15em]"
+            style={{ color: 'rgb(134, 239, 172)' }}
+          >
+            Sample line
+          </div>
+          <p className="mt-2 text-xs italic leading-relaxed" style={{ color: 'var(--color-text)' }}>
+            “{agent.sampleLine}”
           </p>
         </div>
       </div>
