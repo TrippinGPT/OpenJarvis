@@ -22,6 +22,7 @@ The Relay Popout HUD is the intended future voicebox surface. The main planned p
 - **Placeholder UI:** gated popout playback, category preview, event gates, and real-action hooks are now working
 - **Milestone state:** frozen stable placeholder voice/UI baseline
 - **Other agents:** identity and placeholder voice direction are now defined, but per-agent runtime voice is not implemented
+- **Per-agent voice planning doc:** [RELAY_AGENT_VOICE_PLAN.md](RELAY_AGENT_VOICE_PLAN.md)
 - **Voice-model gate:** `config\piper_voice_models.json`
 - **Application TTS integration:** limited local placeholder playback exists in `/relay-popout`
 - **Audio playback:** local-only manual/event-gated placeholder playback exists
@@ -37,6 +38,7 @@ The Relay Popout HUD is the intended future voicebox surface. The main planned p
 
 - Relay Companion remains the main implemented placeholder voice surface.
 - Dispatch, Recon, Patch, Redline, Racket, Hermes, and Veto now have defined identity fields and placeholder voice direction for future planning.
+- The specialist team now also has documented per-agent voice strategy in [RELAY_AGENT_VOICE_PLAN.md](RELAY_AGENT_VOICE_PLAN.md).
 - This does not add per-agent runtime speech, autoplay, microphone access, or cloud TTS.
 
 ## Identity and safety boundaries

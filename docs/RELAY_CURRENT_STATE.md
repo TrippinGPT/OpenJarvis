@@ -187,6 +187,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - v3.6 adds a light multi-agent identity layer so every specialist now has defined text style and placeholder voice direction without adding runtime speech.
 - v3.6.1 surfaces that multi-agent identity layer directly in the Agents UI so the team reads like distinct operators instead of flat labels.
 - v3.6.2 adds per-agent response framing in the Agents UI so each specialist now presents its context in a visibly different style, not just different metadata.
+- v3.6.3 adds a dedicated per-agent voice planning document so future specialist placeholder speech has a defined strategy before any runtime implementation.
 - See [RELAY_VOICE_MILESTONE_SUMMARY.md](RELAY_VOICE_MILESTONE_SUMMARY.md) for the voice-lane timeline, winners, losses, and current stable behavior.
 
 ### Voice/UI freeze note
@@ -198,6 +199,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - Current popout behavior is the frozen baseline: manual playback, category preview, event gates, and real-action hooks.
 - The written personality layer now matches the same sharp, controlled command-center tone without depending on voice playback.
 - Dispatch, Recon, Patch, Redline, Racket, Hermes, and Veto now have explicit identity fields for UI cards, docs, and future per-agent voice planning.
+- Relay Companion is still the only implemented runtime placeholder voice; the other agents now have documented voice direction only.
 - Future work should start from a deliberate new milestone, not ad hoc polish changes.
 
 ### v2.5 milestone note
