@@ -246,6 +246,99 @@ function getAgentFraming(agent: RelayAgent): {
   }
 }
 
+function getAgentBehaviorHooks(agent: RelayAgent): {
+  stanceLabel: string;
+  stanceCopy: string;
+  interpretationLabel: string;
+  interpretationCopy: string;
+  nextCueLabel: string;
+  nextCueCopy: string;
+  actionHint: string;
+} {
+  switch (agent.key) {
+    case 'dispatch':
+      return {
+        stanceLabel: 'Operating stance',
+        stanceCopy: 'Dispatch organizes the room first: route, owner, dependency, then handoff.',
+        interpretationLabel: 'How it reads the request',
+        interpretationCopy: 'As a coordination problem that needs structure before anyone touches execution.',
+        nextCueLabel: 'What this agent would do next',
+        nextCueCopy: 'Break the task into stages, name the specialist lane, and keep the route legible.',
+        actionHint: 'Best first move: ask for the route, scope, and sequence.',
+      };
+    case 'recon':
+      return {
+        stanceLabel: 'Operating stance',
+        stanceCopy: 'Recon inspects before it summarizes and verifies before it concludes.',
+        interpretationLabel: 'How it reads the request',
+        interpretationCopy: 'As an evidence problem with claims, source quality, and open questions to sort.',
+        nextCueLabel: 'What this agent would do next',
+        nextCueCopy: 'Define the research target, gather sources, and label what is signal versus theater.',
+        actionHint: 'Best first move: ask for sources, confidence, and missing context.',
+      };
+    case 'patch':
+      return {
+        stanceLabel: 'Operating stance',
+        stanceCopy: 'Patch reduces the blast radius and works from the smallest reliable change outward.',
+        interpretationLabel: 'How it reads the request',
+        interpretationCopy: 'As a fix path: isolate the defect, change the minimum, then prove it.',
+        nextCueLabel: 'What this agent would do next',
+        nextCueCopy: 'Find the smallest safe patch, line up validation, and keep the diff tight.',
+        actionHint: 'Best first move: ask for the smallest safe fix and the exact validation command.',
+      };
+    case 'redline':
+      return {
+        stanceLabel: 'Operating stance',
+        stanceCopy: 'Redline applies brakes early when scope, approval, or risk controls do not hold.',
+        interpretationLabel: 'How it reads the request',
+        interpretationCopy: 'As a boundary check: what is allowed, what is risky, and what still needs approval.',
+        nextCueLabel: 'What this agent would do next',
+        nextCueCopy: 'Flag the boundary, separate safe from unsafe scope, and force a clear stop/go call.',
+        actionHint: 'Best first move: ask what is in bounds, what is not, and what requires approval.',
+      };
+    case 'racket':
+      return {
+        stanceLabel: 'Operating stance',
+        stanceCopy: 'Racket listens for the story moving around the facts, not just the facts themselves.',
+        interpretationLabel: 'How it reads the request',
+        interpretationCopy: 'As a narrative field full of hype, framing, crowd behavior, and signal leakage.',
+        nextCueLabel: 'What this agent would do next',
+        nextCueCopy: 'Label the narrative, isolate the pattern, and separate momentum from proof.',
+        actionHint: 'Best first move: ask what story the market or audience is trying to tell.',
+      };
+    case 'hermes':
+      return {
+        stanceLabel: 'Operating stance',
+        stanceCopy: 'Hermes stays light: readiness first, blocker second, no reckless touches.',
+        interpretationLabel: 'How it reads the request',
+        interpretationCopy: 'As a local preflight problem with green checks, blockers, and safe launch conditions.',
+        nextCueLabel: 'What this agent would do next',
+        nextCueCopy: 'Run the lightest safe check, report blockers clearly, and leave the machine stable.',
+        actionHint: 'Best first move: ask for a read-only readiness check and a clean blocker list.',
+      };
+    case 'veto':
+      return {
+        stanceLabel: 'Operating stance',
+        stanceCopy: 'Veto removes sentiment from the room and forces a clean final decision.',
+        interpretationLabel: 'How it reads the request',
+        interpretationCopy: 'As a review gate: what passes, what fails, and what is still missing.',
+        nextCueLabel: 'What this agent would do next',
+        nextCueCopy: 'Run the final pass, strip the fluff, and return approve, revise, or reject.',
+        actionHint: 'Best first move: ask for the final pass criteria and the exact misses.',
+      };
+    default:
+      return {
+        stanceLabel: 'Operating stance',
+        stanceCopy: 'This specialist keeps the work inside its lane and frames the output accordingly.',
+        interpretationLabel: 'How it reads the request',
+        interpretationCopy: 'As a role-specific problem that should stay scoped and explicit.',
+        nextCueLabel: 'What this agent would do next',
+        nextCueCopy: 'Apply its lane, preserve the safety boundaries, and return the next useful cue.',
+        actionHint: 'Best first move: ask for the lane-specific next step.',
+      };
+  }
+}
+
 function RelayAgentActions({ agent }: { agent: RelayAgent }) {
   const navigate = useNavigate();
   const [copiedAction, setCopiedAction] = useState<string | null>(null);
@@ -427,6 +520,7 @@ function RelayAgentActions({ agent }: { agent: RelayAgent }) {
 
 function RelayAgentContextPanel({ agent }: { agent: RelayAgent }) {
   const framing = getAgentFraming(agent);
+  const behavior = getAgentBehaviorHooks(agent);
 
   return (
     <section
@@ -558,6 +652,40 @@ function RelayAgentContextPanel({ agent }: { agent: RelayAgent }) {
         <div
           className="rounded-xl p-3"
           style={{
+            border: '1px solid rgba(192, 132, 252, 0.12)',
+            background: 'rgba(168, 85, 247, 0.04)',
+          }}
+        >
+          <div
+            className="text-[9px] uppercase tracking-[0.15em]"
+            style={{ color: 'rgb(216, 180, 254)' }}
+          >
+            {behavior.stanceLabel}
+          </div>
+          <p className="mt-2 text-xs leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+            {behavior.stanceCopy}
+          </p>
+        </div>
+        <div
+          className="rounded-xl p-3"
+          style={{
+            border: '1px solid rgba(34, 211, 238, 0.10)',
+            background: 'rgba(34, 211, 238, 0.025)',
+          }}
+        >
+          <div
+            className="text-[9px] uppercase tracking-[0.15em]"
+            style={{ color: 'rgb(103, 232, 249)' }}
+          >
+            {behavior.interpretationLabel}
+          </div>
+          <p className="mt-2 text-xs leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+            {behavior.interpretationCopy}
+          </p>
+        </div>
+        <div
+          className="rounded-xl p-3"
+          style={{
             border: '1px solid rgba(255,255,255,0.06)',
             background: 'rgba(255,255,255,0.02)',
           }}
@@ -645,6 +773,25 @@ function RelayAgentContextPanel({ agent }: { agent: RelayAgent }) {
           <p className="mt-2 text-xs italic leading-relaxed" style={{ color: 'var(--color-text)' }}>
             “{agent.sampleLine}”
           </p>
+          <div
+            className="mt-3 text-[10px] uppercase tracking-[0.14em]"
+            style={{ color: 'var(--color-text-tertiary)' }}
+          >
+            {behavior.nextCueLabel}
+          </div>
+          <p className="mt-1.5 text-xs leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+            {behavior.nextCueCopy}
+          </p>
+          <div
+            className="mt-3 rounded-lg px-3 py-2 text-[10px]"
+            style={{
+              color: 'rgb(134, 239, 172)',
+              border: '1px solid rgba(74, 222, 128, 0.14)',
+              background: 'rgba(74, 222, 128, 0.04)',
+            }}
+          >
+            {behavior.actionHint}
+          </div>
         </div>
       </div>
       <RelayAgentActions agent={agent} />

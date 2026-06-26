@@ -188,6 +188,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - v3.6.1 surfaces that multi-agent identity layer directly in the Agents UI so the team reads like distinct operators instead of flat labels.
 - v3.6.2 adds per-agent response framing in the Agents UI so each specialist now presents its context in a visibly different style, not just different metadata.
 - v3.6.3 adds a dedicated per-agent voice planning document so future specialist placeholder speech has a defined strategy before any runtime implementation.
+- v3.6.4 adds light per-agent behavior hooks in the product so each specialist now exposes lane-specific stance, interpretation, and next-step cues without autonomous execution.
 - See [RELAY_VOICE_MILESTONE_SUMMARY.md](RELAY_VOICE_MILESTONE_SUMMARY.md) for the voice-lane timeline, winners, losses, and current stable behavior.
 
 ### Voice/UI freeze note
