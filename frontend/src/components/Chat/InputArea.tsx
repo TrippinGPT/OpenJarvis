@@ -5,6 +5,7 @@ import { useAppStore, generateId } from '../../lib/store';
 import { streamChat, streamResearch } from '../../lib/sse';
 import { fetchSavings, getBase } from '../../lib/api';
 import { listConnectors, getSyncStatus } from '../../lib/connectors-api';
+import { summarizeRelayMemoryText } from '../../lib/relayMemory';
 import { MicButton } from './MicButton';
 import { useSpeech } from '../../hooks/useSpeech';
 import type {
@@ -93,6 +94,7 @@ export function InputArea() {
   const setStreamState = useAppStore((s) => s.setStreamState);
   const resetStream = useAppStore((s) => s.resetStream);
   const holdRelayActivity = useAppStore((s) => s.holdRelayActivity);
+  const updateRelayMemory = useAppStore((s) => s.updateRelayMemory);
   const modelLoading = useAppStore((s) => s.modelLoading);
   const deepResearch = useAppStore((s) => s.deepResearch);
   const setDeepResearch = useAppStore((s) => s.setDeepResearch);
@@ -175,6 +177,17 @@ export function InputArea() {
       content,
       timestamp: Date.now(),
     };
+    updateRelayMemory({
+      currentLane: deepResearch ? 'Relay research lane' : 'Relay chat lane',
+      currentObjective: summarizeRelayMemoryText(content, 140),
+      lastMeaningfulAction: 'Operator sent a new request.',
+      nextSuggestedMove: deepResearch
+        ? 'Let Relay finish the research pass, then decide what to pin.'
+        : 'Let Relay finish the response, then decide whether to pin the result.',
+      recentStatusSummary: deepResearch
+        ? `Research pass started for: ${summarizeRelayMemoryText(content, 120)}`
+        : `Response started for: ${summarizeRelayMemoryText(content, 120)}`,
+    });
     addMessage(convId, userMsg);
 
     // Build API messages before adding assistant placeholder
@@ -489,6 +502,14 @@ export function InputArea() {
         researchTraces.length > 0 ? researchTraces : undefined,
         researchSourcesByRef.size > 0 ? flushSources() : undefined,
       );
+      updateRelayMemory({
+        currentLane: deepResearch ? 'Relay research lane' : 'Relay chat lane',
+        lastMeaningfulAction: deepResearch
+          ? 'Relay finished the latest research pass.'
+          : 'Relay finished the latest response.',
+        nextSuggestedMove: 'Review the result, pin anything durable, or send the next move.',
+        recentStatusSummary: summarizeRelayMemoryText(accumulatedContent, 180),
+      });
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
@@ -521,6 +542,7 @@ export function InputArea() {
     setStreamState,
     resetStream,
     holdRelayActivity,
+    updateRelayMemory,
     deepResearch,
     temperature,
     maxTokens,

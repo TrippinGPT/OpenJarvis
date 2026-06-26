@@ -14,6 +14,17 @@ import type {
   ToolCallInfo,
   TokenUsage,
 } from '../types';
+import {
+  addRelayPinnedNote as addPinnedRelayNote,
+  clearAllRelayMemory,
+  clearRelayTransientMemory,
+  loadRelayMemory as loadRelayMemorySnapshot,
+  removeRelayPinnedNote as removePinnedRelayNote,
+  saveRelayMemory,
+  updateRelayTransientMemory,
+  type RelayMemoryTransientUpdate,
+  type RelayStructuredMemory,
+} from './relayMemory';
 import type { ManagedAgent } from './api';
 
 export interface CachedConnector {
@@ -134,6 +145,7 @@ interface AppState {
   messages: ChatMessage[];
   streamState: StreamState;
   relayActivityUntil: number;
+  relayMemory: RelayStructuredMemory;
 
   // Models & server
   models: ModelInfo[];
@@ -183,6 +195,12 @@ interface AppState {
   setStreamState: (state: Partial<StreamState>) => void;
   resetStream: () => void;
   holdRelayActivity: (durationMs?: number) => void;
+  loadRelayMemory: () => void;
+  updateRelayMemory: (updates: RelayMemoryTransientUpdate) => void;
+  addRelayPinnedNote: (text: string) => void;
+  removeRelayPinnedNote: (noteId: string) => void;
+  clearRelayMemoryTransient: () => void;
+  clearRelayMemoryAll: () => void;
 
   // Deep Research toggle
   deepResearch: boolean;
@@ -248,6 +266,7 @@ interface AppState {
 
 export const useAppStore = create<AppState>((set, get) => {
   const initial = loadConversations();
+  const initialRelayMemory = loadRelayMemorySnapshot();
   const convList = Object.values(initial.conversations).sort(
     (a, b) => b.updatedAt - a.updatedAt,
   );
@@ -261,6 +280,7 @@ export const useAppStore = create<AppState>((set, get) => {
         : [],
     streamState: INITIAL_STREAM,
     relayActivityUntil: 0,
+    relayMemory: initialRelayMemory,
 
     models: [],
     modelsLoading: true,
@@ -457,6 +477,41 @@ export const useAppStore = create<AppState>((set, get) => {
       }));
     },
 
+    loadRelayMemory: () => {
+      const relayMemory = loadRelayMemorySnapshot();
+      set({ relayMemory });
+    },
+
+    updateRelayMemory: (updates) => {
+      const relayMemory = updateRelayTransientMemory(get().relayMemory, updates);
+      saveRelayMemory(relayMemory);
+      set({ relayMemory });
+    },
+
+    addRelayPinnedNote: (text) => {
+      const relayMemory = addPinnedRelayNote(get().relayMemory, text);
+      saveRelayMemory(relayMemory);
+      set({ relayMemory });
+    },
+
+    removeRelayPinnedNote: (noteId) => {
+      const relayMemory = removePinnedRelayNote(get().relayMemory, noteId);
+      saveRelayMemory(relayMemory);
+      set({ relayMemory });
+    },
+
+    clearRelayMemoryTransient: () => {
+      const relayMemory = clearRelayTransientMemory(get().relayMemory);
+      saveRelayMemory(relayMemory);
+      set({ relayMemory });
+    },
+
+    clearRelayMemoryAll: () => {
+      const relayMemory = clearAllRelayMemory();
+      saveRelayMemory(relayMemory);
+      set({ relayMemory });
+    },
+
     // â”€â”€ Deep Research â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     deepResearch: false,
     setDeepResearch: (on: boolean) => set({ deepResearch: on }),
@@ -529,7 +584,25 @@ export const useAppStore = create<AppState>((set, get) => {
 
     setManagedAgents: (agents) => set({ managedAgents: agents }),
     setManagedAgentsLoading: (loading) => set({ managedAgentsLoading: loading }),
-    setSelectedAgentId: (id) => set({ selectedAgentId: id }),
+    setSelectedAgentId: (id) => {
+      const agentName = id
+        ? get().managedAgents.find((agent) => agent.id === id)?.name || id
+        : null;
+      const relayMemory = updateRelayTransientMemory(get().relayMemory, {
+        activeAgent: agentName,
+        lastMeaningfulAction: agentName
+          ? `Focused ${agentName} agent context.`
+          : 'Cleared the active agent focus.',
+        nextSuggestedMove: agentName
+          ? `Review ${agentName} cues or route the next move.`
+          : 'Pick another agent or continue from the cockpit.',
+        recentStatusSummary: agentName
+          ? `${agentName} is the current specialist in focus.`
+          : 'No specialist is currently pinned as the active agent.',
+      });
+      saveRelayMemory(relayMemory);
+      set({ selectedAgentId: id, relayMemory });
+    },
 
     agentEvents: [],
     addAgentEvent: (event) => set((s) => ({

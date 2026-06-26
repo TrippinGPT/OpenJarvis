@@ -2,16 +2,20 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import {
   Activity,
   ArrowLeft,
+  Brain,
   Bot,
   CircleDot,
   ExternalLink,
   Link2,
   MessageSquare,
+  Pin,
   Radio,
+  RotateCcw,
   ShieldCheck,
   Sparkles,
   ToggleLeft,
   ToggleRight,
+  Trash2,
   Volume2,
   PlayCircle,
 } from 'lucide-react';
@@ -23,6 +27,11 @@ import {
   playRelayPlaceholderVoice,
   type RelayVoicePack,
 } from '../lib/api';
+import {
+  formatRelayMemoryTime,
+  RELAY_MEMORY_STORAGE_KEY,
+  summarizeRelayMemoryText,
+} from '../lib/relayMemory';
 import {
   readRelayPopoutActivity,
   RELAY_POPOUT_ACTIVITY_KEY,
@@ -140,8 +149,15 @@ export function RelayPopoutPage() {
   const selectedModel = useAppStore((state) => state.selectedModel);
   const localStreamState = useAppStore((state) => state.streamState);
   const settings = useAppStore((state) => state.settings);
+  const relayMemory = useAppStore((state) => state.relayMemory);
   const relayPlaceholderVoiceEnabled = settings.relayPlaceholderVoiceEnabled;
   const updateSettings = useAppStore((state) => state.updateSettings);
+  const loadRelayMemory = useAppStore((state) => state.loadRelayMemory);
+  const updateRelayMemory = useAppStore((state) => state.updateRelayMemory);
+  const addRelayPinnedNote = useAppStore((state) => state.addRelayPinnedNote);
+  const removeRelayPinnedNote = useAppStore((state) => state.removeRelayPinnedNote);
+  const clearRelayMemoryTransient = useAppStore((state) => state.clearRelayMemoryTransient);
+  const clearRelayMemoryAll = useAppStore((state) => state.clearRelayMemoryAll);
   const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
   const [bridgeState, setBridgeState] = useState<BridgeState>('checking');
   const [sharedActivity, setSharedActivity] = useState<RelayPopoutActivity | null>(() =>
@@ -154,6 +170,7 @@ export function RelayPopoutPage() {
   const [voicePlaybackDetail, setVoicePlaybackDetail] = useState<string>(relayCompanionCopy.popout.voiceDisabledDetail);
   const [voiceCategory, setVoiceCategory] = useState<string>('manual_test');
   const [statusRefreshPending, setStatusRefreshPending] = useState(false);
+  const [memoryDraft, setMemoryDraft] = useState('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioUrlRef = useRef<string | null>(null);
   const activePlaybackIdRef = useRef(0);
@@ -199,16 +216,20 @@ export function RelayPopoutPage() {
 
   useEffect(() => {
     const handleStorage = (event: StorageEvent) => {
-      if (event.key !== RELAY_POPOUT_ACTIVITY_KEY || !event.newValue) return;
-      try {
-        setSharedActivity(JSON.parse(event.newValue) as RelayPopoutActivity);
-      } catch {
-        // Ignore malformed cross-window status and retain the last safe state.
+      if (event.key === RELAY_POPOUT_ACTIVITY_KEY && event.newValue) {
+        try {
+          setSharedActivity(JSON.parse(event.newValue) as RelayPopoutActivity);
+        } catch {
+          // Ignore malformed cross-window status and retain the last safe state.
+        }
+      }
+      if (event.key === RELAY_MEMORY_STORAGE_KEY) {
+        loadRelayMemory();
       }
     };
     window.addEventListener('storage', handleStorage);
     return () => window.removeEventListener('storage', handleStorage);
-  }, []);
+  }, [loadRelayMemory]);
 
   useEffect(() => {
     let cancelled = false;
@@ -264,6 +285,9 @@ export function RelayPopoutPage() {
   const voiceLine = voicePack?.placeholder_category_lines?.[voiceCategory]
     || voicePack?.default_placeholder_text
     || 'Relay online. Voice check complete.';
+  const memorySessionLabel = relayMemory.sessionId.slice(0, 8);
+  const memoryExpiresLabel = formatRelayMemoryTime(relayMemory.expiresAt);
+  const memoryClearedLabel = formatRelayMemoryTime(relayMemory.clearedAt);
   const voiceCategoryOptions = voicePack?.available_placeholder_categories || ['manual_test'];
   const selectedEventCategory = ['routing', 'success', 'warning'].includes(voiceCategory)
     ? voiceCategory
@@ -412,6 +436,15 @@ export function RelayPopoutPage() {
     setVoiceCategory(category);
   };
 
+  const handlePinMemoryNote = () => {
+    const nextNote = summarizeRelayMemoryText(memoryDraft, 180);
+    if (!nextNote) {
+      return;
+    }
+    addRelayPinnedNote(nextNote);
+    setMemoryDraft('');
+  };
+
   const handleRunSelectedEvent = async () => {
     if (!selectedEventCategory) {
       setVoicePlaybackState('idle');
@@ -445,6 +478,12 @@ export function RelayPopoutPage() {
       setBridgeState(bridgeReady ? 'connected' : 'fallback');
 
       if (backendReady && bridgeReady) {
+        updateRelayMemory({
+          currentLane: 'Relay companion',
+          lastMeaningfulAction: 'Relay status was refreshed.',
+          nextSuggestedMove: 'Proceed from the companion or pin any boundary worth keeping.',
+          recentStatusSummary: 'Backend online. Bridge linked. Companion status is clean.',
+        });
         setVoicePlaybackNote(relayCompanionCopy.popout.refreshSuccess);
         setVoicePlaybackDetail(relayCompanionCopy.popout.refreshSuccessDetail);
         if (voiceControlsEnabled && settings.relayVoiceSuccessEventEnabled && !voiceRequestActive) {
@@ -459,12 +498,28 @@ export function RelayPopoutPage() {
           ? relayCompanionCopy.popout.refreshFallbackDetail
           : relayCompanionCopy.popout.refreshOfflineDetail,
       );
+      updateRelayMemory({
+        currentLane: 'Relay companion',
+        lastMeaningfulAction: 'Relay status surfaced a warning.',
+        nextSuggestedMove: backendReady
+          ? 'Stay in fallback mode or inspect the bridge state.'
+          : 'Bring the backend back online before trusting the cockpit.',
+        recentStatusSummary: backendReady
+          ? 'Backend is up, but the bridge is running in manifest fallback mode.'
+          : 'Backend is offline from the companion perspective.',
+      });
       if (voiceControlsEnabled && settings.relayVoiceWarningEventEnabled && !voiceRequestActive) {
         await runVoicePlayback('warning', 'event', true);
       }
     } catch (error) {
       setBackendOnline(false);
       setBridgeState('fallback');
+      updateRelayMemory({
+        currentLane: 'Relay companion',
+        lastMeaningfulAction: 'Relay status refresh failed.',
+        nextSuggestedMove: 'Check local services, then refresh the companion again.',
+        recentStatusSummary: 'Companion status refresh failed before Relay could confirm backend readiness.',
+      });
       setVoicePlaybackNote(relayCompanionCopy.popout.refreshFailed);
       setVoicePlaybackDetail(error instanceof Error ? error.message : 'Status refresh failed.');
       if (voiceControlsEnabled && settings.relayVoiceWarningEventEnabled && !voiceRequestActive) {
@@ -706,6 +761,185 @@ export function RelayPopoutPage() {
             <div><span style={{ color: 'rgba(148, 163, 184, 0.70)' }}>System:</span> {systemState}</div>
             <div><span style={{ color: 'rgba(148, 163, 184, 0.70)' }}>Mesh:</span> {meshState}</div>
             <div><span style={{ color: 'rgba(148, 163, 184, 0.70)' }}>Mode:</span> Companion</div>
+          </div>
+        </HudPanel>
+
+        <HudPanel className="relay-popout-memory-panel px-3 py-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5">
+              <Brain size={10} style={{ color: 'rgb(196, 181, 253)' }} />
+              <span className="text-[7px] font-semibold uppercase tracking-[0.18em]">Structured Memory</span>
+            </div>
+            <span className="text-[6px] uppercase tracking-[0.14em]" style={{ color: 'rgb(134, 239, 172)' }}>
+              Visible only
+            </span>
+          </div>
+          <div className="mt-2 grid gap-2">
+            <div className="grid grid-cols-3 gap-2">
+              <MicroReadout label="Session" value={memorySessionLabel} color="rgb(216, 180, 254)" />
+              <MicroReadout label="Expires" value={memoryExpiresLabel} color="rgb(103, 232, 249)" />
+              <MicroReadout label="Cleared" value={memoryClearedLabel} color="rgb(134, 239, 172)" />
+            </div>
+            <div className="rounded-sm border border-white/10 bg-black/25 px-2 py-2 text-[7px] leading-relaxed">
+              <div className="grid gap-1 md:grid-cols-2">
+                <div>
+                  <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+                    Current lane
+                  </div>
+                  <div style={{ color: 'rgba(165, 243, 252, 0.88)' }}>{relayMemory.currentLane || 'Not set'}</div>
+                </div>
+                <div>
+                  <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+                    Active agent
+                  </div>
+                  <div style={{ color: 'rgba(165, 243, 252, 0.88)' }}>{relayMemory.activeAgent || 'Not set'}</div>
+                </div>
+                <div>
+                  <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+                    Objective
+                  </div>
+                  <div style={{ color: 'rgba(165, 243, 252, 0.88)' }}>{relayMemory.currentObjective || 'Nothing active yet.'}</div>
+                </div>
+                <div>
+                  <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+                    Last action
+                  </div>
+                  <div style={{ color: 'rgba(165, 243, 252, 0.88)' }}>{relayMemory.lastMeaningfulAction || 'Not set'}</div>
+                </div>
+              </div>
+              <div className="mt-2">
+                <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+                  Next suggested move
+                </div>
+                <div style={{ color: 'rgba(165, 243, 252, 0.88)' }}>{relayMemory.nextSuggestedMove || 'Not set'}</div>
+              </div>
+              <div className="mt-2">
+                <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+                  Recent status
+                </div>
+                <div style={{ color: 'rgba(165, 243, 252, 0.88)' }}>{relayMemory.recentStatusSummary || 'Not set'}</div>
+              </div>
+              <div className="mt-2 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
+                Transient fields expire after 12 hours. Pinned notes and workspace notes stay visible until you clear them.
+              </div>
+            </div>
+            <div className="grid gap-2 md:grid-cols-2">
+              <div className="rounded-sm border border-white/10 bg-black/20 px-2 py-2">
+                <div className="flex items-center gap-1.5">
+                  <Pin size={10} style={{ color: 'rgb(216, 180, 254)' }} />
+                  <div className="text-[7px] font-semibold uppercase tracking-[0.14em]">Pinned Notes</div>
+                </div>
+                <div className="mt-2 grid gap-1">
+                  {relayMemory.pinnedNotes.length === 0 ? (
+                    <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+                      Nothing pinned. Keep it that way unless it matters.
+                    </div>
+                  ) : (
+                    relayMemory.pinnedNotes.map((note) => (
+                      <div key={note.id} className="rounded-sm border border-white/10 bg-black/25 px-2 py-1.5">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <div className="text-[7px]" style={{ color: 'rgba(165, 243, 252, 0.88)' }}>{note.text}</div>
+                            <div className="mt-1 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+                              {formatRelayMemoryTime(note.pinnedAt)}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeRelayPinnedNote(note.id)}
+                            className="relay-popout-nav-button justify-center px-2 py-1"
+                            style={{ color: 'rgb(251, 191, 36)', borderColor: 'rgba(251, 191, 36, 0.20)' }}
+                          >
+                            <Trash2 size={9} />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+                <div className="mt-2 grid gap-2">
+                  <textarea
+                    value={memoryDraft}
+                    onChange={(event) => setMemoryDraft(event.target.value)}
+                    rows={2}
+                    placeholder="Pin a short note worth keeping..."
+                    className="rounded-sm border border-white/10 bg-black/30 px-2 py-1.5 text-[7px] outline-none"
+                    style={{ color: 'rgba(165, 243, 252, 0.9)', resize: 'vertical' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handlePinMemoryNote}
+                    disabled={!memoryDraft.trim()}
+                    className="relay-popout-nav-button justify-center"
+                    style={{
+                      color: memoryDraft.trim() ? 'rgb(216, 180, 254)' : 'rgba(148, 163, 184, 0.56)',
+                      borderColor: memoryDraft.trim() ? 'rgba(192, 132, 252, 0.24)' : 'rgba(148, 163, 184, 0.16)',
+                      opacity: memoryDraft.trim() ? 1 : 0.6,
+                    }}
+                  >
+                    <Pin size={10} />
+                    Pin visible note
+                  </button>
+                </div>
+              </div>
+              <div className="rounded-sm border border-white/10 bg-black/20 px-2 py-2">
+                <div className="text-[7px] font-semibold uppercase tracking-[0.14em]">Workspace Notes</div>
+                <div className="mt-2 grid gap-2 text-[7px] leading-relaxed">
+                  <div>
+                    <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+                      Lane priorities
+                    </div>
+                    <ul className="mt-1 grid gap-1" style={{ color: 'rgba(165, 243, 252, 0.88)' }}>
+                      {relayMemory.activeLanePriorities.map((item) => <li key={item}>• {item}</li>)}
+                    </ul>
+                  </div>
+                  <div>
+                    <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+                      Freeze notes
+                    </div>
+                    <ul className="mt-1 grid gap-1" style={{ color: 'rgba(165, 243, 252, 0.88)' }}>
+                      {relayMemory.freezeNotes.map((item) => <li key={item}>• {item}</li>)}
+                    </ul>
+                  </div>
+                  <div>
+                    <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+                      Machine notes
+                    </div>
+                    <ul className="mt-1 grid gap-1" style={{ color: 'rgba(165, 243, 252, 0.88)' }}>
+                      {relayMemory.machineEnvironmentNotes.map((item) => <li key={item}>• {item}</li>)}
+                    </ul>
+                  </div>
+                  <div>
+                    <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+                      Boundaries
+                    </div>
+                    <ul className="mt-1 grid gap-1" style={{ color: 'rgba(165, 243, 252, 0.88)' }}>
+                      {relayMemory.currentBoundaries.map((item) => <li key={item}>• {item}</li>)}
+                    </ul>
+                  </div>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={clearRelayMemoryTransient}
+                    className="relay-popout-nav-button justify-center"
+                    style={{ color: 'rgb(103, 232, 249)', borderColor: 'rgba(34, 211, 238, 0.24)' }}
+                  >
+                    <RotateCcw size={10} />
+                    Reset transient
+                  </button>
+                  <button
+                    type="button"
+                    onClick={clearRelayMemoryAll}
+                    className="relay-popout-nav-button justify-center"
+                    style={{ color: 'rgb(251, 191, 36)', borderColor: 'rgba(251, 191, 36, 0.20)' }}
+                  >
+                    <Trash2 size={10} />
+                    Clear all
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </HudPanel>
 
