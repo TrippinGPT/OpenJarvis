@@ -30,6 +30,12 @@ Current fields:
 - `clearedAt`
 - `updatedAt`
 
+After the v4.1.2 polish pass:
+
+- the core continuity fields stay small and unchanged
+- `sessionId`, `clearedAt`, and `updatedAt` remain in the model for hygiene and transparency
+- those timing/session fields are now de-emphasized in the UI because they are support metadata, not the main operator context
+
 ## What it does not store
 
 This prototype does not:
@@ -93,6 +99,7 @@ The prototype writes memory only from known, explainable actions:
 - updates current objective
 - records that the operator sent a new request
 - sets a next suggested move
+- does not waste a write on a temporary "request started" status summary
 
 2. Chat response completion
 
@@ -107,7 +114,8 @@ The prototype writes memory only from known, explainable actions:
 
 4. Relay companion status refresh
 
-- records whether status refresh succeeded, fell back, or failed
+- updates only the short status summary
+- does not overwrite the current objective, active agent, or last meaningful task completion
 
 5. Explicit pinned-note actions
 
@@ -162,8 +170,9 @@ The panel shows:
 - current memory snapshot
 - pinned notes
 - workspace notes
-- expiry time
+- updated/expiry state
 - clear/reset controls
+- a short note describing what Relay is and is not tracking
 
 ## Why this comes before Mem0
 
@@ -178,6 +187,48 @@ This prototype is intentionally:
 - low dependency
 
 If this shape proves useful, a later milestone can evaluate whether Mem0 should become a semantic or long-term layer on top of it.
+
+## Practical usefulness review
+
+### Clearly useful
+
+- `currentLane`
+- `activeAgent`
+- `currentObjective`
+- `lastMeaningfulAction`
+- `nextSuggestedMove`
+- `recentStatusSummary`
+- `pinnedNotes`
+- workspace note arrays
+
+These are the fields that actually preserve operator continuity.
+
+### Useful, but secondary
+
+- `sessionId`
+- `expiresAt`
+- `clearedAt`
+- `updatedAt`
+
+These help hygiene and transparency, but they are support metadata rather than the main continuity payload.
+
+### Fields intentionally not added
+
+- transcript history memory
+- hidden background summaries
+- semantic/vector recall
+- cross-session archive history
+- cross-machine sync
+
+### Expiry decision
+
+The 12-hour transient expiry stays in place.
+
+That is still the right first balance:
+
+- long enough to survive a working block
+- short enough to avoid silent forever-retention
+- easy to explain in the UI
 
 ## Current recommendation
 

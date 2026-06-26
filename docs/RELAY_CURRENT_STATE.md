@@ -198,6 +198,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - v4.0 adds a master ecosystem roadmap so lane priority, build sequencing, maintenance responsibilities, and parked-versus-later work are explicit in one place.
 - v4.1 adds a Mem0 fit evaluation for Relay memory and recommends starting with a smaller structured memory layer before any heavier semantic memory foundation.
 - v4.1.1 adds the first local structured Relay memory prototype with explicit transient fields, visible pinned notes, 12-hour expiry, and operator clear/reset controls in the Relay Companion.
+- v4.1.2 tightens the structured memory prototype so status refresh no longer stomps better task continuity, the popout panel groups transient versus pinned versus workspace memory more clearly, and session/hygiene metadata is de-emphasized instead of driving the main operator view.
 - See [RELAY_VOICE_MILESTONE_SUMMARY.md](RELAY_VOICE_MILESTONE_SUMMARY.md) for the voice-lane timeline, winners, losses, and current stable behavior.
 
 ### Voice/UI freeze note

@@ -483,7 +483,15 @@ export const useAppStore = create<AppState>((set, get) => {
     },
 
     updateRelayMemory: (updates) => {
-      const relayMemory = updateRelayTransientMemory(get().relayMemory, updates);
+      const current = get().relayMemory;
+      const hasMeaningfulChange = Object.entries(updates).some(([key, value]) => (
+        value !== undefined
+        && current[key as keyof RelayStructuredMemory] !== value
+      ));
+      if (!hasMeaningfulChange) {
+        return;
+      }
+      const relayMemory = updateRelayTransientMemory(current, updates);
       saveRelayMemory(relayMemory);
       set({ relayMemory });
     },

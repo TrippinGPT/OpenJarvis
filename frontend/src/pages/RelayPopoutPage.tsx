@@ -286,6 +286,7 @@ export function RelayPopoutPage() {
     || voicePack?.default_placeholder_text
     || 'Relay online. Voice check complete.';
   const memorySessionLabel = relayMemory.sessionId.slice(0, 8);
+  const memoryUpdatedLabel = formatRelayMemoryTime(relayMemory.updatedAt);
   const memoryExpiresLabel = formatRelayMemoryTime(relayMemory.expiresAt);
   const memoryClearedLabel = formatRelayMemoryTime(relayMemory.clearedAt);
   const voiceCategoryOptions = voicePack?.available_placeholder_categories || ['manual_test'];
@@ -479,9 +480,6 @@ export function RelayPopoutPage() {
 
       if (backendReady && bridgeReady) {
         updateRelayMemory({
-          currentLane: 'Relay companion',
-          lastMeaningfulAction: 'Relay status was refreshed.',
-          nextSuggestedMove: 'Proceed from the companion or pin any boundary worth keeping.',
           recentStatusSummary: 'Backend online. Bridge linked. Companion status is clean.',
         });
         setVoicePlaybackNote(relayCompanionCopy.popout.refreshSuccess);
@@ -499,11 +497,6 @@ export function RelayPopoutPage() {
           : relayCompanionCopy.popout.refreshOfflineDetail,
       );
       updateRelayMemory({
-        currentLane: 'Relay companion',
-        lastMeaningfulAction: 'Relay status surfaced a warning.',
-        nextSuggestedMove: backendReady
-          ? 'Stay in fallback mode or inspect the bridge state.'
-          : 'Bring the backend back online before trusting the cockpit.',
         recentStatusSummary: backendReady
           ? 'Backend is up, but the bridge is running in manifest fallback mode.'
           : 'Backend is offline from the companion perspective.',
@@ -515,9 +508,6 @@ export function RelayPopoutPage() {
       setBackendOnline(false);
       setBridgeState('fallback');
       updateRelayMemory({
-        currentLane: 'Relay companion',
-        lastMeaningfulAction: 'Relay status refresh failed.',
-        nextSuggestedMove: 'Check local services, then refresh the companion again.',
         recentStatusSummary: 'Companion status refresh failed before Relay could confirm backend readiness.',
       });
       setVoicePlaybackNote(relayCompanionCopy.popout.refreshFailed);
@@ -776,15 +766,18 @@ export function RelayPopoutPage() {
           </div>
           <div className="mt-2 grid gap-2">
             <div className="grid grid-cols-3 gap-2">
-              <MicroReadout label="Session" value={memorySessionLabel} color="rgb(216, 180, 254)" />
+              <MicroReadout label="Updated" value={memoryUpdatedLabel} color="rgb(216, 180, 254)" />
               <MicroReadout label="Expires" value={memoryExpiresLabel} color="rgb(103, 232, 249)" />
-              <MicroReadout label="Cleared" value={memoryClearedLabel} color="rgb(134, 239, 172)" />
+              <MicroReadout label="Pinned" value={String(relayMemory.pinnedNotes.length)} color="rgb(134, 239, 172)" />
             </div>
             <div className="rounded-sm border border-white/10 bg-black/25 px-2 py-2 text-[7px] leading-relaxed">
+              <div className="mb-2 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
+                Tracks only: lane, agent, objective, last action, next move, and short visible notes.
+              </div>
               <div className="grid gap-1 md:grid-cols-2">
                 <div>
                   <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
-                    Current lane
+                    Transient lane
                   </div>
                   <div style={{ color: 'rgba(165, 243, 252, 0.88)' }}>{relayMemory.currentLane || 'Not set'}</div>
                 </div>
@@ -798,7 +791,7 @@ export function RelayPopoutPage() {
                   <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
                     Objective
                   </div>
-                  <div style={{ color: 'rgba(165, 243, 252, 0.88)' }}>{relayMemory.currentObjective || 'Nothing active yet.'}</div>
+                  <div style={{ color: 'rgba(165, 243, 252, 0.88)' }}>{relayMemory.currentObjective || 'No active objective.'}</div>
                 </div>
                 <div>
                   <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
@@ -819,8 +812,11 @@ export function RelayPopoutPage() {
                 </div>
                 <div style={{ color: 'rgba(165, 243, 252, 0.88)' }}>{relayMemory.recentStatusSummary || 'Not set'}</div>
               </div>
-              <div className="mt-2 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
-                Transient fields expire after 12 hours. Pinned notes and workspace notes stay visible until you clear them.
+              <div className="mt-2 grid gap-1 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
+                <div>Transient continuity expires after 12 hours.</div>
+                <div>Pinned notes and workspace notes stay put until you remove them.</div>
+                <div>Not tracked: raw transcript history, background capture, or cross-machine memory.</div>
+                <div>Session {memorySessionLabel} // Last cleared {memoryClearedLabel}</div>
               </div>
             </div>
             <div className="grid gap-2 md:grid-cols-2">
@@ -832,7 +828,7 @@ export function RelayPopoutPage() {
                 <div className="mt-2 grid gap-1">
                   {relayMemory.pinnedNotes.length === 0 ? (
                     <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
-                      Nothing pinned. Keep it that way unless it matters.
+                      Nothing pinned. Promote only the notes you want to survive expiry.
                     </div>
                   ) : (
                     relayMemory.pinnedNotes.map((note) => (
@@ -918,7 +914,10 @@ export function RelayPopoutPage() {
                     </ul>
                   </div>
                 </div>
-                <div className="mt-3 grid grid-cols-2 gap-2">
+                <div className="mt-3 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
+                  Reset transient keeps pinned and workspace memory. Clear all wipes the visible local snapshot.
+                </div>
+                <div className="mt-2 grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={clearRelayMemoryTransient}

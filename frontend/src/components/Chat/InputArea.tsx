@@ -178,15 +178,12 @@ export function InputArea() {
       timestamp: Date.now(),
     };
     updateRelayMemory({
-      currentLane: deepResearch ? 'Relay research lane' : 'Relay chat lane',
+      currentLane: deepResearch ? 'Research' : 'Conversation',
       currentObjective: summarizeRelayMemoryText(content, 140),
       lastMeaningfulAction: 'Operator sent a new request.',
       nextSuggestedMove: deepResearch
         ? 'Let Relay finish the research pass, then decide what to pin.'
         : 'Let Relay finish the response, then decide whether to pin the result.',
-      recentStatusSummary: deepResearch
-        ? `Research pass started for: ${summarizeRelayMemoryText(content, 120)}`
-        : `Response started for: ${summarizeRelayMemoryText(content, 120)}`,
     });
     addMessage(convId, userMsg);
 
@@ -503,7 +500,6 @@ export function InputArea() {
         researchSourcesByRef.size > 0 ? flushSources() : undefined,
       );
       updateRelayMemory({
-        currentLane: deepResearch ? 'Relay research lane' : 'Relay chat lane',
         lastMeaningfulAction: deepResearch
           ? 'Relay finished the latest research pass.'
           : 'Relay finished the latest response.',
