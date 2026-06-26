@@ -190,51 +190,51 @@ function getAgentFraming(agent: RelayAgent): {
     case 'dispatch':
       return {
         introLabel: 'Coordination frame',
-        introCopy: 'Dispatch turns a messy request into a route, a sequence, and a clean handoff.',
+        introCopy: 'Dispatch frames the room around route, owner, and order of operations.',
         helperLabel: 'What to expect',
-        helperCopy: 'Clear dependencies, named owners, and the next move without extra noise.',
+        helperCopy: 'Named owners, visible sequencing, and the next move without drift.',
       };
     case 'recon':
       return {
         introLabel: 'Intel frame',
-        introCopy: 'Recon treats every claim like signal under inspection until the sourcing holds.',
+        introCopy: 'Recon treats every claim like a sourcing problem until the evidence holds.',
         helperLabel: 'What to expect',
-        helperCopy: 'Evidence-first summaries, confidence notes, and explicit open questions.',
+        helperCopy: 'Evidence-first summaries, confidence labels, and explicit open questions.',
       };
     case 'patch':
       return {
         introLabel: 'Engineering frame',
-        introCopy: 'Patch narrows the blast radius, lands the fix, and proves it before celebrating.',
+        introCopy: 'Patch frames the work as the smallest fix that can be proven quickly.',
         helperLabel: 'What to expect',
-        helperCopy: 'Scoped diffs, practical fixes, and validation instead of theatrics.',
+        helperCopy: 'Scoped diffs, practical fixes, and validation before commentary.',
       };
     case 'redline':
       return {
         introLabel: 'Risk frame',
-        introCopy: 'Redline checks whether the request is allowed, safe, and actually in bounds before momentum wins.',
+        introCopy: 'Redline frames the room around what is allowed, what is risky, and what stops here.',
         helperLabel: 'What to expect',
         helperCopy: 'Short stop/go language, hard boundaries, and risk called out early.',
       };
     case 'racket':
       return {
         introLabel: 'Narrative frame',
-        introCopy: 'Racket reads the story moving around the facts and separates crowd heat from real signal.',
+        introCopy: 'Racket reads the story moving around the facts and checks whether the crowd is leading the chart.',
         helperLabel: 'What to expect',
-        helperCopy: 'Pattern-aware commentary, hype detection, and clean distinction between vibe and proof.',
+        helperCopy: 'Pattern-aware commentary, hype detection, and a clean split between vibe and proof.',
       };
     case 'hermes':
       return {
         introLabel: 'Preflight frame',
-        introCopy: 'Hermes checks readiness, blockers, and launch conditions without touching anything reckless.',
+        introCopy: 'Hermes frames the room around readiness, blockers, and safe launch conditions.',
         helperLabel: 'What to expect',
-        helperCopy: 'Fast status readouts, light footprint, and local readiness notes you can act on.',
+        helperCopy: 'Fast status readouts, light touch, and blocker notes you can act on.',
       };
     case 'veto':
       return {
         introLabel: 'Final review frame',
-        introCopy: 'Veto strips the emotion out of the draft and returns the clean final call.',
+        introCopy: 'Veto strips the room down to verdict, misses, and what still blocks approval.',
         helperLabel: 'What to expect',
-        helperCopy: 'Approve, revise, or reject language with missing requirements stated plainly.',
+        helperCopy: 'Approve, revise, or reject language with the misses stated plainly.',
       };
     default:
       return {
@@ -259,22 +259,22 @@ function getAgentBehaviorHooks(agent: RelayAgent): {
     case 'dispatch':
       return {
         stanceLabel: 'Operating stance',
-        stanceCopy: 'Dispatch organizes the room first: route, owner, dependency, then handoff.',
+        stanceCopy: 'Dispatch organizes first: route, owner, dependency, then handoff.',
         interpretationLabel: 'How it reads the request',
         interpretationCopy: 'As a coordination problem that needs structure before anyone touches execution.',
         nextCueLabel: 'What this agent would do next',
-        nextCueCopy: 'Break the task into stages, name the specialist lane, and keep the route legible.',
-        actionHint: 'Best first move: ask for the route, scope, and sequence.',
+        nextCueCopy: 'Name the lane, break the work into stages, and lock the handoff order.',
+        actionHint: 'Best first move: lock the route, the owner, and the sequence.',
       };
     case 'recon':
       return {
         stanceLabel: 'Operating stance',
         stanceCopy: 'Recon inspects before it summarizes and verifies before it concludes.',
         interpretationLabel: 'How it reads the request',
-        interpretationCopy: 'As an evidence problem with claims, source quality, and open questions to sort.',
+        interpretationCopy: 'As an evidence problem with claims, source quality, and confidence gaps to sort.',
         nextCueLabel: 'What this agent would do next',
-        nextCueCopy: 'Define the research target, gather sources, and label what is signal versus theater.',
-        actionHint: 'Best first move: ask for sources, confidence, and missing context.',
+        nextCueCopy: 'Define the target, gather sources, and label what is signal versus theater.',
+        actionHint: 'Best first move: ask for sources, confidence, and the open questions.',
       };
     case 'patch':
       return {
@@ -284,7 +284,7 @@ function getAgentBehaviorHooks(agent: RelayAgent): {
         interpretationCopy: 'As a fix path: isolate the defect, change the minimum, then prove it.',
         nextCueLabel: 'What this agent would do next',
         nextCueCopy: 'Find the smallest safe patch, line up validation, and keep the diff tight.',
-        actionHint: 'Best first move: ask for the smallest safe fix and the exact validation command.',
+        actionHint: 'Best first move: ask for the minimum fix and the proof it worked.',
       };
     case 'redline':
       return {
@@ -293,8 +293,8 @@ function getAgentBehaviorHooks(agent: RelayAgent): {
         interpretationLabel: 'How it reads the request',
         interpretationCopy: 'As a boundary check: what is allowed, what is risky, and what still needs approval.',
         nextCueLabel: 'What this agent would do next',
-        nextCueCopy: 'Flag the boundary, separate safe from unsafe scope, and force a clear stop/go call.',
-        actionHint: 'Best first move: ask what is in bounds, what is not, and what requires approval.',
+        nextCueCopy: 'Flag the boundary, separate safe from unsafe scope, and force a stop/go call.',
+        actionHint: 'Best first move: ask what is in bounds and what stops here.',
       };
     case 'racket':
       return {
@@ -303,8 +303,8 @@ function getAgentBehaviorHooks(agent: RelayAgent): {
         interpretationLabel: 'How it reads the request',
         interpretationCopy: 'As a narrative field full of hype, framing, crowd behavior, and signal leakage.',
         nextCueLabel: 'What this agent would do next',
-        nextCueCopy: 'Label the narrative, isolate the pattern, and separate momentum from proof.',
-        actionHint: 'Best first move: ask what story the market or audience is trying to tell.',
+        nextCueCopy: 'Label the narrative, isolate the pattern, and separate heat from proof.',
+        actionHint: 'Best first move: ask what story the crowd is trying to sell.',
       };
     case 'hermes':
       return {
@@ -314,7 +314,7 @@ function getAgentBehaviorHooks(agent: RelayAgent): {
         interpretationCopy: 'As a local preflight problem with green checks, blockers, and safe launch conditions.',
         nextCueLabel: 'What this agent would do next',
         nextCueCopy: 'Run the lightest safe check, report blockers clearly, and leave the machine stable.',
-        actionHint: 'Best first move: ask for a read-only readiness check and a clean blocker list.',
+        actionHint: 'Best first move: ask for a read-only preflight and a clean blocker list.',
       };
     case 'veto':
       return {
@@ -323,8 +323,8 @@ function getAgentBehaviorHooks(agent: RelayAgent): {
         interpretationLabel: 'How it reads the request',
         interpretationCopy: 'As a review gate: what passes, what fails, and what is still missing.',
         nextCueLabel: 'What this agent would do next',
-        nextCueCopy: 'Run the final pass, strip the fluff, and return approve, revise, or reject.',
-        actionHint: 'Best first move: ask for the final pass criteria and the exact misses.',
+        nextCueCopy: 'Run the final pass, strip the fluff, and return the verdict with the misses.',
+        actionHint: 'Best first move: ask for the verdict and the exact misses.',
       };
     default:
       return {
@@ -584,7 +584,7 @@ function RelayAgentContextPanel({ agent }: { agent: RelayAgent }) {
             className="text-[9px] uppercase tracking-[0.15em]"
             style={{ color: 'rgb(216, 180, 254)' }}
           >
-            Identity line
+            Operator profile
           </div>
           <p className="mt-2 text-sm font-medium leading-relaxed" style={{ color: 'var(--color-text)' }}>
             {agent.personalityLine}
