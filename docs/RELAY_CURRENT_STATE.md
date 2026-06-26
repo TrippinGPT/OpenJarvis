@@ -196,6 +196,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - v3.9 adds a consolidated PaperLab overview so the paper-trading education lane now has a cleaner naming hierarchy, workflow shape, and safety-first scope.
 - v3.9.1 adds the first PaperForge workflow packet so the paper-learning lane now includes practical scenario, logging, review, and discipline templates for fake-money drills.
 - v4.0 adds a master ecosystem roadmap so lane priority, build sequencing, maintenance responsibilities, and parked-versus-later work are explicit in one place.
+- v4.1 adds a Mem0 fit evaluation for Relay memory and recommends starting with a smaller structured memory layer before any heavier semantic memory foundation.
 - See [RELAY_VOICE_MILESTONE_SUMMARY.md](RELAY_VOICE_MILESTONE_SUMMARY.md) for the voice-lane timeline, winners, losses, and current stable behavior.
 
 ### Voice/UI freeze note
