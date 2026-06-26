@@ -180,6 +180,72 @@ function buildPreflightRequest(agent: RelayAgent): string {
   ].join('\n');
 }
 
+function getAgentFraming(agent: RelayAgent): {
+  introLabel: string;
+  introCopy: string;
+  helperLabel: string;
+  helperCopy: string;
+} {
+  switch (agent.key) {
+    case 'dispatch':
+      return {
+        introLabel: 'Coordination frame',
+        introCopy: 'Dispatch turns a messy request into a route, a sequence, and a clean handoff.',
+        helperLabel: 'What to expect',
+        helperCopy: 'Clear dependencies, named owners, and the next move without extra noise.',
+      };
+    case 'recon':
+      return {
+        introLabel: 'Intel frame',
+        introCopy: 'Recon treats every claim like signal under inspection until the sourcing holds.',
+        helperLabel: 'What to expect',
+        helperCopy: 'Evidence-first summaries, confidence notes, and explicit open questions.',
+      };
+    case 'patch':
+      return {
+        introLabel: 'Engineering frame',
+        introCopy: 'Patch narrows the blast radius, lands the fix, and proves it before celebrating.',
+        helperLabel: 'What to expect',
+        helperCopy: 'Scoped diffs, practical fixes, and validation instead of theatrics.',
+      };
+    case 'redline':
+      return {
+        introLabel: 'Risk frame',
+        introCopy: 'Redline checks whether the request is allowed, safe, and actually in bounds before momentum wins.',
+        helperLabel: 'What to expect',
+        helperCopy: 'Short stop/go language, hard boundaries, and risk called out early.',
+      };
+    case 'racket':
+      return {
+        introLabel: 'Narrative frame',
+        introCopy: 'Racket reads the story moving around the facts and separates crowd heat from real signal.',
+        helperLabel: 'What to expect',
+        helperCopy: 'Pattern-aware commentary, hype detection, and clean distinction between vibe and proof.',
+      };
+    case 'hermes':
+      return {
+        introLabel: 'Preflight frame',
+        introCopy: 'Hermes checks readiness, blockers, and launch conditions without touching anything reckless.',
+        helperLabel: 'What to expect',
+        helperCopy: 'Fast status readouts, light footprint, and local readiness notes you can act on.',
+      };
+    case 'veto':
+      return {
+        introLabel: 'Final review frame',
+        introCopy: 'Veto strips the emotion out of the draft and returns the clean final call.',
+        helperLabel: 'What to expect',
+        helperCopy: 'Approve, revise, or reject language with missing requirements stated plainly.',
+      };
+    default:
+      return {
+        introLabel: 'Agent frame',
+        introCopy: 'This specialist frames the work through its own lane and keeps the output scoped to that role.',
+        helperLabel: 'What to expect',
+        helperCopy: 'Scoped, role-specific output with the same Relay safety boundaries still in place.',
+      };
+  }
+}
+
 function RelayAgentActions({ agent }: { agent: RelayAgent }) {
   const navigate = useNavigate();
   const [copiedAction, setCopiedAction] = useState<string | null>(null);
@@ -360,6 +426,8 @@ function RelayAgentActions({ agent }: { agent: RelayAgent }) {
 }
 
 function RelayAgentContextPanel({ agent }: { agent: RelayAgent }) {
+  const framing = getAgentFraming(agent);
+
   return (
     <section
       className="mb-6 overflow-hidden rounded-2xl p-5"
@@ -429,6 +497,62 @@ function RelayAgentContextPanel({ agent }: { agent: RelayAgent }) {
           </p>
           <p className="mt-2 text-xs leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
             {agent.roleSentence}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <span
+              className="rounded-full px-2.5 py-1 text-[10px]"
+              style={{
+                color: 'rgb(216, 180, 254)',
+                border: '1px solid rgba(192, 132, 252, 0.16)',
+                background: 'rgba(168, 85, 247, 0.08)',
+              }}
+            >
+              Style: {agent.speakingStyle}
+            </span>
+            <span
+              className="rounded-full px-2.5 py-1 text-[10px]"
+              style={{
+                color: 'rgb(103, 232, 249)',
+                border: '1px solid rgba(34, 211, 238, 0.14)',
+                background: 'rgba(34, 211, 238, 0.06)',
+              }}
+            >
+              Energy: {agent.voiceEnergy}
+            </span>
+          </div>
+        </div>
+        <div
+          className="rounded-xl p-3"
+          style={{
+            border: '1px solid rgba(34, 211, 238, 0.10)',
+            background: 'rgba(34, 211, 238, 0.025)',
+          }}
+        >
+          <div
+            className="text-[9px] uppercase tracking-[0.15em]"
+            style={{ color: 'rgb(103, 232, 249)' }}
+          >
+            {framing.introLabel}
+          </div>
+          <p className="mt-2 text-xs leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+            {framing.introCopy}
+          </p>
+        </div>
+        <div
+          className="rounded-xl p-3"
+          style={{
+            border: '1px solid rgba(255,255,255,0.06)',
+            background: 'rgba(255,255,255,0.02)',
+          }}
+        >
+          <div
+            className="text-[9px] uppercase tracking-[0.15em]"
+            style={{ color: 'var(--color-text-tertiary)' }}
+          >
+            {framing.helperLabel}
+          </div>
+          <p className="mt-2 text-xs leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+            {framing.helperCopy}
           </p>
         </div>
         <div
@@ -510,7 +634,13 @@ function RelayAgentContextPanel({ agent }: { agent: RelayAgent }) {
             className="text-[9px] uppercase tracking-[0.15em]"
             style={{ color: 'rgb(134, 239, 172)' }}
           >
-            Sample line
+            Response preview
+          </div>
+          <div
+            className="mt-2 text-[10px] uppercase tracking-[0.14em]"
+            style={{ color: 'var(--color-text-tertiary)' }}
+          >
+            How {agent.name} would frame it
           </div>
           <p className="mt-2 text-xs italic leading-relaxed" style={{ color: 'var(--color-text)' }}>
             “{agent.sampleLine}”
