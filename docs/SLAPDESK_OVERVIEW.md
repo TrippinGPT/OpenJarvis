@@ -270,6 +270,8 @@ Not automation theater. Not magic. Clean workflow.
 - mock session templates
 - handoff forms or structured mix sheets
 
+The first practical packet now lives in [SLAPDESK_WORKFLOW_PACKET.md](SLAPDESK_WORKFLOW_PACKET.md).
+
 ### Future implementation
 
 - guided checklists inside a product surface
