@@ -26,6 +26,7 @@ import {
   fetchOpenClawBridgeStatus,
   type OpenClawBridgeStatus,
 } from '../lib/api';
+import { relayCompanionCopy } from '../lib/relayPersonality';
 import { useAppStore } from '../lib/store';
 
 const meshNodeAccents = [
@@ -205,12 +206,12 @@ export function DashboardPage() {
     relayActivityState === 'route-preview'
       ? `Routing to ${routePreview.target?.toUpperCase()}`
       : relayActivityState === 'routing'
-      ? 'Relay Routing'
+      ? 'Relay routing live'
       : relayActivityState === 'responding'
-        ? 'Relay Responding'
+        ? 'Relay on reply'
         : relayActivityState === 'preview'
-          ? 'Relay Routing Preview'
-          : 'Mesh Stable';
+          ? 'Route preview armed'
+          : 'Mesh steady';
   const now = new Date();
   const stamp = now.toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
   const bridgeData = bridgeStatus ?? relayProjectLanes;
@@ -629,11 +630,11 @@ export function DashboardPage() {
                     boxShadow: '0 0 10px rgb(74, 222, 128)',
                   }}
                 />
-                Online
+                {relayCompanionCopy.labels.online}
               </span>
             </div>
             <p className="mt-1 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-              Relay AI Command Assistant
+              {relayCompanionCopy.dashboard.assistantSubtitle}
             </p>
           </div>
 
@@ -649,7 +650,7 @@ export function DashboardPage() {
               }}
             >
               <ExternalLink size={13} />
-              Open Relay Popout
+              {relayCompanionCopy.dashboard.popoutButton}
             </button>
             {popoutBlocked && (
               <button
@@ -662,7 +663,7 @@ export function DashboardPage() {
                   background: 'rgba(34, 211, 238, 0.055)',
                 }}
               >
-                Popup blocked — open here
+                {relayCompanionCopy.dashboard.popoutBlocked}
               </button>
             )}
             <div
@@ -702,28 +703,28 @@ export function DashboardPage() {
               icon: Bot,
               label: 'Agent Mesh',
               value: '7 / 7 Online',
-              detail: 'All specialists responsive',
+              detail: 'Specialists online and waiting for work',
               color: 'rgb(216, 180, 254)',
             },
             {
               icon: Link2,
               label: 'OpenClaw Bridge',
               value: bridgeBackendState === 'connected' ? 'Connected' : 'Read-only',
-              detail: bridgeStatus?.openclaw_git_branch || 'Manifest fallback ready',
+              detail: bridgeStatus?.openclaw_git_branch || 'Manifest fallback standing by',
               color: 'rgb(103, 232, 249)',
             },
             {
               icon: FolderKanban,
               label: 'Project Lanes',
               value: `${bridgeData.lanes.length} Active`,
-              detail: 'Scoped workflow boundaries',
+              detail: 'Boundaries locked by lane',
               color: 'rgb(196, 181, 253)',
             },
             {
               icon: ShieldCheck,
               label: 'Safety Mode',
               value: 'Read-only',
-              detail: 'No workflow execution',
+              detail: 'No workflow execution exposed',
               color: 'rgb(134, 239, 172)',
             },
           ].map(({ icon: Icon, label, value, detail, color }) => (
@@ -1470,10 +1471,10 @@ export function DashboardPage() {
             >
               <ShieldCheck size={13} />
               {bridgeBackendState === 'connected'
-                ? 'Backend Connected'
+                ? 'Backend linked'
                 : bridgeBackendState === 'fallback'
-                  ? 'Manifest Fallback'
-                  : 'Checking Bridge'}
+                  ? 'Manifest fallback'
+                  : 'Checking bridge'}
             </div>
           </div>
 
@@ -1484,7 +1485,7 @@ export function DashboardPage() {
                 { label: 'Integration mode', value: bridgeData.integration_mode, icon: Link2 },
                 {
                   label: 'Live branch',
-                  value: bridgeStatus?.openclaw_git_branch || 'Unavailable',
+                  value: bridgeStatus?.openclaw_git_branch || 'Off the line',
                   icon: GitBranch,
                 },
                 {
@@ -1648,7 +1649,7 @@ export function DashboardPage() {
                 icon={Zap}
                 eyebrow="Operator Controls"
                 title="Relay Quick Commands"
-                description="Copy-safe references for local operation"
+                description={relayCompanionCopy.dashboard.commandDescription}
               />
               <div
                 className="hidden rounded-lg px-3 py-2 text-[9px] uppercase tracking-[0.16em] sm:block"
@@ -1658,7 +1659,7 @@ export function DashboardPage() {
                   background: 'rgba(255,255,255,0.025)',
                 }}
               >
-                Copy Only
+                {relayCompanionCopy.dashboard.commandBadge}
               </div>
             </div>
             <div className="grid gap-2.5 md:grid-cols-2">
@@ -1727,7 +1728,7 @@ export function DashboardPage() {
               icon={Terminal}
               eyebrow="Safe Reference"
               title="Command Terminal"
-              description="Visual reference only — execution disabled"
+              description={relayCompanionCopy.dashboard.commandTerminalDescription}
               cyan
             />
             <div
@@ -1780,7 +1781,7 @@ export function DashboardPage() {
                   })}
                 </div>
                 <div className="mt-5 border-t pt-3 text-[9px]" style={{ color: 'rgb(253,224,71)', borderColor: 'rgba(255,255,255,0.06)' }}>
-                  EXECUTION LOCKED — COPY / REFERENCE MODE
+                  {relayCompanionCopy.dashboard.terminalLock}
                 </div>
               </div>
             </div>
@@ -1813,8 +1814,8 @@ export function DashboardPage() {
             background: 'rgba(255,255,255,0.018)',
           }}
         >
-          <span>Relay cockpit // OpenClaw engine</span>
-          <span>Read-only bridge // No workflow execution</span>
+          <span>{relayCompanionCopy.dashboard.footerLeft}</span>
+          <span>{relayCompanionCopy.dashboard.footerRight}</span>
         </div>
       </div>
     </div>

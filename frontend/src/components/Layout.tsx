@@ -5,6 +5,7 @@ import { Sidebar } from './Sidebar/Sidebar';
 import { SystemPulse } from './SystemPulse';
 import { useAppStore } from '../lib/store';
 import { checkHealth } from '../lib/api';
+import { relayCompanionCopy } from '../lib/relayPersonality';
 
 export function Layout() {
   const sidebarOpen = useAppStore((s) => s.sidebarOpen);
@@ -44,13 +45,13 @@ export function Layout() {
             className="w-1.5 h-1.5 rounded-full shrink-0"
             style={{ background: 'var(--color-error)' }}
           />
-          <span>Cannot reach Relay backend</span>
+          <span>{relayCompanionCopy.layout.backendOffline}</span>
           <button
             onClick={() => navigate('/settings')}
             className="text-sm underline cursor-pointer ml-auto shrink-0"
             style={{ color: 'var(--color-accent)' }}
           >
-            Change URL
+            {relayCompanionCopy.layout.backendOfflineAction}
           </button>
         </div>
       )}

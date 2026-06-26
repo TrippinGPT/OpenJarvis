@@ -28,6 +28,7 @@ import {
   RELAY_POPOUT_ACTIVITY_KEY,
   type RelayPopoutActivity,
 } from '../lib/relayPopout';
+import { relayCompanionCopy } from '../lib/relayPersonality';
 import { useAppStore } from '../lib/store';
 
 type BridgeState = 'checking' | 'connected' | 'fallback';
@@ -149,8 +150,8 @@ export function RelayPopoutPage() {
   const [voicePack, setVoicePack] = useState<RelayVoicePack | null>(null);
   const [voicePackError, setVoicePackError] = useState<string | null>(null);
   const [voicePlaybackState, setVoicePlaybackState] = useState<VoicePlaybackState>('idle');
-  const [voicePlaybackNote, setVoicePlaybackNote] = useState<string>('Voice disabled until you toggle it on.');
-  const [voicePlaybackDetail, setVoicePlaybackDetail] = useState<string>('Manual only. No autoplay.');
+  const [voicePlaybackNote, setVoicePlaybackNote] = useState<string>(relayCompanionCopy.popout.voiceDisabled);
+  const [voicePlaybackDetail, setVoicePlaybackDetail] = useState<string>(relayCompanionCopy.popout.voiceDisabledDetail);
   const [voiceCategory, setVoiceCategory] = useState<string>('manual_test');
   const [statusRefreshPending, setStatusRefreshPending] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -238,9 +239,9 @@ export function RelayPopoutPage() {
     : sharedActivity?.phase || '';
   const currentModel = selectedModel || sharedActivity?.model || 'Loading local models...';
   const meshState = isResponding ? 'Responding' : 'Stable';
-  const systemState = backendOnline === false ? 'Offline' : backendOnline === null ? 'Checking' : 'Online';
+  const systemState = backendOnline === false ? relayCompanionCopy.labels.offline : backendOnline === null ? relayCompanionCopy.labels.checking : relayCompanionCopy.labels.online;
   const bridgeLabel =
-    bridgeState === 'connected' ? 'Connected' : bridgeState === 'fallback' ? 'Manifest' : 'Checking';
+    bridgeState === 'connected' ? relayCompanionCopy.labels.connected : bridgeState === 'fallback' ? relayCompanionCopy.labels.manifestFallback : relayCompanionCopy.labels.checking;
   const statusLabel = isResponding ? 'RELAY RESPONDING' : 'RELAY ONLINE';
   const lastSync = formatActivityTime(sharedActivity?.updatedAt || 0);
   const voiceControlsEnabled = relayPlaceholderVoiceEnabled && Boolean(voicePack?.synthesis_available);
@@ -296,17 +297,17 @@ export function RelayPopoutPage() {
       activePlaybackIdRef.current += 1;
       disposeAudio();
       setVoicePlaybackState('idle');
-      setVoicePlaybackNote('Voice disabled until you toggle it on.');
-      setVoicePlaybackDetail('Manual only. No autoplay.');
+      setVoicePlaybackNote(relayCompanionCopy.popout.voiceDisabled);
+      setVoicePlaybackDetail(relayCompanionCopy.popout.voiceDisabledDetail);
       return;
     }
 
     setVoicePlaybackState('idle');
-    setVoicePlaybackNote(voicePack?.synthesis_available ? 'Ready for one manual playback test.' : 'Voice backend unavailable.');
+    setVoicePlaybackNote(voicePack?.synthesis_available ? relayCompanionCopy.popout.voiceReady : relayCompanionCopy.popout.voiceUnavailable);
     setVoicePlaybackDetail(
       voicePack?.synthesis_available
-        ? 'Manual only. One click generates one local playback.'
-        : voicePackError || 'Local synthesis is not ready.',
+        ? relayCompanionCopy.popout.voiceReadyDetail
+        : voicePackError || relayCompanionCopy.popout.voiceUnavailableDetail,
     );
 
     const startupEventEnabled = settings.relayVoiceStartupEventEnabled;
@@ -333,8 +334,8 @@ export function RelayPopoutPage() {
       const matchedEvent = eventTriggerStates.find((eventTrigger) => eventTrigger.category === category);
       if (!matchedEvent || !settings[matchedEvent.key]) {
         setVoicePlaybackState('idle');
-        setVoicePlaybackNote(`${category} event disabled.`);
-        setVoicePlaybackDetail('Enable the specific event trigger before running this demo.');
+        setVoicePlaybackNote(relayCompanionCopy.popout.eventDisabled(category));
+        setVoicePlaybackDetail(relayCompanionCopy.popout.eventDisabledDetail);
         return;
       }
     }
@@ -346,7 +347,7 @@ export function RelayPopoutPage() {
       || voicePack?.default_placeholder_text
       || voiceLine;
     setVoicePlaybackState('generating');
-    setVoicePlaybackNote(`Generating ${category} line...`);
+    setVoicePlaybackNote(relayCompanionCopy.popout.generating(category));
     setVoicePlaybackDetail(previewText);
 
     try {
@@ -360,11 +361,11 @@ export function RelayPopoutPage() {
       const audio = new Audio(objectUrl);
       audioRef.current = audio;
       setVoicePlaybackState('playing');
-      setVoicePlaybackNote(`Playing ${category} line.`);
+      setVoicePlaybackNote(relayCompanionCopy.popout.playing(category));
       setVoicePlaybackDetail(
         source === 'manual'
-          ? 'Manual category playback in progress.'
-          : 'Explicit event demo playback in progress.',
+          ? relayCompanionCopy.popout.manualPlaying
+          : relayCompanionCopy.popout.eventPlaying,
       );
 
       audio.onended = () => {
@@ -373,11 +374,11 @@ export function RelayPopoutPage() {
         }
         disposeAudio();
         setVoicePlaybackState('complete');
-        setVoicePlaybackNote('Playback complete.');
+        setVoicePlaybackNote(relayCompanionCopy.popout.playbackComplete);
         setVoicePlaybackDetail(
           source === 'manual'
-            ? `Manual only. Click Play test line to replay the ${category} category.`
-            : `Event demo complete. Trigger ${category} again only if you want another manual demo.`,
+            ? relayCompanionCopy.popout.playbackReplay(category)
+            : relayCompanionCopy.popout.eventReplay(category),
         );
       };
 
@@ -387,8 +388,8 @@ export function RelayPopoutPage() {
         }
         disposeAudio();
         setVoicePlaybackState('error');
-        setVoicePlaybackNote('Playback failed.');
-        setVoicePlaybackDetail('The audio could not be played in this browser session.');
+        setVoicePlaybackNote(relayCompanionCopy.popout.playbackFailed);
+        setVoicePlaybackDetail(relayCompanionCopy.popout.playbackFailedDetail);
       };
 
       await audio.play();
@@ -398,7 +399,7 @@ export function RelayPopoutPage() {
       }
       disposeAudio();
       setVoicePlaybackState('error');
-      setVoicePlaybackNote('Playback failed.');
+      setVoicePlaybackNote(relayCompanionCopy.popout.playbackFailed);
       setVoicePlaybackDetail(error instanceof Error ? error.message : 'Playback failed');
     }
   };
@@ -414,11 +415,11 @@ export function RelayPopoutPage() {
   const handleRunSelectedEvent = async () => {
     if (!selectedEventCategory) {
       setVoicePlaybackState('idle');
-      setVoicePlaybackNote('No event hook selected.');
+      setVoicePlaybackNote(relayCompanionCopy.popout.noEventSelected);
       setVoicePlaybackDetail(
         voiceCategory === 'startup'
-          ? 'Startup runs from Voice On when the startup event toggle is enabled.'
-          : 'Use Play test line for manual_test, or select routing, success, or warning first.',
+          ? relayCompanionCopy.popout.startupHint
+          : relayCompanionCopy.popout.eventHint,
       );
       return;
     }
@@ -432,8 +433,8 @@ export function RelayPopoutPage() {
     }
 
     setStatusRefreshPending(true);
-    setVoicePlaybackNote('Refreshing Relay status...');
-    setVoicePlaybackDetail('Checking backend health and OpenClaw bridge readiness.');
+    setVoicePlaybackNote(relayCompanionCopy.popout.refreshingStatus);
+    setVoicePlaybackDetail(relayCompanionCopy.popout.refreshingStatusDetail);
 
     try {
       const [healthResult, bridgeResult] = await Promise.allSettled([checkHealth(), fetchOpenClawBridgeStatus()]);
@@ -444,19 +445,19 @@ export function RelayPopoutPage() {
       setBridgeState(bridgeReady ? 'connected' : 'fallback');
 
       if (backendReady && bridgeReady) {
-        setVoicePlaybackNote('Relay status refreshed.');
-        setVoicePlaybackDetail('Backend online. Bridge connected.');
+        setVoicePlaybackNote(relayCompanionCopy.popout.refreshSuccess);
+        setVoicePlaybackDetail(relayCompanionCopy.popout.refreshSuccessDetail);
         if (voiceControlsEnabled && settings.relayVoiceSuccessEventEnabled && !voiceRequestActive) {
           await runVoicePlayback('success', 'event', true);
         }
         return;
       }
 
-      setVoicePlaybackNote('Relay status needs attention.');
+      setVoicePlaybackNote(relayCompanionCopy.popout.refreshAttention);
       setVoicePlaybackDetail(
         backendReady
-          ? 'Backend online, but bridge fell back to manifest mode.'
-          : 'Backend health is unavailable. Check local services.',
+          ? relayCompanionCopy.popout.refreshFallbackDetail
+          : relayCompanionCopy.popout.refreshOfflineDetail,
       );
       if (voiceControlsEnabled && settings.relayVoiceWarningEventEnabled && !voiceRequestActive) {
         await runVoicePlayback('warning', 'event', true);
@@ -464,7 +465,7 @@ export function RelayPopoutPage() {
     } catch (error) {
       setBackendOnline(false);
       setBridgeState('fallback');
-      setVoicePlaybackNote('Relay status refresh failed.');
+      setVoicePlaybackNote(relayCompanionCopy.popout.refreshFailed);
       setVoicePlaybackDetail(error instanceof Error ? error.message : 'Status refresh failed.');
       if (voiceControlsEnabled && settings.relayVoiceWarningEventEnabled && !voiceRequestActive) {
         await runVoicePlayback('warning', 'event', true);
@@ -478,7 +479,7 @@ export function RelayPopoutPage() {
     if (!relayPlaceholderVoiceEnabled) {
       setVoicePlaybackState('idle');
       setVoicePlaybackNote('Voice disabled until you toggle it on.');
-      setVoicePlaybackDetail('Manual only. No autoplay.');
+      setVoicePlaybackDetail(relayCompanionCopy.popout.voiceDisabledDetail);
       return;
     }
 
@@ -486,17 +487,17 @@ export function RelayPopoutPage() {
       if (!voiceRequestActive) {
         setVoicePlaybackState('idle');
       }
-      setVoicePlaybackNote('Voice backend unavailable.');
-      setVoicePlaybackDetail(voicePackError || 'Local synthesis is not ready.');
+      setVoicePlaybackNote(relayCompanionCopy.popout.voiceUnavailable);
+      setVoicePlaybackDetail(voicePackError || relayCompanionCopy.popout.voiceUnavailableDetail);
       return;
     }
 
     if (voicePlaybackState === 'idle') {
-      setVoicePlaybackNote(`Ready for ${voiceCategory} playback.`);
+      setVoicePlaybackNote(relayCompanionCopy.popout.statusReady(voiceCategory));
       setVoicePlaybackDetail(
         voiceCategoryVariants.length > 1
-          ? `${voiceCategoryVariants.length} variants available. One is picked on each manual playback.`
-          : 'Manual only. One click generates one local playback.',
+          ? relayCompanionCopy.popout.statusReadyVariant(voiceCategoryVariants.length)
+          : relayCompanionCopy.popout.statusReadySingle,
       );
     }
   }, [
@@ -648,20 +649,20 @@ export function RelayPopoutPage() {
             <div className="mt-1 divide-y" style={{ borderColor: 'rgba(148, 163, 184, 0.08)' }}>
               <StatusRow
                 icon={CircleDot}
-                label={isResponding ? 'Response route active' : 'Companion window ready'}
-                detail={isResponding ? activePhase || 'Local inference in progress' : 'Waiting for Relay activity'}
+                label={isResponding ? 'Route live' : 'Companion ready'}
+                detail={isResponding ? activePhase || relayCompanionCopy.popout.responding : relayCompanionCopy.popout.waiting}
                 color={isResponding ? 'rgb(216, 180, 254)' : 'rgb(103, 232, 249)'}
               />
               <StatusRow
                 icon={Link2}
-                label={bridgeState === 'connected' ? 'Bridge linked' : 'Bridge manifest ready'}
-                detail={bridgeState === 'connected' ? 'Read-only backend status connected' : 'Static safety manifest available'}
+                label={bridgeState === 'connected' ? 'Bridge linked' : 'Bridge fallback ready'}
+                detail={bridgeState === 'connected' ? relayCompanionCopy.popout.bridgeLinked : relayCompanionCopy.popout.bridgeFallback}
                 color="rgb(103, 232, 249)"
               />
               <StatusRow
                 icon={ShieldCheck}
-                label="Safety boundary active"
-                detail="No execution controls exposed"
+                label="Safety lock active"
+                detail={relayCompanionCopy.popout.safety}
                 color="rgb(134, 239, 172)"
               />
             </div>
@@ -745,14 +746,14 @@ export function RelayPopoutPage() {
               </div>
               {voiceCategoryVariants.length > 1 && (
                 <div className="mt-1 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(165, 243, 252, 0.68)' }}>
-                  Variant selected on each manual playback
+                  {relayCompanionCopy.popout.variantNote}
                 </div>
               )}
               <div className="mt-1 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
-                {voicePackError || 'Voice stays off by default and plays only on user-triggered actions.'}
+                {voicePackError || relayCompanionCopy.popout.voiceBehaviorNote}
               </div>
               <div className="mt-1 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
-                Category selection previews only. Startup can run on Voice On. Use Run Selected Event or Refresh Relay Status for gated voice actions.
+                {relayCompanionCopy.popout.gateNote}
               </div>
             </div>
             <label className="grid gap-1 text-[6px] uppercase tracking-[0.14em]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
@@ -832,7 +833,7 @@ export function RelayPopoutPage() {
                   }}
                 >
                   <PlayCircle size={10} />
-                  Run Selected Event
+                  {relayCompanionCopy.popout.runSelectedEvent}
                 </button>
                 <button
                   type="button"
@@ -846,7 +847,7 @@ export function RelayPopoutPage() {
                   }}
                 >
                   <Radio size={10} />
-                  {statusRefreshPending ? 'Refreshing...' : 'Refresh Relay Status'}
+                  {statusRefreshPending ? relayCompanionCopy.popout.refreshingShort : relayCompanionCopy.popout.refreshStatus}
                 </button>
               </div>
             </div>
@@ -883,7 +884,7 @@ export function RelayPopoutPage() {
                   ? 'Generating...'
                   : voicePlaybackState === 'playing'
                     ? 'Playing...'
-                    : 'Play test line'}
+                    : relayCompanionCopy.popout.playTestLine}
               </button>
               <div className="min-w-0 text-[6px] uppercase tracking-[0.14em]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
                 <div className="truncate">Category: {voiceCategory}</div>

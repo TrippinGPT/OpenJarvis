@@ -201,6 +201,7 @@ Current locked speaking direction:
 ## What remains future work
 
 - Treat the current milestone as stable-for-now. Resume only through a deliberate new milestone, not random polish.
+- Non-voice companion behavior can keep evolving through deliberate UI/personality milestones without reopening the voice plumbing itself.
 - Decide whether the current placeholder pack should remain long-term or be replaced by a more final production voice.
 - Refine real-action voice mapping further without making the UI noisy.
 - Add more contextual action-to-line selection only where the action is real, explicit, and safe.
