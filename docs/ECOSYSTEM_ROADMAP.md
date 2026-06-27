@@ -25,7 +25,7 @@ The point of this roadmap is to make priority explicit so:
 - active work stays concentrated
 - parked lanes stay intentional instead of vague
 - a future builder can tell what matters first
-- “good ideas” do not outrun sequencing
+- "good ideas" do not outrun sequencing
 
 ## Priority buckets
 
@@ -60,7 +60,7 @@ Exploration lanes or machine contexts that are useful for experiments, validatio
 | OpenClaw / SignalForge | Maintain now | Backbone engine and intel/reporting support layer |
 | Discord / Trippin AI shell | Maintain now | Front door, onboarding shell, and project legibility layer |
 | SlapDesk | Park intentionally | Real music workflow lane, now documented and operationally shaped |
-| PaperLab / PaperForge | Park intentionally | Real paper-learning lane, now structured and safe, but not top build priority |
+| PaperLab / PaperForge | Maintain now | Real paper-learning lane with workflow and scenario materials, now mature enough to keep coherent without becoming the main build lane |
 | Cross-machine infrastructure | Infra later | Important future enabler, but premature as a main focus |
 | Jarvis testing lane | Research / test only | Good for experiments and validation, not current product center |
 
@@ -78,19 +78,23 @@ Exploration lanes or machine contexts that are useful for experiments, validatio
   - strengthened agent layer
   - local voice placeholder lane
   - read-only OpenClaw bridge
+  - structured local memory prototype
+  - memory hygiene and expiry model
+  - deterministic next-move guidance derived from visible memory
 - **Doc-only or planning-only pieces still around:**
   - future deeper voice expansion
   - future richer orchestration or cross-machine behavior
-- **Next milestone:** connect the strongest next product behavior that meaningfully improves user utility without widening scope recklessly
+- **Next milestone:** turn the stronger memory and continuity layer into one or two clearly useful operator workflows instead of adding more abstract memory surface area
 - **Not the focus right now:**
   - random visual churn
   - over-expanding voice beyond current need
   - premature infra-heavy orchestration
+  - heavier semantic memory systems before the explicit local model proves its limits
 
 ## 2. Relay Agents
 
 - **Status bucket:** Maintain now
-- **Purpose:** Give Relay’s specialist team distinct identity, framing, and behavior
+- **Purpose:** Give Relay's specialist team distinct identity, framing, and behavior
 - **Why it matters:** The product now feels more team-like and legible
 - **Already real/live:**
   - identity fields
@@ -153,11 +157,12 @@ Exploration lanes or machine contexts that are useful for experiments, validatio
   - workflow spine
   - workflow packet
   - templates and checklists
+  - usable first-pass session structure from cookup to bounce
 - **Doc-only or planning-only pieces still around:**
   - product surface
   - prompt packs tied to each module
   - DAW-adjacent helpers
-- **Next milestone:** build the next practical workflow packet assets or example session materials only when music lane priority returns
+- **Next milestone:** if music becomes active again, add example session packets or module-specific prompt kits before any DAW automation work
 - **Not the focus right now:**
   - DAW automation
   - plugin management
@@ -165,7 +170,7 @@ Exploration lanes or machine contexts that are useful for experiments, validatio
 
 ## 6. PaperLab / PaperForge
 
-- **Status bucket:** Park intentionally
+- **Status bucket:** Maintain now
 - **Purpose:** Safe simulation and market-learning lane
 - **Why it matters:** It gives the ecosystem a disciplined education lane without breaking the fake-money boundary
 - **Already real/live:**
@@ -173,12 +178,13 @@ Exploration lanes or machine contexts that are useful for experiments, validatio
   - safety boundary
   - PaperLab overview
   - PaperForge workflow packet
+  - PaperForge scenario pack
   - logging/review/discipline loop
 - **Doc-only or planning-only pieces still around:**
-  - scenario packs
   - review dashboards
   - replay or richer simulation shells
-- **Next milestone:** create a PaperForge scenario pack when the lane is reactivated
+  - learner-facing product wrapper
+- **Next milestone:** keep the lane in maintenance mode unless there is a deliberate decision to build a learner-facing log sheet, scenario review surface, or first lightweight product wrapper
 - **Not the focus right now:**
   - live trading
   - wallets
@@ -223,9 +229,9 @@ Use this simple dependency logic:
 
 - **OpenClaw / SignalForge** supports the ecosystem as backbone engine and intel/reporting layer
 - **Relay** is the main active product surface
-- **Relay Agents** strengthen Relay’s operator feel and workflow clarity
+- **Relay Agents** strengthen Relay's operator feel and workflow clarity
 - **Discord / Trippin AI shell** explains and organizes the ecosystem from the outside
-- **SlapDesk** and **PaperLab / PaperForge** are structured workflow lanes under the same umbrella
+- **SlapDesk** and **PaperLab / PaperForge** are now both documented workflow lanes with usable first-pass packets
 - **Cross-machine infrastructure** supports later scaling but should not lead the current roadmap
 - **Jarvis testing lane** is a test lane, not a priority lane
 
@@ -233,13 +239,14 @@ Use this simple dependency logic:
 
 After this roadmap, the practical order should be:
 
-1. Keep Relay as the main active build lane
+1. Keep Relay as the main active build lane, with memory-driven operator utility as the most credible next product thread
 2. Keep Relay agent work in maintenance mode unless a concrete product need reopens it
 3. Keep OpenClaw / SignalForge boundary clarity intact
 4. Treat Discord as ready-enough until real onboarding demand forces the next pass
-5. Freeze SlapDesk and PaperLab as well-shaped parked lanes unless one becomes strategically important again
-6. Defer cross-machine infrastructure until a real bottleneck justifies it
-7. Use the Jarvis testing lane only for specific experiments
+5. Keep PaperLab / PaperForge coherent and maintained, but do not let it displace Relay as the main build lane
+6. Keep SlapDesk parked but ready, with no new buildout until the music lane becomes strategically timely
+7. Defer cross-machine infrastructure until a real bottleneck justifies it
+8. Use the Jarvis testing lane only for specific experiments
 
 ## Recommended build order by bucket
 
@@ -252,11 +259,11 @@ After this roadmap, the practical order should be:
 1. OpenClaw / SignalForge boundary clarity
 2. Relay Agents
 3. Discord / Trippin AI shell
+4. PaperLab / PaperForge
 
 ### Park intentionally
 
 1. SlapDesk
-2. PaperLab / PaperForge
 
 ### Infra later
 
@@ -272,7 +279,7 @@ After this roadmap, the practical order should be:
 - **Relay agent identity layer:** stable enough to stop polishing unless tied to real workflow gains
 - **Discord structure:** good enough for current clarity needs
 - **SlapDesk:** now a real lane, but should stay parked until music becomes a real build priority
-- **PaperLab / PaperForge:** now a real lane, but should stay parked until the education/simulation lane becomes strategically timely
+- **PaperLab / PaperForge:** no longer concept-only; keep it maintained and legible, but do not widen it into product buildout without a deliberate reactivation decision
 
 ## Do not get distracted by
 
@@ -280,7 +287,46 @@ After this roadmap, the practical order should be:
 - bot rollout before the manual Discord structure proves useful
 - real-money trading ideas
 - endless voice polish without product payoff
-- turning parked lanes into active lanes just because they are now well-documented
+- turning mature side lanes into main build lanes just because they now have cleaner docs
+
+## Recommended next sequence
+
+Use this as the near-term attention map.
+
+### Keep building now
+
+1. Relay
+   - priority: translate structured memory and next-move guidance into stronger operator continuity and action clarity
+   - avoid: adding heavier memory systems before the explicit model is genuinely limiting
+
+### Maintain lightly
+
+1. OpenClaw / SignalForge boundary clarity
+2. Relay Agents
+3. Discord / Trippin AI shell
+4. PaperLab / PaperForge
+
+PaperLab / PaperForge moved into light maintenance because it now has:
+
+- a clean hierarchy
+- a workflow packet
+- a scenario pack
+
+That makes it more than a parked concept lane, but still not the main build lane.
+
+### Leave parked
+
+1. SlapDesk
+
+SlapDesk is real enough to resume later without more concept work, so it should stay parked rather than absorbing polish cycles now.
+
+### Infra later
+
+1. Cross-machine infrastructure
+
+### Research / test only
+
+1. Jarvis testing lane
 
 ## Glossary
 
@@ -304,7 +350,8 @@ Right now the clean reading is:
 
 - build Relay
 - maintain the backbone and shell clarity
-- park the structured side lanes intentionally
+- keep PaperLab / PaperForge maintained but not promoted to main build status
+- park the remaining structured side lanes intentionally
 - leave infra for later
 - use the test lanes only when they solve a real problem
 
