@@ -195,6 +195,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - v3.8.1 adds the first SlapDesk workflow packet so the music lane now includes practical checklists, templates, and a usable session path from cookup to bounce.
 - v3.9 adds a consolidated PaperLab overview so the paper-trading education lane now has a cleaner naming hierarchy, workflow shape, and safety-first scope.
 - v3.9.1 adds the first PaperForge workflow packet so the paper-learning lane now includes practical scenario, logging, review, and discipline templates for fake-money drills.
+- v3.9.2 adds the first PaperForge scenario pack so the paper-learning lane now includes reusable fake-money drill scenarios, filled example cards, and a starter sequence for disciplined practice.
 - v4.0 adds a master ecosystem roadmap so lane priority, build sequencing, maintenance responsibilities, and parked-versus-later work are explicit in one place.
 - v4.1 adds a Mem0 fit evaluation for Relay memory and recommends starting with a smaller structured memory layer before any heavier semantic memory foundation.
 - v4.1.1 adds the first local structured Relay memory prototype with explicit transient fields, visible pinned notes, 12-hour expiry, and operator clear/reset controls in the Relay Companion.
