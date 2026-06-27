@@ -181,9 +181,6 @@ export function InputArea() {
       currentLane: deepResearch ? 'Research' : 'Conversation',
       currentObjective: summarizeRelayMemoryText(content, 140),
       lastMeaningfulAction: 'Operator sent a new request.',
-      nextSuggestedMove: deepResearch
-        ? 'Let Relay finish the research pass, then decide what to pin.'
-        : 'Let Relay finish the response, then decide whether to pin the result.',
     });
     addMessage(convId, userMsg);
 
@@ -503,7 +500,6 @@ export function InputArea() {
         lastMeaningfulAction: deepResearch
           ? 'Relay finished the latest research pass.'
           : 'Relay finished the latest response.',
-        nextSuggestedMove: 'Review the result, pin anything durable, or send the next move.',
         recentStatusSummary: summarizeRelayMemoryText(accumulatedContent, 180),
       });
       if (timerRef.current) {

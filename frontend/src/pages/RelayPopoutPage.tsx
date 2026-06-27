@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+﻿import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import {
   Activity,
   ArrowLeft,
@@ -28,6 +28,7 @@ import {
   type RelayVoicePack,
 } from '../lib/api';
 import {
+  deriveRelayNextMoveView,
   formatRelayMemoryTime,
   RELAY_MEMORY_STORAGE_KEY,
   summarizeRelayMemoryText,
@@ -285,6 +286,7 @@ export function RelayPopoutPage() {
   const voiceLine = voicePack?.placeholder_category_lines?.[voiceCategory]
     || voicePack?.default_placeholder_text
     || 'Relay online. Voice check complete.';
+  const nextMoveView = deriveRelayNextMoveView(relayMemory);
   const memorySessionLabel = relayMemory.sessionId.slice(0, 8);
   const memoryUpdatedLabel = formatRelayMemoryTime(relayMemory.updatedAt);
   const memoryExpiresLabel = formatRelayMemoryTime(relayMemory.expiresAt);
@@ -804,7 +806,10 @@ export function RelayPopoutPage() {
                 <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
                   Next suggested move
                 </div>
-                <div style={{ color: 'rgba(165, 243, 252, 0.88)' }}>{relayMemory.nextSuggestedMove || 'Not set'}</div>
+                <div style={{ color: 'rgba(165, 243, 252, 0.88)' }}>{relayMemory.nextSuggestedMove || nextMoveView.move || 'Not set'}</div>
+                <div className="mt-1 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+                  Based on {nextMoveView.basedOn}
+                </div>
               </div>
               <div className="mt-2">
                 <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>

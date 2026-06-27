@@ -203,6 +203,40 @@ If this shape proves useful, a later milestone can evaluate whether Mem0 should 
 
 These are the fields that actually preserve operator continuity.
 
+## How next-move guidance is derived
+
+`nextSuggestedMove` is now derived by explicit rule logic instead of being rewritten as a hardcoded string on every UI action.
+
+The current derivation uses:
+
+- `currentLane`
+- `activeAgent`
+- `currentObjective`
+- `recentStatusSummary`
+- `pinnedNotes`
+- workspace priorities when no stronger continuity signal exists
+
+### Current rule order
+
+1. backend/offline or fallback warnings
+2. research lane with an active objective
+3. conversation lane with objective and optional active agent
+4. active agent plus objective
+5. active agent only
+6. objective only
+7. pinned notes
+8. workspace priorities
+9. default cockpit fallback
+
+### What this intentionally does not do
+
+- no opaque AI reasoning
+- no hidden summarizer
+- no vector or graph lookup
+- no transcript-level intent modeling
+
+The guidance is meant to be short, explainable, and operator-auditable.
+
 ### Useful, but secondary
 
 - `sessionId`

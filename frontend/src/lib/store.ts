@@ -601,9 +601,6 @@ export const useAppStore = create<AppState>((set, get) => {
         lastMeaningfulAction: agentName
           ? `Focused ${agentName} agent context.`
           : 'Cleared the active agent focus.',
-        nextSuggestedMove: agentName
-          ? `Review ${agentName} cues or route the next move.`
-          : 'Pick another agent or continue from the cockpit.',
         recentStatusSummary: agentName
           ? `${agentName} is the current specialist in focus.`
           : 'No specialist is currently pinned as the active agent.',

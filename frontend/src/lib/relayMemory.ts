@@ -25,6 +25,11 @@ export interface RelayStructuredMemory {
   updatedAt: number;
 }
 
+export interface RelayNextMoveView {
+  move: string;
+  basedOn: string;
+}
+
 export type RelayMemoryTransientUpdate = Partial<
   Pick<
     RelayStructuredMemory,
@@ -82,6 +87,104 @@ export function createDefaultRelayMemory(now = Date.now()): RelayStructuredMemor
     expiresAt: now + RELAY_MEMORY_TRANSIENT_TTL_MS,
     clearedAt: null,
     updatedAt: now,
+  };
+}
+
+function cleanSnippet(value: string | null | undefined, maxLength = 72): string | null {
+  if (!value) return null;
+  return summarizeRelayMemoryText(value, maxLength);
+}
+
+export function deriveRelayNextMoveView(memory: RelayStructuredMemory): RelayNextMoveView {
+  const lane = memory.currentLane || 'Relay cockpit';
+  const objective = cleanSnippet(memory.currentObjective, 72);
+  const agent = cleanSnippet(memory.activeAgent, 32);
+  const status = (memory.recentStatusSummary || '').toLowerCase();
+  const priorities = memory.activeLanePriorities.slice(0, 2);
+  const pinnedCount = memory.pinnedNotes.length;
+
+  if (status.includes('offline')) {
+    return {
+      move: 'Bring the backend back online before trusting the cockpit.',
+      basedOn: 'recent status',
+    };
+  }
+
+  if (status.includes('fallback')) {
+    return {
+      move: 'Check the bridge fallback, then decide whether to keep working in manifest mode.',
+      basedOn: 'recent status',
+    };
+  }
+
+  if (status.includes('failed')) {
+    return {
+      move: 'Resolve the failed step or reset transient memory before pushing ahead.',
+      basedOn: 'recent status',
+    };
+  }
+
+  if (lane === 'Research' && objective) {
+    return {
+      move: pinnedCount > 0
+        ? 'Review the research result, then pin only the facts that still matter.'
+        : 'Review the research result and pin any fact worth carrying forward.',
+      basedOn: 'lane + objective',
+    };
+  }
+
+  if (lane === 'Conversation' && objective && agent) {
+    return {
+      move: `Review the reply, then decide whether ${agent} should own the next pass.`,
+      basedOn: 'lane + agent + objective',
+    };
+  }
+
+  if (lane === 'Conversation' && objective) {
+    return {
+      move: 'Review the reply, then either pin the takeaway or send the next ask.',
+      basedOn: 'lane + objective',
+    };
+  }
+
+  if (agent && objective) {
+    return {
+      move: `Use ${agent} to advance the current objective, then pin only the durable parts.`,
+      basedOn: 'agent + objective',
+    };
+  }
+
+  if (agent) {
+    return {
+      move: `Review ${agent} context and decide whether to route the next concrete step there.`,
+      basedOn: 'active agent',
+    };
+  }
+
+  if (objective) {
+    return {
+      move: 'Keep the current objective narrow, then take one concrete step before changing lanes.',
+      basedOn: 'objective',
+    };
+  }
+
+  if (pinnedCount > 0) {
+    return {
+      move: 'Use the pinned notes to set the next objective or clear the ones that have gone stale.',
+      basedOn: 'pinned notes',
+    };
+  }
+
+  if (priorities.length > 0) {
+    return {
+      move: `Stay on ${priorities[0].toLowerCase()}, then pin only the context you expect to reuse.`,
+      basedOn: 'workspace priorities',
+    };
+  }
+
+  return {
+    move: 'Pick one concrete objective, then let Relay carry only the context you actually need.',
+    basedOn: 'visible memory state',
   };
 }
 
@@ -183,12 +286,20 @@ export function updateRelayTransientMemory(
   updates: RelayMemoryTransientUpdate,
   now = Date.now(),
 ): RelayStructuredMemory {
-  return {
+  const merged: RelayStructuredMemory = {
     ...memory,
     ...updates,
     expiresAt: now + RELAY_MEMORY_TRANSIENT_TTL_MS,
     clearedAt: null,
     updatedAt: now,
+  };
+  if (updates.nextSuggestedMove !== undefined) {
+    return merged;
+  }
+  const nextMove = deriveRelayNextMoveView(merged).move;
+  return {
+    ...merged,
+    nextSuggestedMove: nextMove,
   };
 }
 
