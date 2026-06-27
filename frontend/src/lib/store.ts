@@ -25,6 +25,16 @@ import {
   type RelayMemoryTransientUpdate,
   type RelayStructuredMemory,
 } from './relayMemory';
+import {
+  addRelayUsageReviewEntry,
+  clearRelayUsageReviews,
+  loadRelayUsageReviews,
+  removeRelayUsageReviewEntry,
+  saveRelayUsageReviews,
+  type RelayUsageReviewArea,
+  type RelayUsageReviewEntry,
+  type RelayUsageReviewTone,
+} from './relayUsageReview';
 import type { ManagedAgent } from './api';
 
 export interface CachedConnector {
@@ -146,6 +156,7 @@ interface AppState {
   streamState: StreamState;
   relayActivityUntil: number;
   relayMemory: RelayStructuredMemory;
+  relayUsageReviews: RelayUsageReviewEntry[];
 
   // Models & server
   models: ModelInfo[];
@@ -201,6 +212,9 @@ interface AppState {
   removeRelayPinnedNote: (noteId: string) => void;
   clearRelayMemoryTransient: () => void;
   clearRelayMemoryAll: () => void;
+  addRelayUsageReview: (draft: { tone: RelayUsageReviewTone; area: RelayUsageReviewArea; note: string }) => void;
+  removeRelayUsageReview: (id: string) => void;
+  clearRelayUsageReviews: () => void;
 
   // Deep Research toggle
   deepResearch: boolean;
@@ -267,6 +281,7 @@ interface AppState {
 export const useAppStore = create<AppState>((set, get) => {
   const initial = loadConversations();
   const initialRelayMemory = loadRelayMemorySnapshot();
+  const initialRelayUsageReviews = loadRelayUsageReviews();
   const convList = Object.values(initial.conversations).sort(
     (a, b) => b.updatedAt - a.updatedAt,
   );
@@ -281,6 +296,7 @@ export const useAppStore = create<AppState>((set, get) => {
     streamState: INITIAL_STREAM,
     relayActivityUntil: 0,
     relayMemory: initialRelayMemory,
+    relayUsageReviews: initialRelayUsageReviews,
 
     models: [],
     modelsLoading: true,
@@ -518,6 +534,27 @@ export const useAppStore = create<AppState>((set, get) => {
       const relayMemory = clearAllRelayMemory();
       saveRelayMemory(relayMemory);
       set({ relayMemory });
+    },
+
+    addRelayUsageReview: (draft) => {
+      const nextEntries = addRelayUsageReviewEntry(get().relayUsageReviews, draft, {
+        relayMemory: get().relayMemory,
+        selectedModel: get().selectedModel || null,
+      });
+      saveRelayUsageReviews(nextEntries);
+      set({ relayUsageReviews: nextEntries });
+    },
+
+    removeRelayUsageReview: (id) => {
+      const nextEntries = removeRelayUsageReviewEntry(get().relayUsageReviews, id);
+      saveRelayUsageReviews(nextEntries);
+      set({ relayUsageReviews: nextEntries });
+    },
+
+    clearRelayUsageReviews: () => {
+      const nextEntries = clearRelayUsageReviews();
+      saveRelayUsageReviews(nextEntries);
+      set({ relayUsageReviews: nextEntries });
     },
 
     // â”€â”€ Deep Research â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€

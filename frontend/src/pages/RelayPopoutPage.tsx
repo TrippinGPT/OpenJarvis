@@ -35,6 +35,11 @@ import {
   summarizeRelayMemoryText,
 } from '../lib/relayMemory';
 import {
+  formatRelayUsageReviewTime,
+  type RelayUsageReviewArea,
+  type RelayUsageReviewTone,
+} from '../lib/relayUsageReview';
+import {
   readRelayPopoutActivity,
   RELAY_POPOUT_ACTIVITY_KEY,
   type RelayPopoutActivity,
@@ -160,6 +165,10 @@ export function RelayPopoutPage() {
   const removeRelayPinnedNote = useAppStore((state) => state.removeRelayPinnedNote);
   const clearRelayMemoryTransient = useAppStore((state) => state.clearRelayMemoryTransient);
   const clearRelayMemoryAll = useAppStore((state) => state.clearRelayMemoryAll);
+  const relayUsageReviews = useAppStore((state) => state.relayUsageReviews);
+  const addRelayUsageReview = useAppStore((state) => state.addRelayUsageReview);
+  const removeRelayUsageReview = useAppStore((state) => state.removeRelayUsageReview);
+  const clearRelayUsageReviews = useAppStore((state) => state.clearRelayUsageReviews);
   const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
   const [bridgeState, setBridgeState] = useState<BridgeState>('checking');
   const [sharedActivity, setSharedActivity] = useState<RelayPopoutActivity | null>(() =>
@@ -173,6 +182,9 @@ export function RelayPopoutPage() {
   const [voiceCategory, setVoiceCategory] = useState<string>('manual_test');
   const [statusRefreshPending, setStatusRefreshPending] = useState(false);
   const [memoryDraft, setMemoryDraft] = useState('');
+  const [usageReviewTone, setUsageReviewTone] = useState<RelayUsageReviewTone>('mixed');
+  const [usageReviewArea, setUsageReviewArea] = useState<RelayUsageReviewArea>('popout');
+  const [usageReviewDraft, setUsageReviewDraft] = useState('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioUrlRef = useRef<string | null>(null);
   const activePlaybackIdRef = useRef(0);
@@ -293,6 +305,7 @@ export function RelayPopoutPage() {
   const memoryUpdatedLabel = formatRelayMemoryTime(relayMemory.updatedAt);
   const memoryExpiresLabel = formatRelayMemoryTime(relayMemory.expiresAt);
   const memoryClearedLabel = formatRelayMemoryTime(relayMemory.clearedAt);
+  const usageReviewCountLabel = String(relayUsageReviews.length);
   const voiceCategoryOptions = voicePack?.available_placeholder_categories || ['manual_test'];
   const selectedEventCategory = ['routing', 'success', 'warning'].includes(voiceCategory)
     ? voiceCategory
@@ -448,6 +461,21 @@ export function RelayPopoutPage() {
     }
     addRelayPinnedNote(nextNote);
     setMemoryDraft('');
+  };
+
+  const handleAddUsageReview = () => {
+    const nextNote = summarizeRelayMemoryText(usageReviewDraft, 220);
+    if (!nextNote) {
+      return;
+    }
+    addRelayUsageReview({
+      tone: usageReviewTone,
+      area: usageReviewArea,
+      note: nextNote,
+    });
+    setUsageReviewDraft('');
+    setUsageReviewTone('mixed');
+    setUsageReviewArea('popout');
   };
 
   const handleRunSelectedEvent = async () => {
@@ -959,6 +987,143 @@ export function RelayPopoutPage() {
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        </HudPanel>
+
+        <HudPanel className="px-3 py-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5">
+              <MessageSquare size={10} style={{ color: 'rgb(216, 180, 254)' }} />
+              <h2 className="text-[7px] font-semibold uppercase tracking-[0.18em]">Usage Review Log</h2>
+            </div>
+            <span className="text-[6px] uppercase tracking-[0.14em]" style={{ color: 'rgb(134, 239, 172)' }}>
+              Local only
+            </span>
+          </div>
+          <div className="mt-2 grid gap-2">
+            <div className="grid grid-cols-3 gap-2">
+              <MicroReadout label="Entries" value={usageReviewCountLabel} color="rgb(216, 180, 254)" />
+              <MicroReadout label="Lane" value={relayMemory.currentLane || 'Unset'} color="rgb(103, 232, 249)" />
+              <MicroReadout label="Agent" value={relayMemory.activeAgent || 'Unset'} color="rgb(134, 239, 172)" />
+            </div>
+            <div className="rounded-sm border border-white/10 bg-black/25 px-2 py-2 text-[7px] leading-relaxed">
+              <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
+                Save a quick operator review for the current cockpit state. Each entry captures the visible lane, agent, objective, next move, status, selected model, and your note.
+              </div>
+              <div className="mt-2 grid gap-2 md:grid-cols-2">
+                <label className="grid gap-1">
+                  <span className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+                    Review tone
+                  </span>
+                  <select
+                    value={usageReviewTone}
+                    onChange={(event) => setUsageReviewTone(event.target.value as RelayUsageReviewTone)}
+                    className="rounded-sm border border-white/10 bg-black/30 px-2 py-1.5 text-[7px] outline-none"
+                    style={{ color: 'rgba(165, 243, 252, 0.9)' }}
+                  >
+                    <option value="strong">Strong</option>
+                    <option value="mixed">Mixed</option>
+                    <option value="rough">Rough</option>
+                  </select>
+                </label>
+                <label className="grid gap-1">
+                  <span className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+                    Cockpit area
+                  </span>
+                  <select
+                    value={usageReviewArea}
+                    onChange={(event) => setUsageReviewArea(event.target.value as RelayUsageReviewArea)}
+                    className="rounded-sm border border-white/10 bg-black/30 px-2 py-1.5 text-[7px] outline-none"
+                    style={{ color: 'rgba(165, 243, 252, 0.9)' }}
+                  >
+                    <option value="popout">Popout</option>
+                    <option value="dashboard">Dashboard</option>
+                    <option value="agents">Agents</option>
+                    <option value="chat">Chat</option>
+                  </select>
+                </label>
+              </div>
+              <div className="mt-2 grid gap-2">
+                <textarea
+                  value={usageReviewDraft}
+                  onChange={(event) => setUsageReviewDraft(event.target.value)}
+                  rows={3}
+                  placeholder="Log what worked, what dragged, or what the cockpit should make clearer..."
+                  className="rounded-sm border border-white/10 bg-black/30 px-2 py-1.5 text-[7px] outline-none"
+                  style={{ color: 'rgba(165, 243, 252, 0.9)', resize: 'vertical' }}
+                />
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={handleAddUsageReview}
+                    disabled={!usageReviewDraft.trim()}
+                    className="relay-popout-nav-button justify-center"
+                    style={{
+                      color: usageReviewDraft.trim() ? 'rgb(216, 180, 254)' : 'rgba(148, 163, 184, 0.56)',
+                      borderColor: usageReviewDraft.trim() ? 'rgba(192, 132, 252, 0.24)' : 'rgba(148, 163, 184, 0.16)',
+                      opacity: usageReviewDraft.trim() ? 1 : 0.6,
+                    }}
+                  >
+                    <MessageSquare size={10} />
+                    Save review
+                  </button>
+                  <button
+                    type="button"
+                    onClick={clearRelayUsageReviews}
+                    disabled={relayUsageReviews.length === 0}
+                    className="relay-popout-nav-button justify-center"
+                    style={{
+                      color: relayUsageReviews.length ? 'rgb(251, 191, 36)' : 'rgba(148, 163, 184, 0.56)',
+                      borderColor: relayUsageReviews.length ? 'rgba(251, 191, 36, 0.20)' : 'rgba(148, 163, 184, 0.16)',
+                      opacity: relayUsageReviews.length ? 1 : 0.6,
+                    }}
+                  >
+                    <Trash2 size={10} />
+                    Clear log
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="grid gap-2">
+              {relayUsageReviews.length === 0 ? (
+                <div className="rounded-sm border border-white/10 bg-black/20 px-2 py-2 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+                  No local usage reviews yet. Save one when the cockpit feels strong, mixed, or rough.
+                </div>
+              ) : (
+                relayUsageReviews.slice(0, 4).map((entry) => (
+                  <div key={entry.id} className="rounded-sm border border-white/10 bg-black/20 px-2 py-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-1 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
+                          <span>{entry.tone}</span>
+                          <span>•</span>
+                          <span>{entry.area}</span>
+                          <span>•</span>
+                          <span>{formatRelayUsageReviewTime(entry.createdAt)}</span>
+                        </div>
+                        <div className="mt-1 text-[7px]" style={{ color: 'rgba(165, 243, 252, 0.88)' }}>
+                          {entry.note}
+                        </div>
+                        <div className="mt-1 text-[6px] leading-relaxed" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
+                          {entry.currentLane || 'No lane'} // {entry.activeAgent || 'No agent'} // {entry.currentObjective || 'No objective'}
+                        </div>
+                        <div className="mt-1 text-[6px] leading-relaxed" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>
+                          Next move: {entry.nextSuggestedMove || 'Not set'} // Status: {entry.recentStatusSummary || 'Not set'}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeRelayUsageReview(entry.id)}
+                        className="relay-popout-nav-button justify-center px-2 py-1"
+                        style={{ color: 'rgb(251, 191, 36)', borderColor: 'rgba(251, 191, 36, 0.20)' }}
+                      >
+                        <Trash2 size={9} />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </HudPanel>
