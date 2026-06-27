@@ -101,6 +101,7 @@ interface Settings {
   temperature: number;
   maxTokens: number;
   speechEnabled: boolean;
+  relaySimpleModeEnabled: boolean;
   relayPlaceholderVoiceEnabled: boolean;
   relayVoiceStartupEventEnabled: boolean;
   relayVoiceRoutingEventEnabled: boolean;
@@ -119,6 +120,7 @@ function loadSettings(): Settings {
     temperature: 0.7,
     maxTokens: 4096,
     speechEnabled: false,
+    relaySimpleModeEnabled: true,
     relayPlaceholderVoiceEnabled: false,
     relayVoiceStartupEventEnabled: false,
     relayVoiceRoutingEventEnabled: false,

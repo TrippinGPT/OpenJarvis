@@ -220,6 +220,7 @@ The stop and restart scripts target Relay frontend and backend first. Ollama is 
 - v4.1.5 adds a local-only usage review log in the Relay Popout so the operator can save short cockpit feedback entries with visible current context and clear/reset controls.
 - v4.1.6 adds a local-only usage review digest and tuning hint so recent feedback can be summarized into strong, mixed, rough, and likely-next-polish signals without adding analytics infrastructure.
 - v4.1.7 adds local stop/restart control scripts so the Relay frontend and backend can be shut down and relaunched cleanly without manual process hunting.
+- v4.2 adds a Simple Mode in the Relay Popout so the cockpit defaults to a clearer task-first flow with one main input, one recommended agent, one next action, and Advanced mode kept behind an explicit toggle.
 - See [RELAY_VOICE_MILESTONE_SUMMARY.md](RELAY_VOICE_MILESTONE_SUMMARY.md) for the voice-lane timeline, winners, losses, and current stable behavior.
 
 ### Voice/UI freeze note
@@ -232,6 +233,7 @@ The stop and restart scripts target Relay frontend and backend first. Ollama is 
 - The written personality layer now matches the same sharp, controlled command-center tone without depending on voice playback.
 - Dispatch, Recon, Patch, Redline, Racket, Hermes, and Veto now have explicit identity fields for UI cards, docs, and future per-agent voice planning.
 - Relay Companion is still the only implemented runtime placeholder voice; the other agents now have documented voice direction only.
+- Relay Popout now defaults to Simple Mode for friendlier scanning; Advanced mode still exposes memory, routing, review, and voice internals on demand.
 - Future work should start from a deliberate new milestone, not ad hoc polish changes.
 
 ### v2.5 milestone note
@@ -376,3 +378,4 @@ Related references:
 - [Relay Smartmouth Delivery Pack](RELAY_SMARTMOUTH_DELIVERY.md)
 - [Relay Voice Milestone Summary](RELAY_VOICE_MILESTONE_SUMMARY.md)
 - [Relay Memory Prototype](RELAY_MEMORY_PROTOTYPE.md)
+- [Relay Simple Mode](RELAY_SIMPLE_MODE.md)
