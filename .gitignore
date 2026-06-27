@@ -122,6 +122,9 @@ dogfood_report*.md
 /tools/kokoro.venv/
 /tools/kokoro/models/
 
+# Relay local stack control state
+/.relay-stack-state.json
+
 # Second Repos
 Inline/
 scratch/

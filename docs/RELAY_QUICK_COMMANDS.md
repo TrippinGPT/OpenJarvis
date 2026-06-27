@@ -8,6 +8,25 @@ Run these commands from `D:\AI\TRIPPIN_AI_RELAY`.
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start_relay_stack.ps1
 ```
 
+Stop the Relay stack:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\stop_relay_stack.ps1
+```
+
+Restart the Relay stack:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\restart_relay_stack.ps1
+```
+
+Stop or restart Relay-owned Ollama too, only when you explicitly want that:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\stop_relay_stack.ps1 -IncludeOllama
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\restart_relay_stack.ps1 -IncludeOllama
+```
+
 ## Run one service
 
 Backend only:

@@ -8,11 +8,14 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+. $PSScriptRoot\relay_stack_control.ps1
+
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 $FrontendRoot = Join-Path $RepoRoot "frontend"
 $OllamaReadyUri = "http://127.0.0.1:11434/api/version"
 $BackendReadyUri = "http://127.0.0.1:8000/health"
 $FrontendReadyUri = "http://127.0.0.1:5173/"
+$StackState = Read-RelayStackState -RepoRoot $RepoRoot
 
 function Get-CommandPath {
     param(
@@ -126,12 +129,19 @@ if (-not (Test-HttpReady -Uri $OllamaReadyUri)) {
         -WorkingDirectory $RepoRoot `
         -CommandText "Set-Location -LiteralPath '$RepoRoot'; & '$ollamaPath' serve"
 
+    $StackState.ollama.pid = $ollamaProcess.Id
+    $StackState.ollama.launched_by_relay = $true
+
     if (-not (Wait-HttpReady -Uri $OllamaReadyUri -Label "Ollama" -TimeoutSeconds $OllamaTimeoutSeconds -ProcessHandle $ollamaProcess)) {
         throw "Ollama did not become ready within $OllamaTimeoutSeconds seconds."
     }
 }
 else {
     Write-Host "Ollama is already ready." -ForegroundColor Green
+    if (-not (Test-RelayProcessAlive -Entry $StackState.ollama)) {
+        $StackState.ollama.pid = $null
+        $StackState.ollama.launched_by_relay = $false
+    }
 }
 
 if (-not (Test-HttpReady -Uri $BackendReadyUri)) {
@@ -145,12 +155,19 @@ if (-not (Test-HttpReady -Uri $BackendReadyUri)) {
         -WorkingDirectory $RepoRoot `
         -CommandText "Set-Location -LiteralPath '$RepoRoot'; & '$uvPath' run relay serve"
 
+    $StackState.backend.pid = $backendProcess.Id
+    $StackState.backend.launched_by_relay = $true
+
     if (-not (Wait-HttpReady -Uri $BackendReadyUri -Label "Relay backend" -TimeoutSeconds $BackendTimeoutSeconds -ProcessHandle $backendProcess)) {
         throw "Relay backend did not become ready within $BackendTimeoutSeconds seconds."
     }
 }
 else {
     Write-Host "Relay backend is already ready." -ForegroundColor Green
+    if (-not (Test-RelayProcessAlive -Entry $StackState.backend)) {
+        $StackState.backend.pid = $null
+        $StackState.backend.launched_by_relay = $false
+    }
 }
 
 if (-not (Test-HttpReady -Uri $FrontendReadyUri)) {
@@ -164,13 +181,22 @@ if (-not (Test-HttpReady -Uri $FrontendReadyUri)) {
         -WorkingDirectory $FrontendRoot `
         -CommandText "Set-Location -LiteralPath '$FrontendRoot'; & '$npmPath' run dev -- --host 127.0.0.1 --port 5173"
 
+    $StackState.frontend.pid = $frontendProcess.Id
+    $StackState.frontend.launched_by_relay = $true
+
     if (-not (Wait-HttpReady -Uri $FrontendReadyUri -Label "Relay frontend" -TimeoutSeconds $FrontendTimeoutSeconds -ProcessHandle $frontendProcess)) {
         throw "Relay frontend did not become ready within $FrontendTimeoutSeconds seconds."
     }
 }
 else {
     Write-Host "Relay frontend is already ready." -ForegroundColor Green
+    if (-not (Test-RelayProcessAlive -Entry $StackState.frontend)) {
+        $StackState.frontend.pid = $null
+        $StackState.frontend.launched_by_relay = $false
+    }
 }
+
+Write-RelayStackState -State $StackState
 
 Write-Host "Relay stack is ready." -ForegroundColor Green
 Write-Host "Backend:  $BackendReadyUri" -ForegroundColor Cyan

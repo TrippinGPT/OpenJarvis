@@ -17,12 +17,26 @@ Run:
 powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\start_relay_stack.ps1
 ```
 
+Stop:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\stop_relay_stack.ps1
+```
+
+Restart:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\AI\TRIPPIN_AI_RELAY\scripts\restart_relay_stack.ps1
+```
+
 The launcher starts:
 
 - Backend: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
 - Frontend: [http://localhost:5173/](http://localhost:5173/)
 
 After startup, the launcher prints the ready URLs and waits for manual browser open.
+
+The stop and restart scripts target Relay frontend and backend first. Ollama is left alone unless `-IncludeOllama` is passed and the stack recorded Relay-owned Ollama in its local state file.
 
 ## 3. Main routes
 
@@ -205,6 +219,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - v4.1.4 adds deterministic memory-informed routing guidance so Relay can suggest a best next agent or a stable stay-with-current-agent outcome, with visible handoff reasoning and no auto-switching.
 - v4.1.5 adds a local-only usage review log in the Relay Popout so the operator can save short cockpit feedback entries with visible current context and clear/reset controls.
 - v4.1.6 adds a local-only usage review digest and tuning hint so recent feedback can be summarized into strong, mixed, rough, and likely-next-polish signals without adding analytics infrastructure.
+- v4.1.7 adds local stop/restart control scripts so the Relay frontend and backend can be shut down and relaunched cleanly without manual process hunting.
 - See [RELAY_VOICE_MILESTONE_SUMMARY.md](RELAY_VOICE_MILESTONE_SUMMARY.md) for the voice-lane timeline, winners, losses, and current stable behavior.
 
 ### Voice/UI freeze note
