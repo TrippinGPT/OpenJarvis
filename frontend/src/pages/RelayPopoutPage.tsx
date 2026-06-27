@@ -28,6 +28,7 @@ import {
   type RelayVoicePack,
 } from '../lib/api';
 import {
+  deriveRelayRoutingGuidanceView,
   deriveRelayNextMoveView,
   formatRelayMemoryTime,
   RELAY_MEMORY_STORAGE_KEY,
@@ -287,6 +288,7 @@ export function RelayPopoutPage() {
     || voicePack?.default_placeholder_text
     || 'Relay online. Voice check complete.';
   const nextMoveView = deriveRelayNextMoveView(relayMemory);
+  const routingGuidanceView = deriveRelayRoutingGuidanceView(relayMemory);
   const memorySessionLabel = relayMemory.sessionId.slice(0, 8);
   const memoryUpdatedLabel = formatRelayMemoryTime(relayMemory.updatedAt);
   const memoryExpiresLabel = formatRelayMemoryTime(relayMemory.expiresAt);
@@ -809,6 +811,20 @@ export function RelayPopoutPage() {
                 <div style={{ color: 'rgba(165, 243, 252, 0.88)' }}>{relayMemory.nextSuggestedMove || nextMoveView.move || 'Not set'}</div>
                 <div className="mt-1 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
                   Based on {nextMoveView.basedOn}
+                </div>
+              </div>
+              <div className="mt-2 rounded-sm border border-white/10 bg-black/20 px-2 py-2">
+                <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+                  Routing guidance
+                </div>
+                <div style={{ color: 'rgba(216, 180, 254, 0.92)' }}>
+                  {routingGuidanceView.summary}
+                </div>
+                <div className="mt-1" style={{ color: 'rgba(165, 243, 252, 0.88)' }}>
+                  {routingGuidanceView.reason}
+                </div>
+                <div className="mt-1 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+                  Based on {routingGuidanceView.basedOn}
                 </div>
               </div>
               <div className="mt-2">

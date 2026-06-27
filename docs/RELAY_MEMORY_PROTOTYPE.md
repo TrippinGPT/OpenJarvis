@@ -237,6 +237,60 @@ The current derivation uses:
 
 The guidance is meant to be short, explainable, and operator-auditable.
 
+## How routing and handoff guidance is derived
+
+Relay now derives a separate routing guidance view from the same explicit structured memory instead of pretending there is a hidden orchestration engine.
+
+The current routing and handoff guidance uses:
+
+- `currentLane`
+- `activeAgent`
+- `currentObjective`
+- `lastMeaningfulAction`
+- `nextSuggestedMove`
+- `recentStatusSummary`
+- recent pinned-note text when it reinforces the same visible context
+
+### Current routing rule order
+
+1. status-first safety or readiness signals
+   - offline, backend, health, launcher, fallback, blocker -> Hermes
+   - failed, unsafe, scope, approval, warning -> Redline
+   - review, approve, reject -> Veto
+2. explicit objective or action language
+   - research, sources, scan, reporting -> Recon
+   - build, fix, repo, script, test -> Patch
+   - narrative, trend, hype -> Racket
+   - route, plan, triage, coordinate -> Dispatch
+3. lane-level fallback
+   - Research -> Recon
+   - Conversation -> Dispatch
+   - Paper-oriented context -> Redline
+4. current-agent stability fallback
+   - if the current agent still fits and no stronger signal appears, Relay stays with that agent instead of churning to a new one
+5. final fallback
+   - Dispatch
+
+### Why this reduces noisy churn
+
+The guidance does not reshuffle just because a minor status string changes.
+
+If the current specialist still matches the visible task context and there is no stronger safety/readiness signal, Relay prefers:
+
+- "Stay with current agent"
+
+instead of inventing a new handoff.
+
+### What this intentionally does not do
+
+- no auto-switching
+- no fake autonomous team execution
+- no hidden intent model
+- no vector or graph routing system
+- no background memory capture
+
+The routing guidance is only a visible recommendation to the operator.
+
 ### Useful, but secondary
 
 - `sessionId`

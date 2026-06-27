@@ -1,3 +1,5 @@
+import { getRelayAgent, type RelayAgentKey } from '../data/relayAgents';
+
 export const RELAY_MEMORY_STORAGE_KEY = 'relay-structured-memory-v1';
 export const RELAY_MEMORY_TRANSIENT_TTL_MS = 12 * 60 * 60 * 1000;
 
@@ -27,6 +29,15 @@ export interface RelayStructuredMemory {
 
 export interface RelayNextMoveView {
   move: string;
+  basedOn: string;
+}
+
+export interface RelayRoutingGuidanceView {
+  mode: 'stay' | 'handoff';
+  targetAgentKey: RelayAgentKey;
+  targetAgentName: string;
+  summary: string;
+  reason: string;
   basedOn: string;
 }
 
@@ -93,6 +104,131 @@ export function createDefaultRelayMemory(now = Date.now()): RelayStructuredMemor
 function cleanSnippet(value: string | null | undefined, maxLength = 72): string | null {
   if (!value) return null;
   return summarizeRelayMemoryText(value, maxLength);
+}
+
+function normalizeRelayMemoryText(value: string | null | undefined): string {
+  return (value || '').toLowerCase();
+}
+
+function relayTextHasAny(haystack: string, needles: string[]): boolean {
+  return needles.some((needle) => haystack.includes(needle));
+}
+
+function relayAgentNameFromKey(key: RelayAgentKey): string {
+  return key.charAt(0).toUpperCase() + key.slice(1);
+}
+
+function detectExplicitRoutingSignal(text: string): RelayAgentKey | null {
+  if (!text) return null;
+  if (relayTextHasAny(text, ['approval', 'approve', 'reject', 'final review', 'final pass', 'cleanup review'])) {
+    return 'veto';
+  }
+  if (relayTextHasAny(text, ['boundary', 'scope', 'unsafe', 'risk', 'approval required', 'blocked'])) {
+    return 'redline';
+  }
+  if (relayTextHasAny(text, ['preflight', 'readiness', 'launcher', 'local check', 'health', 'blocker', 'log', 'logging'])) {
+    return 'hermes';
+  }
+  if (relayTextHasAny(text, ['research', 'source', 'sources', 'scan', 'context pack', 'reporting', 'intel'])) {
+    return 'recon';
+  }
+  if (relayTextHasAny(text, ['build', 'fix', 'frontend', 'backend', 'repo', 'script', 'compile', 'patch', 'test'])) {
+    return 'patch';
+  }
+  if (relayTextHasAny(text, ['narrative', 'trend', 'hype', 'crowd', 'signal pattern', 'story'])) {
+    return 'racket';
+  }
+  if (relayTextHasAny(text, ['route', 'routing', 'plan', 'triage', 'breakdown', 'coordinate', 'owner'])) {
+    return 'dispatch';
+  }
+  return null;
+}
+
+function detectLaneRoutingSignal(lane: string | null): RelayAgentKey | null {
+  const value = normalizeRelayMemoryText(lane);
+  if (!value) return null;
+  if (value.includes('research')) return 'recon';
+  if (value.includes('conversation')) return 'dispatch';
+  if (value.includes('paper')) return 'redline';
+  return null;
+}
+
+function buildRelayRoutingReason(key: RelayAgentKey, objective: string | null, status: string | null): string {
+  switch (key) {
+    case 'dispatch':
+      return objective
+        ? 'The current objective still needs routing, ownership, or a cleaner order of operations.'
+        : 'The current context is still more about routing than specialist execution.';
+    case 'recon':
+      return 'The current context points to research, source gathering, or evidence cleanup before acting.';
+    case 'patch':
+      return 'The current context points to a concrete build, fix, or validation step.';
+    case 'redline':
+      return status && status.toLowerCase().includes('failed')
+        ? 'The recent status shows a failure or boundary issue that needs a risk-first pass.'
+        : 'The current context points to safety, scope, or approval pressure before moving on.';
+    case 'racket':
+      return 'The current context reads more like narrative drift, hype, or pattern interpretation than execution.';
+    case 'hermes':
+      return 'The next step looks like readiness, local health, or blocker checking before deeper work.';
+    case 'veto':
+      return 'The current context sounds like a final pass, review gate, or approve-or-revise decision.';
+    default:
+      return 'The current context still fits this specialist best.';
+  }
+}
+
+export function deriveRelayRoutingGuidanceView(memory: RelayStructuredMemory): RelayRoutingGuidanceView {
+  const currentAgent = getRelayAgent(memory.activeAgent);
+  const objectiveText = normalizeRelayMemoryText(memory.currentObjective);
+  const actionText = normalizeRelayMemoryText(memory.lastMeaningfulAction);
+  const nextMoveText = normalizeRelayMemoryText(memory.nextSuggestedMove);
+  const statusText = normalizeRelayMemoryText(memory.recentStatusSummary);
+  const laneText = normalizeRelayMemoryText(memory.currentLane);
+  const pinnedText = normalizeRelayMemoryText(memory.pinnedNotes.slice(0, 2).map((note) => note.text).join(' '));
+  const mergedText = [objectiveText, actionText, nextMoveText, statusText, pinnedText].filter(Boolean).join(' ');
+
+  const statusAgent =
+    relayTextHasAny(statusText, ['offline', 'backend', 'health', 'fallback', 'readiness', 'launcher', 'blocker'])
+      ? 'hermes'
+      : relayTextHasAny(statusText, ['failed', 'unsafe', 'scope', 'approval', 'warning'])
+        ? 'redline'
+        : relayTextHasAny(statusText, ['review', 'approve', 'reject'])
+          ? 'veto'
+          : null;
+
+  const explicitAgent = detectExplicitRoutingSignal(mergedText);
+  const laneAgent = detectLaneRoutingSignal(memory.currentLane);
+  const derivedKey = statusAgent || explicitAgent || laneAgent || currentAgent?.key || 'dispatch';
+  const derivedAgent = getRelayAgent(derivedKey) ?? getRelayAgent('dispatch')!;
+
+  const strongSwitch =
+    !!statusAgent
+    || (!!explicitAgent && !!currentAgent && explicitAgent !== currentAgent.key);
+
+  const shouldStayWithCurrent =
+    !!currentAgent
+    && currentAgent.key === derivedAgent.key
+    && !strongSwitch;
+
+  return {
+    mode: shouldStayWithCurrent ? 'stay' : 'handoff',
+    targetAgentKey: derivedAgent.key,
+    targetAgentName: derivedAgent.name,
+    summary: shouldStayWithCurrent
+      ? `Stay with ${derivedAgent.name}.`
+      : `Suggested handoff: ${derivedAgent.name}.`,
+    reason: buildRelayRoutingReason(derivedAgent.key, memory.currentObjective, memory.recentStatusSummary),
+    basedOn: statusAgent
+      ? 'recent status + visible memory'
+      : explicitAgent
+        ? 'objective + last action + next move'
+        : laneAgent
+          ? 'lane + visible memory'
+          : currentAgent
+            ? 'current agent fit'
+            : 'fallback routing',
+  };
 }
 
 export function deriveRelayNextMoveView(memory: RelayStructuredMemory): RelayNextMoveView {
