@@ -204,6 +204,7 @@ After startup, the launcher prints the ready URLs and waits for manual browser o
 - v4.1.3 makes `nextSuggestedMove` come from deterministic structured-memory guidance instead of repeated hardcoded action strings, using lane, agent, objective, status, pinned notes, and workspace priorities as explicit inputs.
 - v4.1.4 adds deterministic memory-informed routing guidance so Relay can suggest a best next agent or a stable stay-with-current-agent outcome, with visible handoff reasoning and no auto-switching.
 - v4.1.5 adds a local-only usage review log in the Relay Popout so the operator can save short cockpit feedback entries with visible current context and clear/reset controls.
+- v4.1.6 adds a local-only usage review digest and tuning hint so recent feedback can be summarized into strong, mixed, rough, and likely-next-polish signals without adding analytics infrastructure.
 - See [RELAY_VOICE_MILESTONE_SUMMARY.md](RELAY_VOICE_MILESTONE_SUMMARY.md) for the voice-lane timeline, winners, losses, and current stable behavior.
 
 ### Voice/UI freeze note

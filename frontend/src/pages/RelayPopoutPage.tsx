@@ -35,6 +35,7 @@ import {
   summarizeRelayMemoryText,
 } from '../lib/relayMemory';
 import {
+  deriveRelayUsageReviewDigest,
   formatRelayUsageReviewTime,
   type RelayUsageReviewArea,
   type RelayUsageReviewTone,
@@ -306,6 +307,7 @@ export function RelayPopoutPage() {
   const memoryExpiresLabel = formatRelayMemoryTime(relayMemory.expiresAt);
   const memoryClearedLabel = formatRelayMemoryTime(relayMemory.clearedAt);
   const usageReviewCountLabel = String(relayUsageReviews.length);
+  const usageReviewDigest = deriveRelayUsageReviewDigest(relayUsageReviews);
   const voiceCategoryOptions = voicePack?.available_placeholder_categories || ['manual_test'];
   const selectedEventCategory = ['routing', 'success', 'warning'].includes(voiceCategory)
     ? voiceCategory
@@ -1006,6 +1008,38 @@ export function RelayPopoutPage() {
               <MicroReadout label="Entries" value={usageReviewCountLabel} color="rgb(216, 180, 254)" />
               <MicroReadout label="Lane" value={relayMemory.currentLane || 'Unset'} color="rgb(103, 232, 249)" />
               <MicroReadout label="Agent" value={relayMemory.activeAgent || 'Unset'} color="rgb(134, 239, 172)" />
+            </div>
+            <div className="rounded-sm border border-white/10 bg-black/20 px-2 py-2">
+              <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+                Review snapshot
+              </div>
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                <MicroReadout label="Strong" value={String(usageReviewDigest.strongCount)} color="rgb(134, 239, 172)" />
+                <MicroReadout label="Mixed" value={String(usageReviewDigest.mixedCount)} color="rgb(103, 232, 249)" />
+                <MicroReadout label="Rough" value={String(usageReviewDigest.roughCount)} color="rgb(251, 191, 36)" />
+              </div>
+              <div className="mt-2 grid gap-1 text-[7px] leading-relaxed">
+                <div style={{ color: 'rgba(165, 243, 252, 0.88)' }}>
+                  Strongest area: {usageReviewDigest.strongestArea}
+                </div>
+                <div style={{ color: 'rgba(165, 243, 252, 0.88)' }}>
+                  Roughest area: {usageReviewDigest.roughestArea}
+                </div>
+                <div style={{ color: 'rgba(165, 243, 252, 0.88)' }}>
+                  Recurring agent: {usageReviewDigest.recurringAgent || 'None yet'}
+                </div>
+                <div style={{ color: 'rgba(165, 243, 252, 0.88)' }}>
+                  Recurring lane: {usageReviewDigest.recurringLane || 'None yet'}
+                </div>
+              </div>
+              <div className="mt-2 rounded-sm border border-white/10 bg-black/25 px-2 py-2">
+                <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
+                  Current tuning hint
+                </div>
+                <div className="mt-1 text-[7px]" style={{ color: 'rgba(216, 180, 254, 0.92)' }}>
+                  {usageReviewDigest.tuningHint}
+                </div>
+              </div>
             </div>
             <div className="rounded-sm border border-white/10 bg-black/25 px-2 py-2 text-[7px] leading-relaxed">
               <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.72)' }}>

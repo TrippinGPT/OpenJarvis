@@ -71,6 +71,45 @@ That means:
 
 This keeps the log explainable and useful without turning it into hidden behavior capture.
 
+## Local digest and tuning loop
+
+The usage review log now includes a lightweight local digest in `/relay-popout`.
+
+The digest shows:
+
+- counts by tone
+  - strong
+  - mixed
+  - rough
+- strongest recent area
+- roughest recent area
+- recurring recent agent
+- recurring recent lane
+- one compact tuning hint
+
+## How the digest is derived
+
+The digest is deterministic and local-only.
+
+It uses the recent review entries already stored in the browser and applies simple grouping rules:
+
+- count recent entries by tone
+- group strong reviews by area
+- group rough reviews by area
+- look for the most repeated recent agent
+- look for the most repeated recent lane
+- derive one short tuning hint from the strongest visible pattern
+
+The tuning hint is meant to answer:
+
+- what looks strong
+- what looks rough
+- what likely deserves the next polish pass
+
+It is not an AI analysis layer.
+
+It is not hidden scoring.
+
 ## Clear and reset behavior
 
 The current controls are:
@@ -90,6 +129,7 @@ That means:
 - clearing transient memory does not wipe the usage review log
 - clearing the usage review log does not wipe structured memory
 - both remain operator-controlled
+- clearing the usage review log also clears the digest, because the digest is derived only from the same local entries
 
 ## Boundaries
 
@@ -101,6 +141,7 @@ This feature does not:
 - auto-score the operator
 - auto-route agents
 - modify OpenClaw
+- send analytics anywhere
 
 It is a local feedback notebook for the cockpit, nothing more.
 
@@ -115,3 +156,5 @@ Good review notes are short and specific, for example:
 The point is not sentiment tracking for its own sake.
 
 The point is to keep a local record of what the cockpit is clarifying versus what still needs polish.
+
+The digest exists to make that local record useful for the next small tuning pass without turning Relay into a reporting platform.
