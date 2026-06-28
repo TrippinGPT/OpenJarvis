@@ -222,6 +222,7 @@ The stop and restart scripts target Relay frontend and backend first. Ollama is 
 - v4.1.7 adds local stop/restart control scripts so the Relay frontend and backend can be shut down and relaunched cleanly without manual process hunting.
 - v4.2 adds a Simple Mode in the Relay Popout so the cockpit defaults to a clearer task-first flow with one main input, one recommended agent, one next action, and Advanced mode kept behind an explicit toggle.
 - v4.3.1 adds the missing Hermes / Jarvis authority document plus a first-wave config layer for Dispatch, Recon, and Patch, with Hermes kept on shell ownership and Patch kept in propose-only mode.
+- v4.3.2 tunes the first-wave model routing so Hermes and Jarvis stay on `hermes3:8b`, Dispatch and Recon move to `qwen3.5:9b`, and Patch uses `qwen2.5-coder:14b` for faster, sharper, and more bounded behavior.
 - See [RELAY_VOICE_MILESTONE_SUMMARY.md](RELAY_VOICE_MILESTONE_SUMMARY.md) for the voice-lane timeline, winners, losses, and current stable behavior.
 
 ### Voice/UI freeze note

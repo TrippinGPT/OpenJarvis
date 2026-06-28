@@ -16,6 +16,7 @@ Authority:
 - one Jarvis talk-layer wrapper prompt
 - one role prompt for each first-wave specialist
 - a documented test path
+- an explicit first-wave model split
 
 ## File layout
 
@@ -70,6 +71,20 @@ Patch owns:
 - validation planning
 - propose-only change framing
 
+## First-wave model split
+
+- Hermes shell: `hermes3:8b`
+- Jarvis talk layer: `hermes3:8b`
+- Dispatch: `qwen3.5:9b`
+- Recon: `qwen3.5:9b`
+- Patch: `qwen2.5-coder:14b`
+
+Why this split:
+
+- `hermes3:8b` keeps the shell and talk layer conversational without making the heavier worker lanes slow by default.
+- `qwen3.5:9b` is the sharper fit for concise routing and grounded research summaries.
+- `qwen2.5-coder:14b` is the stronger fit for propose-only code, script, and repo work.
+
 ## What stays manual
 
 - destructive actions
@@ -117,3 +132,42 @@ Expected shape:
 - Jarvis is not duplicating Dispatch logic
 - Patch remains propose-only
 - no OpenClaw changes are introduced
+
+## Quick sanity checks
+
+### 1. Jarvis talk is shorter and sharper
+
+Check for:
+
+- short first response
+- no long preamble
+- one short handoff reason when a specialist is needed
+
+### 2. Recon uses repo/project scope first
+
+Check with a project-state request and confirm Recon prefers:
+
+- local docs
+- config files
+- scripts
+- current repo context
+
+before any Jira, GitHub activity, or generic workplace context.
+
+### 3. Dispatch routes concisely
+
+Check that Dispatch answers in short form:
+
+- owner
+- why
+- next step
+
+### 4. Patch stays propose-only
+
+Check that Patch returns:
+
+- smallest safe proposed fix
+- likely files
+- validation commands
+
+and does not imply destructive execution or commit/tag/push automation.

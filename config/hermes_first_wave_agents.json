@@ -4,6 +4,7 @@
   "shell": {
     "name": "Hermes",
     "role": "shell",
+    "model": "hermes3:8b",
     "owns": [
       "preflight",
       "launcher_readiness",
@@ -23,6 +24,7 @@
   "talk_layer": {
     "name": "Jarvis",
     "role": "conversational_wrapper",
+    "model": "hermes3:8b",
     "owns": [
       "front_facing_tone",
       "user_facing_handoff_language",
@@ -40,6 +42,7 @@
       "key": "dispatch",
       "name": "Dispatch",
       "role": "routing_and_coordination",
+      "model": "qwen3.5:9b",
       "owns": [
         "route_request",
         "select_first_wave_worker",
@@ -50,12 +53,18 @@
         "repo_fix_execution",
         "launcher_operations"
       ],
-      "default_handoff": "Route through Dispatch when the request is unclear, mixed, or needs sequencing."
+      "default_handoff": "Route through Dispatch when the request is unclear, mixed, or needs sequencing.",
+      "behavior_tuning": [
+        "route_concisely",
+        "avoid_generic_assistant_tone",
+        "name_owner_and_reason_in_short_form"
+      ]
     },
     {
       "key": "recon",
       "name": "Recon",
       "role": "research_and_summary",
+      "model": "qwen3.5:9b",
       "owns": [
         "research",
         "summaries",
@@ -67,13 +76,19 @@
         "build_work",
         "speculative_claims_as_fact"
       ],
-      "default_handoff": "Route through Recon when the task needs sourced context, verification, or a clean evidence-first summary."
+      "default_handoff": "Route through Recon when the task needs sourced context, verification, or a clean evidence-first summary.",
+      "behavior_tuning": [
+        "prefer_local_repo_context_first",
+        "use_explicit_source_scope",
+        "avoid_generic_workplace_activity_summaries_unless_asked"
+      ]
     },
     {
       "key": "patch",
       "name": "Patch",
       "role": "build_fix_script_repo_proposals",
       "mode": "propose_only",
+      "model": "qwen2.5-coder:14b",
       "owns": [
         "build_work",
         "fix_planning",
@@ -88,7 +103,12 @@
         "push_automation",
         "approval_bypass"
       ],
-      "default_handoff": "Route through Patch when the task needs a safe proposed fix, script adjustment, or validation plan."
+      "default_handoff": "Route through Patch when the task needs a safe proposed fix, script adjustment, or validation plan.",
+      "behavior_tuning": [
+        "prefer_smallest_safe_fix",
+        "avoid_broad_rewrites_unless_asked",
+        "keep_validation_explicit"
+      ]
     }
   ],
   "manual_only": [
