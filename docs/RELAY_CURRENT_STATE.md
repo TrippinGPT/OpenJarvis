@@ -221,6 +221,7 @@ The stop and restart scripts target Relay frontend and backend first. Ollama is 
 - v4.1.6 adds a local-only usage review digest and tuning hint so recent feedback can be summarized into strong, mixed, rough, and likely-next-polish signals without adding analytics infrastructure.
 - v4.1.7 adds local stop/restart control scripts so the Relay frontend and backend can be shut down and relaunched cleanly without manual process hunting.
 - v4.2 adds a Simple Mode in the Relay Popout so the cockpit defaults to a clearer task-first flow with one main input, one recommended agent, one next action, and Advanced mode kept behind an explicit toggle.
+- v4.3.1 adds the missing Hermes / Jarvis authority document plus a first-wave config layer for Dispatch, Recon, and Patch, with Hermes kept on shell ownership and Patch kept in propose-only mode.
 - See [RELAY_VOICE_MILESTONE_SUMMARY.md](RELAY_VOICE_MILESTONE_SUMMARY.md) for the voice-lane timeline, winners, losses, and current stable behavior.
 
 ### Voice/UI freeze note
@@ -234,6 +235,7 @@ The stop and restart scripts target Relay frontend and backend first. Ollama is 
 - Dispatch, Recon, Patch, Redline, Racket, Hermes, and Veto now have explicit identity fields for UI cards, docs, and future per-agent voice planning.
 - Relay Companion is still the only implemented runtime placeholder voice; the other agents now have documented voice direction only.
 - Relay Popout now defaults to Simple Mode for friendlier scanning; Advanced mode still exposes memory, routing, review, and voice internals on demand.
+- Hermes, Jarvis, Dispatch, Recon, and Patch now have a documented first practical split for shell ownership, conversational wrapper ownership, routing, research, and propose-only repo work.
 - Future work should start from a deliberate new milestone, not ad hoc polish changes.
 
 ### v2.5 milestone note
@@ -379,3 +381,5 @@ Related references:
 - [Relay Voice Milestone Summary](RELAY_VOICE_MILESTONE_SUMMARY.md)
 - [Relay Memory Prototype](RELAY_MEMORY_PROTOTYPE.md)
 - [Relay Simple Mode](RELAY_SIMPLE_MODE.md)
+- [Hermes / Jarvis Agent Plan](HERMES_JARVIS_AGENT_PLAN.md)
+- [Hermes First-Wave Setup](HERMES_FIRST_WAVE_SETUP.md)

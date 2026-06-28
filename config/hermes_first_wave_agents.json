@@ -1,0 +1,111 @@
+{
+  "authority_doc": "docs/HERMES_JARVIS_AGENT_PLAN.md",
+  "version": "v4.3.1",
+  "shell": {
+    "name": "Hermes",
+    "role": "shell",
+    "owns": [
+      "preflight",
+      "launcher_readiness",
+      "restart_readiness",
+      "local_status",
+      "safe_handoff",
+      "logging",
+      "status_reporting"
+    ],
+    "does_not_own": [
+      "routing_brain",
+      "conversation_brain",
+      "code_writing_agent",
+      "destructive_execution"
+    ]
+  },
+  "talk_layer": {
+    "name": "Jarvis",
+    "role": "conversational_wrapper",
+    "owns": [
+      "front_facing_tone",
+      "user_facing_handoff_language",
+      "what_next_framing"
+    ],
+    "does_not_own": [
+      "routing_policy",
+      "agent_selection_authority",
+      "repo_execution",
+      "shell_control"
+    ]
+  },
+  "first_wave_agents": [
+    {
+      "key": "dispatch",
+      "name": "Dispatch",
+      "role": "routing_and_coordination",
+      "owns": [
+        "route_request",
+        "select_first_wave_worker",
+        "sequence_simple_multistep_flow"
+      ],
+      "does_not_own": [
+        "research_output",
+        "repo_fix_execution",
+        "launcher_operations"
+      ],
+      "default_handoff": "Route through Dispatch when the request is unclear, mixed, or needs sequencing."
+    },
+    {
+      "key": "recon",
+      "name": "Recon",
+      "role": "research_and_summary",
+      "owns": [
+        "research",
+        "summaries",
+        "fact_gathering",
+        "evidence_first_output"
+      ],
+      "does_not_own": [
+        "routing_decisions",
+        "build_work",
+        "speculative_claims_as_fact"
+      ],
+      "default_handoff": "Route through Recon when the task needs sourced context, verification, or a clean evidence-first summary."
+    },
+    {
+      "key": "patch",
+      "name": "Patch",
+      "role": "build_fix_script_repo_proposals",
+      "mode": "propose_only",
+      "owns": [
+        "build_work",
+        "fix_planning",
+        "script_repo_work",
+        "proposed_diff_shape",
+        "validation_command_planning"
+      ],
+      "does_not_own": [
+        "destructive_execution",
+        "commit_automation",
+        "tag_automation",
+        "push_automation",
+        "approval_bypass"
+      ],
+      "default_handoff": "Route through Patch when the task needs a safe proposed fix, script adjustment, or validation plan."
+    }
+  ],
+  "manual_only": [
+    "destructive_actions",
+    "risky_execution",
+    "approvals",
+    "commit_tag_push",
+    "openclaw_changes"
+  ],
+  "future_agents": [
+    "redline",
+    "veto",
+    "racket"
+  ],
+  "test_tasks": [
+    "summarize_current_project_state",
+    "route_unclear_task_to_right_helper",
+    "fix_real_script_or_workflow_issue_in_propose_only_mode"
+  ]
+}
