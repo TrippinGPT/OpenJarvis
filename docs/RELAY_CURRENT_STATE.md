@@ -229,6 +229,7 @@ The stop and restart scripts target Relay frontend and backend first. Ollama is 
 - v4.4.3 revamps the default Relay front door toward a calmer Hermes Desktop-style assistant shell: one main task surface, one recommended first-wave worker, one next action, and deeper cockpit internals behind detail controls or Advanced mode.
 - v4.4.4 fixes Simple Mode task flow so Clear is deterministic, first-wave handoff buttons queue a real task, and `/relay-popout` now feeds the live `/chat` path instead of stopping at draft-only routing copy.
 - v4.4.5 tightens first-wave chat behavior after the new Simple Mode handoff flow so Dispatch, Recon, and Patch each switch the live chat model, carry stricter first-wave instructions into `/chat`, and answer in a more role-shaped format instead of falling back toward generic assistant output.
+- v4.4.6 fixes first-wave worker recommendation so explicit project-state, summary, repo-state, and evidence-first asks bias to Recon before stale memory or generic build context can pull the shell toward Patch.
 - See [RELAY_VOICE_MILESTONE_SUMMARY.md](RELAY_VOICE_MILESTONE_SUMMARY.md) for the voice-lane timeline, winners, losses, and current stable behavior.
 
 ### Voice/UI freeze note

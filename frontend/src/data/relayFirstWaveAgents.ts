@@ -70,6 +70,10 @@ function hasAny(text: string, terms: readonly string[]) {
   return terms.some((term) => text.includes(term));
 }
 
+function countMatches(text: string, terms: readonly string[]) {
+  return terms.reduce((count, term) => count + (text.includes(term) ? 1 : 0), 0);
+}
+
 function normalizeText(parts: Array<string | string[] | undefined | null>) {
   return parts
     .filter(Boolean)
@@ -81,69 +85,129 @@ function normalizeText(parts: Array<string | string[] | undefined | null>) {
     .trim();
 }
 
+const RECON_STRONG_PHRASES = [
+  'project-state',
+  'project state',
+  'current state',
+  'summary prompt',
+  'project-state summary',
+  'summarize my current project state',
+  'summarize repo status',
+  'repo status',
+  'repo state',
+  'current project state',
+  'what does the project currently look like',
+  'gather facts',
+  'compare these options',
+] as const;
+
+const RECON_TERMS = [
+  'research',
+  'summary',
+  'summarize',
+  'sources',
+  'source',
+  'facts',
+  'fact',
+  'evidence',
+  'context',
+  'docs',
+  'document',
+  'report',
+  'intel',
+] as const;
+
+const PATCH_STRONG_PHRASES = [
+  'safe change',
+  'propose a safe change',
+  'safe fix',
+  'smallest safe fix',
+  'improve this file',
+  'improve this workflow',
+  'repo change',
+  'broken script',
+  'validation plan',
+] as const;
+
+const PATCH_TERMS = [
+  'build',
+  'fix',
+  'script',
+  'workflow',
+  'frontend',
+  'backend',
+  'compile',
+  'test',
+  'patch',
+  'bug',
+  'validation',
+  'powershell',
+  'typescript',
+  'python',
+  'file',
+  'refactor',
+  'implement',
+  'change',
+] as const;
+
+const DISPATCH_STRONG_PHRASES = [
+  'who should handle this',
+  'what should handle this',
+  'what should i do next',
+  'not sure who should',
+  'not sure what should',
+  'which agent',
+  'route this',
+  'route this task',
+  'help me route this',
+] as const;
+
+const DISPATCH_TERMS = [
+  'route',
+  'routing',
+  'not sure',
+  'unclear',
+  'coordinate',
+  'plan',
+  'triage',
+  'breakdown',
+  'owner',
+  'handoff',
+  'sequence',
+  'next step',
+] as const;
+
+function scoreFirstWaveIntent(text: string) {
+  const reconStrong = countMatches(text, RECON_STRONG_PHRASES);
+  const patchStrong = countMatches(text, PATCH_STRONG_PHRASES);
+  const dispatchStrong = countMatches(text, DISPATCH_STRONG_PHRASES);
+  const reconTerms = countMatches(text, RECON_TERMS);
+  const patchTerms = countMatches(text, PATCH_TERMS);
+  const dispatchTerms = countMatches(text, DISPATCH_TERMS);
+
+  return {
+    recon: reconStrong * 4 + reconTerms,
+    patch: patchStrong * 4 + patchTerms,
+    dispatch: dispatchStrong * 4 + dispatchTerms,
+  };
+}
+
 function detectFirstWaveKey(text: string): RelayFirstWaveAgentKey | null {
-  if (
-    hasAny(text, [
-      'build',
-      'fix',
-      'script',
-      'repo',
-      'workflow',
-      'frontend',
-      'backend',
-      'compile',
-      'test',
-      'patch',
-      'bug',
-      'validation',
-      'powershell',
-      'typescript',
-      'python',
-    ])
-  ) {
-    return 'patch';
+  const scores = scoreFirstWaveIntent(text);
+  const topScore = Math.max(scores.recon, scores.patch, scores.dispatch);
+  if (topScore <= 0) {
+    return null;
   }
 
-  if (
-    hasAny(text, [
-      'research',
-      'summary',
-      'summarize',
-      'sources',
-      'source',
-      'facts',
-      'fact',
-      'evidence',
-      'context',
-      'project state',
-      'current state',
-      'docs',
-      'document',
-      'report',
-      'intel',
-    ])
-  ) {
+  if (scores.recon > 0 && scores.recon >= scores.patch && scores.recon >= scores.dispatch) {
     return 'recon';
   }
 
-  if (
-    hasAny(text, [
-      'route',
-      'routing',
-      'who should',
-      'which agent',
-      'not sure',
-      'unclear',
-      'coordinate',
-      'plan',
-      'triage',
-      'breakdown',
-      'owner',
-      'handoff',
-      'sequence',
-      'next step',
-    ])
-  ) {
+  if (scores.patch > 0 && scores.patch > scores.recon && scores.patch >= scores.dispatch) {
+    return 'patch';
+  }
+
+  if (scores.dispatch > 0) {
     return 'dispatch';
   }
 
@@ -193,7 +257,6 @@ export function deriveRelayFirstWaveRecommendation({
   broadRouting: RelayRoutingGuidanceView;
 }): RelayFirstWaveRecommendation {
   const contextText = normalizeText([
-    taskDraft,
     relayMemory.currentObjective,
     relayMemory.lastMeaningfulAction,
     relayMemory.nextSuggestedMove,
@@ -201,10 +264,14 @@ export function deriveRelayFirstWaveRecommendation({
     relayMemory.activeLanePriorities,
     relayMemory.currentBoundaries,
   ]);
-  const explicitKey = detectFirstWaveKey(contextText);
-  const mapped = explicitKey
-    ? { key: explicitKey, reasonPrefix: 'The task language points to a first-wave owner.' }
-    : mapBroadRouteToFirstWave(broadRouting, contextText);
+  const taskText = normalizeText([taskDraft]);
+  const explicitTaskKey = detectFirstWaveKey(taskText);
+  const explicitContextKey = explicitTaskKey ? null : detectFirstWaveKey(contextText);
+  const mapped = explicitTaskKey
+    ? { key: explicitTaskKey, reasonPrefix: 'The task language points to a first-wave owner.' }
+    : explicitContextKey
+      ? { key: explicitContextKey, reasonPrefix: 'The saved context points to a first-wave owner.' }
+      : mapBroadRouteToFirstWave(broadRouting, contextText);
   const agent = getRelayFirstWaveAgent(mapped.key) ?? relayFirstWaveAgents[0];
   const guide = relayFirstWaveQuickGuide[mapped.key];
   const activeAgent = relayMemory.activeAgent?.toLowerCase().trim();
