@@ -1414,3 +1414,32 @@
     animation: none !important;
   }
 }
+
+.relay-popout-screen.relay-popout-simple {
+  background: linear-gradient(180deg, #050508 0%, #070b12 100%);
+}
+
+.relay-popout-screen.relay-popout-simple .relay-popout-grid {
+  opacity: 0.06;
+}
+
+.relay-popout-screen.relay-popout-simple .relay-popout-scanlines {
+  opacity: 0.12;
+}
+
+.relay-popout-screen.relay-popout-simple .relay-popout-screen-glow {
+  opacity: 0.45;
+}
+
+.relay-popout-screen.relay-popout-simple .relay-popout-layout {
+  max-width: 720px;
+  gap: 0.75rem;
+}
+
+.relay-simple-shell {
+  width: 100%;
+}
+
+.relay-simple-section {
+  backdrop-filter: blur(6px);
+}

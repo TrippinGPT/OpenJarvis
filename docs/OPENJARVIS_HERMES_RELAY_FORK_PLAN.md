@@ -483,7 +483,7 @@ Exit criteria:
 - a new operator can use Relay without opening dashboard first
 - Simple Mode answers task / agent / next move
 
-Status: **substantially started**; polish and consolidation continue here, not new scope sprawl.
+Status: **implemented in v4.4.1** — default route `/relay-popout`, `RelaySimpleModeShell`, first-wave quick guide, Advanced panels preserved.
 
 ### Phase 3 — First-wave agents
 

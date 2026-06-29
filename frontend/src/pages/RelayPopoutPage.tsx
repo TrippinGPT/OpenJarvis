@@ -45,8 +45,10 @@ import {
   RELAY_POPOUT_ACTIVITY_KEY,
   type RelayPopoutActivity,
 } from '../lib/relayPopout';
+import { RelaySimpleModeShell } from '../components/Relay/RelaySimpleModeShell';
 import { relayCompanionCopy } from '../lib/relayPersonality';
 import { getRelayAgent, relayAgents } from '../data/relayAgents';
+import type { RelayFirstWaveAgentKey } from '../data/relayFirstWaveAgents';
 import { useAppStore } from '../lib/store';
 
 type BridgeState = 'checking' | 'connected' | 'fallback';
@@ -190,7 +192,7 @@ export function RelayPopoutPage() {
   const [voicePlaybackDetail, setVoicePlaybackDetail] = useState<string>(relayCompanionCopy.popout.voiceDisabledDetail);
   const [voiceCategory, setVoiceCategory] = useState<string>('manual_test');
   const [statusRefreshPending, setStatusRefreshPending] = useState(false);
-  const [simpleTaskDraft, setSimpleTaskDraft] = useState('');
+  const [simpleTaskDraft, setSimpleTaskDraft] = useState(() => relayMemory.currentObjective || '');
   const [memoryDraft, setMemoryDraft] = useState('');
   const [usageReviewTone, setUsageReviewTone] = useState<RelayUsageReviewTone>('mixed');
   const [usageReviewArea, setUsageReviewArea] = useState<RelayUsageReviewArea>('popout');
@@ -212,6 +214,12 @@ export function RelayPopoutPage() {
       audioUrlRef.current = null;
     }
   };
+
+  useEffect(() => {
+    if (!simpleTaskDraft && relayMemory.currentObjective) {
+      setSimpleTaskDraft(relayMemory.currentObjective);
+    }
+  }, [relayMemory.currentObjective, simpleTaskDraft]);
 
   useEffect(() => {
     const refreshHealth = () => {
@@ -644,51 +652,70 @@ export function RelayPopoutPage() {
   ]);
 
   return (
-    <div className="relay-popout-screen h-screen overflow-y-auto">
+    <div
+      className={`relay-popout-screen h-screen overflow-y-auto${relaySimpleModeEnabled ? ' relay-popout-simple' : ''}`}
+    >
       <div className="relay-popout-grid" aria-hidden="true" />
       <div className="relay-popout-scanlines" aria-hidden="true" />
       <div className="relay-popout-screen-glow" aria-hidden="true" />
 
       <main className="relay-popout-layout relative z-10 mx-auto flex min-h-full flex-col gap-2.5 p-3">
-        <HudPanel className="relay-popout-header px-3 py-2.5">
+        <HudPanel className={`relay-popout-header px-3 ${relaySimpleModeEnabled ? 'py-2' : 'py-2.5'}`}>
           <header className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-2.5">
-              <div className="relay-popout-brand-mark">
-                <Sparkles size={14} />
-              </div>
+              {!relaySimpleModeEnabled && (
+                <div className="relay-popout-brand-mark">
+                  <Sparkles size={14} />
+                </div>
+              )}
               <div className="min-w-0">
-                <div className="text-[11px] font-semibold tracking-[0.2em]">TRIPPIN AI</div>
-                <div className="mt-0.5 text-[6px] font-semibold tracking-[0.32em]" style={{ color: 'rgb(196, 181, 253)' }}>
-                  BUILT DIFFERENT
+                <div className="text-[11px] font-semibold tracking-[0.16em]">
+                  {relaySimpleModeEnabled ? 'Relay' : 'TRIPPIN AI'}
+                </div>
+                <div
+                  className="mt-0.5 text-[8px] tracking-wide"
+                  style={{ color: relaySimpleModeEnabled ? 'rgba(165, 243, 252, 0.78)' : 'rgb(196, 181, 253)' }}
+                >
+                  {relaySimpleModeEnabled ? (
+                    'Local operator cockpit'
+                  ) : (
+                    <span className="text-[6px] font-semibold tracking-[0.32em]">BUILT DIFFERENT</span>
+                  )}
                 </div>
               </div>
             </div>
 
             <div className="min-w-0 flex-1 text-center">
-              <div className="text-[9px] font-semibold uppercase tracking-[0.24em]" style={{ color: 'rgb(103, 232, 249)' }}>
-                Relay Companion
-              </div>
-              <div className="mt-0.5 truncate font-mono text-[6px] uppercase tracking-[0.08em]" style={{ color: 'rgba(148, 163, 184, 0.75)' }}>
-                <span className="relay-popout-mode-compact">Companion Mode</span>
-                <span className="relay-popout-mode-wide">Monitor Mode</span>
-                {' // '}Model // {currentModel}
-              </div>
+              {!relaySimpleModeEnabled && (
+                <>
+                  <div className="text-[9px] font-semibold uppercase tracking-[0.24em]" style={{ color: 'rgb(103, 232, 249)' }}>
+                    Relay Companion
+                  </div>
+                  <div className="mt-0.5 truncate font-mono text-[6px] uppercase tracking-[0.08em]" style={{ color: 'rgba(148, 163, 184, 0.75)' }}>
+                    <span className="relay-popout-mode-compact">Companion Mode</span>
+                    <span className="relay-popout-mode-wide">Monitor Mode</span>
+                    {' // '}Model // {currentModel}
+                  </div>
+                </>
+              )}
+              {relaySimpleModeEnabled && isResponding && (
+                <div className="text-[9px] font-medium text-violet-200">Relay responding</div>
+              )}
             </div>
 
             <div className="flex shrink-0 items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => updateSettings({ relaySimpleModeEnabled: !relaySimpleModeEnabled })}
-                className="relay-popout-nav-button justify-center px-2 py-1"
-                style={{
-                  color: relaySimpleModeEnabled ? 'rgb(103, 232, 249)' : 'rgb(216, 180, 254)',
-                  borderColor: relaySimpleModeEnabled ? 'rgba(34, 211, 238, 0.24)' : 'rgba(192, 132, 252, 0.24)',
-                }}
-              >
-                {relaySimpleModeEnabled ? 'Advanced' : 'Simple'}
-              </button>
+              {!relaySimpleModeEnabled && (
+                <button
+                  type="button"
+                  onClick={() => updateSettings({ relaySimpleModeEnabled: true })}
+                  className="relay-popout-nav-button justify-center px-2 py-1"
+                  style={{ color: 'rgb(103, 232, 249)', borderColor: 'rgba(34, 211, 238, 0.24)' }}
+                >
+                  Simple
+                </button>
+              )}
               <div
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-sm px-2 py-1 text-[6px] font-semibold uppercase tracking-[0.12em]"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-sm px-2 py-1 text-[8px] font-medium uppercase tracking-wide"
                 style={{
                   color: backendOnline === false ? 'rgb(251, 191, 36)' : 'rgb(134, 239, 172)',
                   border:
@@ -729,7 +756,8 @@ export function RelayPopoutPage() {
           </div>
         )}
 
-        <HudPanel className={`relay-popout-main-hud ${isResponding ? 'relay-popout-main-hud-active' : ''}`}>
+        {!relaySimpleModeEnabled && (
+          <HudPanel className={`relay-popout-main-hud ${isResponding ? 'relay-popout-main-hud-active' : ''}`}>
           <div className="relay-popout-hud-corners" aria-hidden="true" />
           <div className="relay-popout-hud-grid" aria-hidden="true" />
           <div className="relay-popout-hud-axis relay-popout-hud-axis-x" aria-hidden="true" />
@@ -782,163 +810,24 @@ export function RelayPopoutPage() {
             </aside>
           </div>
         </HudPanel>
+        )}
 
         {relaySimpleModeEnabled ? (
-          <>
-            <HudPanel className="px-3 py-3" cyan>
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="text-[7px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgb(103, 232, 249)' }}>
-                    Simple Mode
-                  </div>
-                  <div className="mt-1 text-[7px] leading-relaxed" style={{ color: 'rgba(165, 243, 252, 0.88)' }}>
-                    Tell Relay the next thing you need. The cockpit will keep one recommended specialist, one reason, and one next move in front of you.
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => updateSettings({ relaySimpleModeEnabled: false })}
-                  className="relay-popout-nav-button justify-center whitespace-nowrap px-2 py-1"
-                  style={{ color: 'rgb(216, 180, 254)', borderColor: 'rgba(192, 132, 252, 0.24)' }}
-                >
-                  Show advanced
-                </button>
-              </div>
-              <div className="mt-3 grid gap-3 xl:grid-cols-[1.15fr_0.85fr]">
-                <div className="grid gap-2">
-                  <div className="rounded-sm border border-white/10 bg-black/25 px-2 py-2">
-                    <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
-                      Main task
-                    </div>
-                    <textarea
-                      value={simpleTaskDraft}
-                      onChange={(event) => setSimpleTaskDraft(event.target.value)}
-                      rows={4}
-                      placeholder="Type the task in plain language. Example: Fix the startup script, check the frontend build, and keep OpenClaw untouched."
-                      className="mt-2 w-full rounded-sm border border-white/10 bg-black/30 px-2 py-1.5 text-[7px] outline-none"
-                      style={{ color: 'rgba(165, 243, 252, 0.9)', resize: 'vertical' }}
-                    />
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={handleSimpleTaskFocus}
-                        disabled={!simpleTaskDraft.trim()}
-                        className="relay-popout-nav-button justify-center"
-                        style={{
-                          color: simpleTaskDraft.trim() ? 'rgb(103, 232, 249)' : 'rgba(148, 163, 184, 0.56)',
-                          borderColor: simpleTaskDraft.trim() ? 'rgba(34, 211, 238, 0.24)' : 'rgba(148, 163, 184, 0.16)',
-                          opacity: simpleTaskDraft.trim() ? 1 : 0.6,
-                        }}
-                      >
-                        Save focus
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setSimpleTaskDraft('')}
-                        disabled={!simpleTaskDraft.trim()}
-                        className="relay-popout-nav-button justify-center"
-                        style={{
-                          color: simpleTaskDraft.trim() ? 'rgb(251, 191, 36)' : 'rgba(148, 163, 184, 0.56)',
-                          borderColor: simpleTaskDraft.trim() ? 'rgba(251, 191, 36, 0.20)' : 'rgba(148, 163, 184, 0.16)',
-                          opacity: simpleTaskDraft.trim() ? 1 : 0.6,
-                        }}
-                      >
-                        Clear
-                      </button>
-                    </div>
-                    <div className="mt-2 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
-                      Type the outcome, repo, or question first. Relay keeps the diagnostics in Advanced mode until you ask for them.
-                    </div>
-                  </div>
-
-                  <div className="rounded-sm border border-white/10 bg-black/25 px-2 py-2">
-                    <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
-                      Recommended agent
-                    </div>
-                    <div className="mt-2 flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="text-[9px] font-semibold uppercase tracking-[0.16em]" style={{ color: 'rgb(216, 180, 254)' }}>
-                          {simpleRecommendedAgent.name}
-                        </div>
-                        <div className="mt-1 text-[7px]" style={{ color: 'rgba(165, 243, 252, 0.88)' }}>
-                          {simpleRecommendedAgent.roleSentence}
-                        </div>
-                        <div className="mt-2 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
-                          Why this fits
-                        </div>
-                        <div className="mt-1 text-[7px]" style={{ color: 'rgba(165, 243, 252, 0.88)' }}>
-                          {simpleAgentReason}
-                        </div>
-                      </div>
-                      <div className="shrink-0 rounded-sm border border-white/10 bg-black/20 px-2 py-1 text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgb(134, 239, 172)' }}>
-                        {routingGuidanceView.mode === 'stay' ? 'Current fit' : 'Best next fit'}
-                      </div>
-                    </div>
-                    <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]">
-                      <div className="rounded-sm border border-white/10 bg-black/20 px-2 py-2">
-                        <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
-                          Next action
-                        </div>
-                        <div className="mt-1 text-[7px]" style={{ color: 'rgba(165, 243, 252, 0.88)' }}>
-                          {nextMoveView.move}
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleUseRecommendedAgent}
-                        className="relay-popout-nav-button justify-center whitespace-nowrap"
-                        style={{ color: 'rgb(134, 239, 172)', borderColor: 'rgba(74, 222, 128, 0.24)' }}
-                      >
-                        {simpleAgentActionLabel}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid gap-2">
-                  <div className="rounded-sm border border-white/10 bg-black/25 px-2 py-2">
-                    <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
-                      Agent quick guide
-                    </div>
-                    <div className="mt-2 grid gap-2">
-                      {relayAgents.map((agent) => (
-                        <button
-                          key={agent.key}
-                          type="button"
-                          onClick={() => navigate(`/agents?relayAgent=${agent.key}`)}
-                          className="rounded-sm border border-white/10 bg-black/20 px-2 py-2 text-left transition hover:border-cyan-400/30 hover:bg-black/30"
-                        >
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="text-[7px] font-semibold uppercase tracking-[0.12em]" style={{ color: 'rgb(216, 180, 254)' }}>
-                              {agent.name}
-                            </div>
-                            <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
-                              {agent.role}
-                            </div>
-                          </div>
-                          <div className="mt-1 text-[7px]" style={{ color: 'rgba(165, 243, 252, 0.84)' }}>
-                            {agent.bestFor}
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="rounded-sm border border-white/10 bg-black/25 px-2 py-2 text-[7px] leading-relaxed">
-                    <div className="text-[6px] uppercase tracking-[0.12em]" style={{ color: 'rgba(148, 163, 184, 0.68)' }}>
-                      Current context
-                    </div>
-                    <div className="mt-2 grid gap-1" style={{ color: 'rgba(165, 243, 252, 0.88)' }}>
-                      <div>Lane: {relayMemory.currentLane || 'Unset'}</div>
-                      <div>Agent: {relayMemory.activeAgent || simpleRecommendedAgent.name}</div>
-                      <div>Objective: {relayMemory.currentObjective || 'Set a task focus above.'}</div>
-                      <div>Status: {relayMemory.recentStatusSummary || relayCompanionCopy.popout.waiting}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </HudPanel>
-          </>
+          <RelaySimpleModeShell
+            taskDraft={simpleTaskDraft}
+            onTaskDraftChange={setSimpleTaskDraft}
+            onSaveFocus={handleSimpleTaskFocus}
+            onClearTask={() => setSimpleTaskDraft('')}
+            recommendedAgent={simpleRecommendedAgent}
+            agentReason={simpleAgentReason}
+            routingMode={routingGuidanceView.mode}
+            nextMove={nextMoveView}
+            agentActionLabel={simpleAgentActionLabel}
+            onUseRecommendedAgent={handleUseRecommendedAgent}
+            onOpenAgent={(agentKey: RelayFirstWaveAgentKey) => navigate(`/agents?relayAgent=${agentKey}`)}
+            onShowAdvanced={() => updateSettings({ relaySimpleModeEnabled: false })}
+            relayMemory={relayMemory}
+          />
         ) : (
           <>
         <div className="relay-popout-lower-grid grid grid-cols-[1.35fr_0.9fr] gap-2">
@@ -1579,7 +1468,9 @@ export function RelayPopoutPage() {
           </>
         )}
 
-        <footer className="relay-popout-footer mt-auto grid grid-cols-2 gap-2">
+        <footer
+          className={`relay-popout-footer mt-auto grid gap-2 ${relaySimpleModeEnabled ? 'grid-cols-3' : 'grid-cols-2'}`}
+        >
           <button
             type="button"
             onClick={() => navigate('/dashboard')}
@@ -1587,16 +1478,27 @@ export function RelayPopoutPage() {
             style={{ color: 'rgb(103, 232, 249)', borderColor: 'rgba(34, 211, 238, 0.22)' }}
           >
             <ArrowLeft size={11} />
-            Dashboard
+            {relaySimpleModeEnabled ? 'Dashboard' : 'Dashboard'}
           </button>
+          {relaySimpleModeEnabled && (
+            <button
+              type="button"
+              onClick={() => navigate('/agents')}
+              className="relay-popout-nav-button"
+              style={{ color: 'rgb(216, 180, 254)', borderColor: 'rgba(192, 132, 252, 0.22)' }}
+            >
+              <Bot size={11} />
+              Agents
+            </button>
+          )}
           <button
             type="button"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/chat')}
             className="relay-popout-nav-button"
             style={{ color: 'rgb(216, 180, 254)', borderColor: 'rgba(192, 132, 252, 0.22)' }}
           >
             <MessageSquare size={11} />
-            Full Chat
+            {relaySimpleModeEnabled ? 'Chat' : 'Full Chat'}
             <ExternalLink size={9} />
           </button>
         </footer>
