@@ -501,7 +501,7 @@ Exit criteria:
 - three test paths in [HERMES_FIRST_WAVE_SETUP.md](HERMES_FIRST_WAVE_SETUP.md) are reproducible
 - Jarvis does not duplicate Dispatch logic
 
-Status: **config/docs started**; runtime wiring depth remains Phase 3 work.
+Status: **Simple Mode first-wave behavior improved in v4.4.2**; Dispatch, Recon, and Patch now drive the normal task-first recommendation path while deeper runtime wiring remains future Phase 3 work.
 
 ### Phase 4 — Memory / routing layer
 

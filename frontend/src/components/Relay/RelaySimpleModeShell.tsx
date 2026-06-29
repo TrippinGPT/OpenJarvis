@@ -16,6 +16,8 @@ export interface RelaySimpleModeShellProps {
   onClearTask: () => void;
   recommendedAgent: RelayAgent;
   agentReason: string;
+  agentTaskFit: string;
+  firstWaveScopeNote: string;
   routingMode: RelayRoutingGuidanceView['mode'];
   nextMove: RelayNextMoveView;
   agentActionLabel: string;
@@ -66,6 +68,8 @@ export function RelaySimpleModeShell({
   onClearTask,
   recommendedAgent,
   agentReason,
+  agentTaskFit,
+  firstWaveScopeNote,
   routingMode,
   nextMove,
   agentActionLabel,
@@ -85,7 +89,7 @@ export function RelaySimpleModeShell({
             Simple Mode
           </div>
           <p className="mt-1 text-[9px] leading-relaxed text-cyan-100/80">
-            One task, one specialist, one next move. Advanced panels stay available when you need them.
+            One task, one first-wave specialist, one next move. Advanced panels stay available when you need them.
           </p>
         </div>
         <button
@@ -143,8 +147,8 @@ export function RelaySimpleModeShell({
 
       <SimpleSection
         icon={UserRound}
-        title="Who is handling this?"
-        hint="Relay recommends one first-wave specialist and explains why."
+        title="Who gets this first?"
+        hint="Simple Mode keeps normal flow inside Dispatch, Recon, and Patch."
       >
         <div className="rounded-md border border-white/10 bg-black/25 px-2.5 py-2.5">
           <div className="flex items-start justify-between gap-3">
@@ -168,6 +172,16 @@ export function RelaySimpleModeShell({
             <div className="text-[8px] font-medium uppercase tracking-wide text-slate-500">Why this fits</div>
             <p className="mt-1 text-[9px] leading-relaxed text-cyan-50/85">{agentReason}</p>
           </div>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            <div className="rounded-md border border-white/8 bg-black/20 px-2 py-2">
+              <div className="text-[8px] font-medium uppercase tracking-wide text-slate-500">Task fit</div>
+              <p className="mt-1 text-[9px] leading-relaxed text-cyan-50/80">{agentTaskFit}</p>
+            </div>
+            <div className="rounded-md border border-white/8 bg-black/20 px-2 py-2">
+              <div className="text-[8px] font-medium uppercase tracking-wide text-slate-500">Boundary</div>
+              <p className="mt-1 text-[9px] leading-relaxed text-cyan-50/80">{firstWaveScopeNote}</p>
+            </div>
+          </div>
           <button
             type="button"
             onClick={onUseRecommendedAgent}
@@ -183,7 +197,7 @@ export function RelaySimpleModeShell({
       <SimpleSection
         icon={Compass}
         title="What should I do next?"
-        hint="Deterministic guidance from visible Relay memory — not hidden orchestration."
+        hint="Deterministic guidance from visible Relay memory - not hidden orchestration."
       >
         <div className="rounded-md border border-white/10 bg-black/25 px-2.5 py-2.5">
           <p className="text-[10px] leading-relaxed text-cyan-50/90">{nextMove.move}</p>
@@ -194,7 +208,7 @@ export function RelaySimpleModeShell({
       <section className="relay-simple-section rounded-lg border border-white/10 bg-black/20 px-3 py-3">
         <div className="text-[10px] font-semibold tracking-wide text-violet-200">First-wave team</div>
         <p className="mt-0.5 text-[9px] text-slate-400">
-          Dispatch, Recon, and Patch are active in v1. Other roster agents stay parked until a later milestone.
+          Dispatch routes, Recon verifies, Patch proposes fixes. Other roster agents stay parked in Simple Mode.
         </p>
         <div className="mt-3 grid gap-2 sm:grid-cols-3">
           {relayFirstWaveAgents.map((agent) => {

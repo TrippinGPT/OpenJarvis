@@ -47,19 +47,15 @@ import {
 } from '../lib/relayPopout';
 import { RelaySimpleModeShell } from '../components/Relay/RelaySimpleModeShell';
 import { relayCompanionCopy } from '../lib/relayPersonality';
-import { getRelayAgent, relayAgents } from '../data/relayAgents';
-import type { RelayFirstWaveAgentKey } from '../data/relayFirstWaveAgents';
+import {
+  deriveRelayFirstWaveRecommendation,
+  type RelayFirstWaveAgentKey,
+} from '../data/relayFirstWaveAgents';
 import { useAppStore } from '../lib/store';
 
 type BridgeState = 'checking' | 'connected' | 'fallback';
 type VoicePlaybackState = 'idle' | 'generating' | 'playing' | 'complete' | 'error';
 type VoicePlaybackSource = 'manual' | 'event';
-
-function getRelayAgentByValue(value: string | null) {
-  if (!value) return null;
-  const normalized = value.trim().toLowerCase();
-  return getRelayAgent(normalized) ?? relayAgents.find((agent) => agent.name.toLowerCase() === normalized) ?? null;
-}
 
 function formatActivityTime(timestamp: number): string {
   if (!timestamp) return '--:--:--';
@@ -319,18 +315,14 @@ export function RelayPopoutPage() {
     || 'Relay online. Voice check complete.';
   const nextMoveView = deriveRelayNextMoveView(relayMemory);
   const routingGuidanceView = deriveRelayRoutingGuidanceView(relayMemory);
-  const activeAgentProfile = getRelayAgentByValue(relayMemory.activeAgent);
-  const routedAgentProfile = getRelayAgent(routingGuidanceView.targetAgentKey) ?? relayAgents[0];
-  const simpleRecommendedAgent =
-    routingGuidanceView.mode === 'stay' && activeAgentProfile ? activeAgentProfile : routedAgentProfile;
-  const simpleAgentReason =
-    routingGuidanceView.mode === 'stay'
-      ? `${simpleRecommendedAgent.name} already fits the current context. ${routingGuidanceView.reason}`
-      : routingGuidanceView.reason;
-  const simpleAgentActionLabel =
-    routingGuidanceView.mode === 'stay'
-      ? `Stay with ${simpleRecommendedAgent.name}`
-      : `Use ${simpleRecommendedAgent.name}`;
+  const simpleFirstWaveRecommendation = deriveRelayFirstWaveRecommendation({
+    taskDraft: simpleTaskDraft,
+    relayMemory,
+    broadRouting: routingGuidanceView,
+  });
+  const simpleRecommendedAgent = simpleFirstWaveRecommendation.agent;
+  const simpleAgentReason = simpleFirstWaveRecommendation.reason;
+  const simpleAgentActionLabel = simpleFirstWaveRecommendation.actionLabel;
   const memorySessionLabel = relayMemory.sessionId.slice(0, 8);
   const memoryUpdatedLabel = formatRelayMemoryTime(relayMemory.updatedAt);
   const memoryExpiresLabel = formatRelayMemoryTime(relayMemory.expiresAt);
@@ -501,28 +493,28 @@ export function RelayPopoutPage() {
     }
 
     updateRelayMemory({
-      currentLane: 'Conversation',
+      currentLane: 'Relay first-wave',
       currentObjective: nextObjective,
       activeAgent: simpleRecommendedAgent.name,
-      lastMeaningfulAction: `Set Simple Mode focus: ${nextObjective}`,
-      recentStatusSummary: `${simpleRecommendedAgent.name} is the current best fit for the saved task focus.`,
+      lastMeaningfulAction: `Saved Simple Mode focus for ${simpleRecommendedAgent.name}: ${nextObjective}`,
+      recentStatusSummary: `${simpleRecommendedAgent.name} is the first-wave fit. ${simpleFirstWaveRecommendation.taskFit}`,
     });
   };
 
   const handleUseRecommendedAgent = () => {
     const nextObjective = summarizeRelayMemoryText(simpleTaskDraft, 180);
     updateRelayMemory({
-      currentLane: relayMemory.currentLane || 'Conversation',
+      currentLane: relayMemory.currentLane || 'Relay first-wave',
       currentObjective: nextObjective || relayMemory.currentObjective,
       activeAgent: simpleRecommendedAgent.name,
       lastMeaningfulAction:
-        routingGuidanceView.mode === 'stay'
-          ? `Kept ${simpleRecommendedAgent.name} as the active specialist from Simple Mode.`
-          : `Handed the next step to ${simpleRecommendedAgent.name} from Simple Mode.`,
+        simpleFirstWaveRecommendation.routingMode === 'stay'
+          ? `Kept ${simpleRecommendedAgent.name} as the active first-wave specialist from Simple Mode.`
+          : `Prepared a Simple Mode handoff to ${simpleRecommendedAgent.name}.`,
       recentStatusSummary:
-        routingGuidanceView.mode === 'stay'
-          ? `${simpleRecommendedAgent.name} remains the best fit for the current task.`
-          : `${simpleRecommendedAgent.name} is now the recommended specialist for the next step.`,
+        simpleFirstWaveRecommendation.routingMode === 'stay'
+          ? `${simpleRecommendedAgent.name} remains the first-wave fit. ${simpleFirstWaveRecommendation.scopeNote}`
+          : `${simpleRecommendedAgent.name} is now the recommended first-wave specialist. ${simpleFirstWaveRecommendation.scopeNote}`,
     });
     navigate(`/agents?relayAgent=${simpleRecommendedAgent.key}`);
   };
@@ -820,7 +812,9 @@ export function RelayPopoutPage() {
             onClearTask={() => setSimpleTaskDraft('')}
             recommendedAgent={simpleRecommendedAgent}
             agentReason={simpleAgentReason}
-            routingMode={routingGuidanceView.mode}
+            agentTaskFit={simpleFirstWaveRecommendation.taskFit}
+            firstWaveScopeNote={simpleFirstWaveRecommendation.scopeNote}
+            routingMode={simpleFirstWaveRecommendation.routingMode}
             nextMove={nextMoveView}
             agentActionLabel={simpleAgentActionLabel}
             onUseRecommendedAgent={handleUseRecommendedAgent}
