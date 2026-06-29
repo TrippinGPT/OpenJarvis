@@ -483,7 +483,7 @@ Exit criteria:
 - a new operator can use Relay without opening dashboard first
 - Simple Mode answers task / agent / next move
 
-Status: **implemented in v4.4.1** — default route `/relay-popout`, `RelaySimpleModeShell`, first-wave quick guide, Advanced panels preserved.
+Status: **implemented and simplified through v4.4.3** — default route `/relay-popout`, Hermes-style `RelaySimpleModeShell`, first-wave recommendation surface, collapsible detail controls, and Advanced panels preserved.
 
 ### Phase 3 — First-wave agents
 

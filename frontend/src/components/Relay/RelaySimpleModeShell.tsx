@@ -1,4 +1,3 @@
-import { type ReactNode } from 'react';
 import { ArrowRight, Compass, Target, UserRound } from 'lucide-react';
 import {
   relayFirstWaveAgents,
@@ -27,40 +26,6 @@ export interface RelaySimpleModeShellProps {
   relayMemory: RelayStructuredMemory;
 }
 
-function SimpleSection({
-  icon: Icon,
-  title,
-  hint,
-  children,
-}: {
-  icon: typeof Target;
-  title: string;
-  hint: string;
-  children: ReactNode;
-}) {
-  return (
-    <section className="relay-simple-section rounded-lg border border-white/10 bg-black/20 px-3 py-3">
-      <div className="flex items-start gap-2">
-        <div
-          className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md"
-          style={{
-            color: 'rgb(103, 232, 249)',
-            border: '1px solid rgba(34, 211, 238, 0.18)',
-            background: 'rgba(34, 211, 238, 0.06)',
-          }}
-        >
-          <Icon size={12} />
-        </div>
-        <div className="min-w-0 flex-1">
-          <h2 className="text-[10px] font-semibold tracking-wide text-cyan-100">{title}</h2>
-          <p className="mt-0.5 text-[9px] leading-relaxed text-slate-400">{hint}</p>
-          <div className="mt-2.5">{children}</div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 export function RelaySimpleModeShell({
   taskDraft,
   onTaskDraftChange,
@@ -83,133 +48,177 @@ export function RelaySimpleModeShell({
 
   return (
     <div className="relay-simple-shell grid gap-3">
-      <header className="flex items-start justify-between gap-3 rounded-lg border border-cyan-500/15 bg-cyan-950/20 px-3 py-2.5">
-        <div className="min-w-0">
-          <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-cyan-200">
-            Simple Mode
+      <header className="rounded-xl border border-cyan-500/15 bg-cyan-950/15 px-4 py-3 shadow-[0_0_30px_rgba(34,211,238,0.06)]">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="text-[9px] font-semibold uppercase tracking-[0.22em] text-cyan-200">
+              Relay assistant shell
+            </div>
+            <h1 className="mt-1 text-[18px] font-semibold tracking-tight text-cyan-50">
+              Tell Relay the job. It picks the first worker.
+            </h1>
+            <p className="mt-1 max-w-[56ch] text-[10px] leading-relaxed text-cyan-100/72">
+              Simple Mode is the front door: task, owner, next move. Memory, routing internals, review logs, and voice
+              controls stay in Advanced.
+            </p>
           </div>
-          <p className="mt-1 text-[9px] leading-relaxed text-cyan-100/80">
-            One task, one first-wave specialist, one next move. Advanced panels stay available when you need them.
-          </p>
+          <button
+            type="button"
+            onClick={onShowAdvanced}
+            className="relay-popout-nav-button shrink-0 justify-center whitespace-nowrap px-2.5 py-1.5 text-[9px]"
+            style={{ color: 'rgb(216, 180, 254)', borderColor: 'rgba(192, 132, 252, 0.24)' }}
+          >
+            Advanced
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={onShowAdvanced}
-          className="relay-popout-nav-button shrink-0 justify-center whitespace-nowrap px-2.5 py-1.5 text-[9px]"
-          style={{ color: 'rgb(216, 180, 254)', borderColor: 'rgba(192, 132, 252, 0.24)' }}
-        >
-          Show advanced
-        </button>
       </header>
 
-      <SimpleSection
-        icon={Target}
-        title="What do I type here?"
-        hint="Describe the outcome, repo, or question in plain language."
-      >
-        <textarea
-          value={taskDraft}
-          onChange={(event) => onTaskDraftChange(event.target.value)}
-          rows={3}
-          placeholder="Example: Summarize the Relay fork state, route the next build step, and keep OpenClaw read-only."
-          className="w-full rounded-md border border-white/10 bg-black/30 px-2.5 py-2 text-[10px] leading-relaxed outline-none focus:border-cyan-400/30"
-          style={{ color: 'rgba(226, 232, 240, 0.92)', resize: 'vertical' }}
-        />
-        <div className="mt-2 flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={onSaveFocus}
-            disabled={!hasTaskDraft}
-            className="relay-popout-nav-button justify-center text-[9px]"
-            style={{
-              color: hasTaskDraft ? 'rgb(103, 232, 249)' : 'rgba(148, 163, 184, 0.56)',
-              borderColor: hasTaskDraft ? 'rgba(34, 211, 238, 0.24)' : 'rgba(148, 163, 184, 0.16)',
-              opacity: hasTaskDraft ? 1 : 0.6,
-            }}
-          >
-            Save task focus
-          </button>
-          <button
-            type="button"
-            onClick={onClearTask}
-            disabled={!hasTaskDraft}
-            className="relay-popout-nav-button justify-center text-[9px]"
-            style={{
-              color: hasTaskDraft ? 'rgb(251, 191, 36)' : 'rgba(148, 163, 184, 0.56)',
-              borderColor: hasTaskDraft ? 'rgba(251, 191, 36, 0.20)' : 'rgba(148, 163, 184, 0.16)',
-              opacity: hasTaskDraft ? 1 : 0.6,
-            }}
-          >
-            Clear
-          </button>
-        </div>
-      </SimpleSection>
+      <section className="grid gap-3 lg:grid-cols-[minmax(0,1.35fr)_minmax(220px,0.65fr)]">
+        <div className="rounded-xl border border-white/10 bg-black/25 p-4">
+          <div className="flex items-start gap-3">
+            <div
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+              style={{
+                color: 'rgb(103, 232, 249)',
+                border: '1px solid rgba(34, 211, 238, 0.18)',
+                background: 'rgba(34, 211, 238, 0.07)',
+              }}
+            >
+              <Target size={15} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-cyan-100">
+                Main task
+              </div>
+              <p className="mt-1 text-[9px] leading-relaxed text-slate-400">
+                Type the outcome, question, repo issue, or decision you want handled. Keep it plain.
+              </p>
+            </div>
+          </div>
 
-      <SimpleSection
-        icon={UserRound}
-        title="Who gets this first?"
-        hint="Simple Mode keeps normal flow inside Dispatch, Recon, and Patch."
-      >
-        <div className="rounded-md border border-white/10 bg-black/25 px-2.5 py-2.5">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <div className="text-[11px] font-semibold text-violet-200">{recommendedAgent.name}</div>
-              <div className="mt-0.5 text-[9px] text-slate-300">{recommendedAgent.role}</div>
-              <p className="mt-2 text-[9px] leading-relaxed text-cyan-50/85">{recommendedAgent.roleSentence}</p>
+          <textarea
+            value={taskDraft}
+            onChange={(event) => onTaskDraftChange(event.target.value)}
+            rows={6}
+            placeholder="Example: Check the Relay startup flow, propose the smallest safe fix, and keep OpenClaw untouched."
+            className="mt-4 w-full rounded-lg border border-cyan-400/15 bg-black/35 px-3 py-3 text-[12px] leading-relaxed outline-none focus:border-cyan-300/40"
+            style={{ color: 'rgba(226, 232, 240, 0.94)', resize: 'vertical' }}
+          />
+
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={onSaveFocus}
+                disabled={!hasTaskDraft}
+                className="relay-popout-nav-button justify-center px-3 py-2 text-[10px]"
+                style={{
+                  color: hasTaskDraft ? 'rgb(103, 232, 249)' : 'rgba(148, 163, 184, 0.56)',
+                  borderColor: hasTaskDraft ? 'rgba(34, 211, 238, 0.24)' : 'rgba(148, 163, 184, 0.16)',
+                  opacity: hasTaskDraft ? 1 : 0.6,
+                }}
+              >
+                Save focus
+              </button>
+              <button
+                type="button"
+                onClick={onClearTask}
+                disabled={!hasTaskDraft}
+                className="relay-popout-nav-button justify-center px-3 py-2 text-[10px]"
+                style={{
+                  color: hasTaskDraft ? 'rgb(251, 191, 36)' : 'rgba(148, 163, 184, 0.56)',
+                  borderColor: hasTaskDraft ? 'rgba(251, 191, 36, 0.20)' : 'rgba(148, 163, 184, 0.16)',
+                  opacity: hasTaskDraft ? 1 : 0.6,
+                }}
+              >
+                Clear
+              </button>
+            </div>
+            <div className="text-[8px] uppercase tracking-[0.14em] text-slate-500">
+              First wave: Dispatch / Recon / Patch
+            </div>
+          </div>
+        </div>
+
+        <aside className="rounded-xl border border-violet-400/15 bg-black/25 p-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <div
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+                style={{
+                  color: 'rgb(216, 180, 254)',
+                  border: '1px solid rgba(192, 132, 252, 0.20)',
+                  background: 'rgba(168, 85, 247, 0.08)',
+                }}
+              >
+                <UserRound size={14} />
+              </div>
+              <div>
+                <div className="text-[8px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                  Current worker
+                </div>
+                <div className="text-[14px] font-semibold text-violet-100">{recommendedAgent.name}</div>
+              </div>
             </div>
             <span
-              className="shrink-0 rounded-md border px-2 py-1 text-[8px] font-medium uppercase tracking-wide"
+              className="rounded-md border px-2 py-1 text-[8px] font-medium uppercase tracking-wide"
               style={{
                 color: 'rgb(134, 239, 172)',
                 borderColor: 'rgba(74, 222, 128, 0.22)',
                 background: 'rgba(74, 222, 128, 0.06)',
               }}
             >
-              {routingMode === 'stay' ? 'Current fit' : 'Best next fit'}
+              {routingMode === 'stay' ? 'Current fit' : 'Recommended'}
             </span>
           </div>
-          <div className="mt-3 rounded-md border border-white/8 bg-black/20 px-2 py-2">
-            <div className="text-[8px] font-medium uppercase tracking-wide text-slate-500">Why this fits</div>
-            <p className="mt-1 text-[9px] leading-relaxed text-cyan-50/85">{agentReason}</p>
+
+          <p className="mt-3 text-[10px] leading-relaxed text-cyan-50/82">{recommendedAgent.roleSentence}</p>
+
+          <div className="mt-3 rounded-lg border border-white/8 bg-black/20 px-3 py-2.5">
+            <div className="text-[8px] font-medium uppercase tracking-wide text-slate-500">Why this worker</div>
+            <p className="mt-1.5 text-[9px] leading-relaxed text-cyan-50/80">{agentReason}</p>
           </div>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2">
-            <div className="rounded-md border border-white/8 bg-black/20 px-2 py-2">
-              <div className="text-[8px] font-medium uppercase tracking-wide text-slate-500">Task fit</div>
-              <p className="mt-1 text-[9px] leading-relaxed text-cyan-50/80">{agentTaskFit}</p>
-            </div>
-            <div className="rounded-md border border-white/8 bg-black/20 px-2 py-2">
-              <div className="text-[8px] font-medium uppercase tracking-wide text-slate-500">Boundary</div>
-              <p className="mt-1 text-[9px] leading-relaxed text-cyan-50/80">{firstWaveScopeNote}</p>
-            </div>
-          </div>
+
           <button
             type="button"
             onClick={onUseRecommendedAgent}
-            className="relay-popout-nav-button mt-3 w-full justify-center text-[9px]"
+            className="relay-popout-nav-button mt-3 w-full justify-center px-3 py-2 text-[10px]"
             style={{ color: 'rgb(134, 239, 172)', borderColor: 'rgba(74, 222, 128, 0.24)' }}
           >
             {agentActionLabel}
-            <ArrowRight size={11} />
+            <ArrowRight size={12} />
           </button>
-        </div>
-      </SimpleSection>
+        </aside>
+      </section>
 
-      <SimpleSection
-        icon={Compass}
-        title="What should I do next?"
-        hint="Deterministic guidance from visible Relay memory - not hidden orchestration."
-      >
-        <div className="rounded-md border border-white/10 bg-black/25 px-2.5 py-2.5">
-          <p className="text-[10px] leading-relaxed text-cyan-50/90">{nextMove.move}</p>
-          <p className="mt-2 text-[8px] uppercase tracking-wide text-slate-500">Based on {nextMove.basedOn}</p>
+      <section className="rounded-xl border border-cyan-400/12 bg-black/20 px-4 py-3">
+        <div className="flex items-start gap-3">
+          <div
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+            style={{
+              color: 'rgb(103, 232, 249)',
+              border: '1px solid rgba(34, 211, 238, 0.18)',
+              background: 'rgba(34, 211, 238, 0.06)',
+            }}
+          >
+            <Compass size={13} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-[9px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
+              Next action
+            </div>
+            <p className="mt-1 text-[11px] leading-relaxed text-cyan-50/90">{nextMove.move}</p>
+            <p className="mt-1.5 text-[8px] uppercase tracking-[0.12em] text-slate-500">
+              Based on {nextMove.basedOn}. This is guidance, not automation.
+            </p>
+          </div>
         </div>
-      </SimpleSection>
+      </section>
 
-      <section className="relay-simple-section rounded-lg border border-white/10 bg-black/20 px-3 py-3">
-        <div className="text-[10px] font-semibold tracking-wide text-violet-200">First-wave team</div>
-        <p className="mt-0.5 text-[9px] text-slate-400">
-          Dispatch routes, Recon verifies, Patch proposes fixes. Other roster agents stay parked in Simple Mode.
-        </p>
+      <details className="rounded-xl border border-white/10 bg-black/15 px-4 py-3">
+        <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-[0.16em] text-violet-200">
+          Show first-wave map
+        </summary>
         <div className="mt-3 grid gap-2 sm:grid-cols-3">
           {relayFirstWaveAgents.map((agent) => {
             const guide = relayFirstWaveQuickGuide[agent.key as RelayFirstWaveAgentKey];
@@ -219,7 +228,7 @@ export function RelaySimpleModeShell({
                 key={agent.key}
                 type="button"
                 onClick={() => onOpenAgent(agent.key as RelayFirstWaveAgentKey)}
-                className="rounded-md border px-2.5 py-2 text-left transition hover:border-cyan-400/25 hover:bg-black/30"
+                className="rounded-lg border px-3 py-2.5 text-left transition hover:border-cyan-400/25 hover:bg-black/30"
                 style={{
                   borderColor: isRecommended ? 'rgba(34, 211, 238, 0.28)' : 'rgba(255, 255, 255, 0.10)',
                   background: isRecommended ? 'rgba(34, 211, 238, 0.05)' : 'rgba(0, 0, 0, 0.20)',
@@ -232,19 +241,32 @@ export function RelaySimpleModeShell({
             );
           })}
         </div>
-      </section>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          <div className="rounded-lg border border-white/8 bg-black/20 px-3 py-2.5">
+            <div className="text-[8px] font-medium uppercase tracking-wide text-slate-500">Task fit</div>
+            <p className="mt-1 text-[9px] leading-relaxed text-cyan-50/80">{agentTaskFit}</p>
+          </div>
+          <div className="rounded-lg border border-white/8 bg-black/20 px-3 py-2.5">
+            <div className="text-[8px] font-medium uppercase tracking-wide text-slate-500">Boundary</div>
+            <p className="mt-1 text-[9px] leading-relaxed text-cyan-50/80">{firstWaveScopeNote}</p>
+          </div>
+        </div>
+      </details>
 
       {(objective || relayMemory.recentStatusSummary) && (
-        <div className="rounded-lg border border-white/8 bg-black/15 px-3 py-2 text-[9px] leading-relaxed text-slate-300">
-          {objective ? (
-            <div>
-              <span className="font-medium text-slate-400">Current focus:</span> {objective}
-            </div>
-          ) : null}
-          {!objective && relayMemory.recentStatusSummary ? (
-            <div>{relayMemory.recentStatusSummary}</div>
-          ) : null}
-        </div>
+        <details className="rounded-xl border border-white/8 bg-black/10 px-4 py-3">
+          <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-300">
+            Show current context
+          </summary>
+          <div className="mt-2 text-[9px] leading-relaxed text-slate-300">
+            {objective ? (
+              <div>
+                <span className="font-medium text-slate-400">Current focus:</span> {objective}
+              </div>
+            ) : null}
+            {relayMemory.recentStatusSummary ? <div className="mt-1">{relayMemory.recentStatusSummary}</div> : null}
+          </div>
+        </details>
       )}
     </div>
   );

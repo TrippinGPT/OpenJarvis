@@ -226,6 +226,7 @@ The stop and restart scripts target Relay frontend and backend first. Ollama is 
 - v4.4 adds the full OpenJarvis × Hermes Desktop × Relay fork blueprint so product direction, inheritance map, first-wave scope, phased build order, and success criteria are locked in one place.
 - v4.4.1 builds the canonical Relay Simple Mode shell so `/relay-popout` is the default fork entry, the companion defaults to a calm task-first layout, and first-wave agent clarity is limited to Dispatch, Recon, and Patch in the quick guide.
 - v4.4.2 tightens Simple Mode first-wave behavior so normal task routing prefers Dispatch, Recon, and Patch, explains why the recommended specialist fits, and keeps Hermes or later-phase agents out of the default flow unless advanced shell/readiness context truly warrants them.
+- v4.4.3 revamps the default Relay front door toward a calmer Hermes Desktop-style assistant shell: one main task surface, one recommended first-wave worker, one next action, and deeper cockpit internals behind detail controls or Advanced mode.
 - See [RELAY_VOICE_MILESTONE_SUMMARY.md](RELAY_VOICE_MILESTONE_SUMMARY.md) for the voice-lane timeline, winners, losses, and current stable behavior.
 
 ### Voice/UI freeze note
@@ -241,6 +242,7 @@ The stop and restart scripts target Relay frontend and backend first. Ollama is 
 - Relay Popout now defaults to Simple Mode for friendlier scanning; Advanced mode still exposes memory, routing, review, and voice internals on demand.
 - The fork default frontend entry now redirects to `/relay-popout`; OpenJarvis chat remains at `/chat`.
 - See [Relay Fork Simple Mode](RELAY_FORK_SIMPLE_MODE.md) for the canonical Phase 2 shell behavior.
+- See [Relay GUI Revamp](RELAY_GUI_REVAMP.md) for the v4.4.3 front-door simplification notes.
 - Hermes, Jarvis, Dispatch, Recon, and Patch now have a documented first practical split for shell ownership, conversational wrapper ownership, routing, research, and propose-only repo work.
 - Simple Mode now treats Dispatch, Recon, and Patch as the active first-wave operator path: Dispatch routes unclear work, Recon handles evidence/project-state work, and Patch handles propose-only build/fix work.
 - The fork blueprint in [OPENJARVIS_HERMES_RELAY_FORK_PLAN.md](OPENJARVIS_HERMES_RELAY_FORK_PLAN.md) is now the product-direction authority for what stays OpenJarvis foundation, what borrows Hermes Desktop UX patterns, and what the Relay twist adds.
@@ -389,6 +391,7 @@ Related references:
 - [Relay Voice Milestone Summary](RELAY_VOICE_MILESTONE_SUMMARY.md)
 - [Relay Memory Prototype](RELAY_MEMORY_PROTOTYPE.md)
 - [Relay Simple Mode](RELAY_SIMPLE_MODE.md)
+- [Relay GUI Revamp](RELAY_GUI_REVAMP.md)
 - [Hermes / Jarvis Agent Plan](HERMES_JARVIS_AGENT_PLAN.md)
 - [Hermes First-Wave Setup](HERMES_FIRST_WAVE_SETUP.md)
 - [OpenJarvis Hermes Relay Fork Plan](OPENJARVIS_HERMES_RELAY_FORK_PLAN.md)
