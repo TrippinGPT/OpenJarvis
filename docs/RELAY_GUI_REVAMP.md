@@ -23,6 +23,16 @@ The default `/relay-popout` Simple Mode now prioritizes:
 
 The default view intentionally avoids showing all memory internals, routing internals, usage review, voice controls, and diagnostic/status panels at once.
 
+## Real task flow
+
+As of v4.4.4, Simple Mode is no longer a dead-end draft shell.
+
+- `Send to chat` queues the current task into the live `/chat` flow using the current first-wave recommendation.
+- `Route with Dispatch`, `Ask Recon`, and `Ask Patch` now queue a real first-wave handoff instead of only updating local UI state.
+- `Clear` now clears the visible draft predictably instead of being repopulated from saved focus state.
+
+The current implementation keeps the calm front door, then hands off to the existing chat runtime for the actual streamed response path.
+
 ## First-wave focus
 
 Simple Mode keeps normal work inside the first-wave team:
@@ -69,4 +79,3 @@ The front door is successful when a user can answer within a few seconds:
 - Who gets this first?
 - What should I do next?
 - Where do I go for more detail?
-

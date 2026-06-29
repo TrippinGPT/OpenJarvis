@@ -48,6 +48,7 @@ import {
 import { RelaySimpleModeShell } from '../components/Relay/RelaySimpleModeShell';
 import { relayCompanionCopy } from '../lib/relayPersonality';
 import {
+  buildRelayFirstWaveHandoff,
   deriveRelayFirstWaveRecommendation,
   type RelayFirstWaveAgentKey,
 } from '../data/relayFirstWaveAgents';
@@ -172,6 +173,7 @@ export function RelayPopoutPage() {
   const removeRelayPinnedNote = useAppStore((state) => state.removeRelayPinnedNote);
   const clearRelayMemoryTransient = useAppStore((state) => state.clearRelayMemoryTransient);
   const clearRelayMemoryAll = useAppStore((state) => state.clearRelayMemoryAll);
+  const setPendingRelayTaskFlow = useAppStore((state) => state.setPendingRelayTaskFlow);
   const relayUsageReviews = useAppStore((state) => state.relayUsageReviews);
   const addRelayUsageReview = useAppStore((state) => state.addRelayUsageReview);
   const removeRelayUsageReview = useAppStore((state) => state.removeRelayUsageReview);
@@ -210,12 +212,6 @@ export function RelayPopoutPage() {
       audioUrlRef.current = null;
     }
   };
-
-  useEffect(() => {
-    if (!simpleTaskDraft && relayMemory.currentObjective) {
-      setSimpleTaskDraft(relayMemory.currentObjective);
-    }
-  }, [relayMemory.currentObjective, simpleTaskDraft]);
 
   useEffect(() => {
     const refreshHealth = () => {
@@ -486,6 +482,29 @@ export function RelayPopoutPage() {
     setMemoryDraft('');
   };
 
+  const queueSimpleModeTaskFlow = (agentKey: RelayFirstWaveAgentKey) => {
+    const rawTask = simpleTaskDraft.replace(/\s+/g, ' ').trim();
+    if (!rawTask) {
+      return false;
+    }
+
+    const handoff = buildRelayFirstWaveHandoff(agentKey, rawTask);
+    setPendingRelayTaskFlow({
+      ...handoff,
+      createdAt: Date.now(),
+    });
+    updateRelayMemory({
+      currentLane: 'Relay first-wave',
+      currentObjective: summarizeRelayMemoryText(rawTask, 180),
+      activeAgent: handoff.agentName,
+      lastMeaningfulAction: `Queued a Simple Mode handoff for ${handoff.agentName}.`,
+      recentStatusSummary: `${handoff.agentName} is queued as the live first-wave chat worker for the current task.`,
+    });
+    setSimpleTaskDraft('');
+    navigate('/chat');
+    return true;
+  };
+
   const handleSimpleTaskFocus = () => {
     const nextObjective = summarizeRelayMemoryText(simpleTaskDraft, 180);
     if (!nextObjective) {
@@ -501,22 +520,21 @@ export function RelayPopoutPage() {
     });
   };
 
-  const handleUseRecommendedAgent = () => {
-    const nextObjective = summarizeRelayMemoryText(simpleTaskDraft, 180);
+  const handleClearSimpleTask = () => {
+    setSimpleTaskDraft('');
     updateRelayMemory({
-      currentLane: relayMemory.currentLane || 'Relay first-wave',
-      currentObjective: nextObjective || relayMemory.currentObjective,
-      activeAgent: simpleRecommendedAgent.name,
-      lastMeaningfulAction:
-        simpleFirstWaveRecommendation.routingMode === 'stay'
-          ? `Kept ${simpleRecommendedAgent.name} as the active first-wave specialist from Simple Mode.`
-          : `Prepared a Simple Mode handoff to ${simpleRecommendedAgent.name}.`,
-      recentStatusSummary:
-        simpleFirstWaveRecommendation.routingMode === 'stay'
-          ? `${simpleRecommendedAgent.name} remains the first-wave fit. ${simpleFirstWaveRecommendation.scopeNote}`
-          : `${simpleRecommendedAgent.name} is now the recommended first-wave specialist. ${simpleFirstWaveRecommendation.scopeNote}`,
+      currentObjective: null,
+      lastMeaningfulAction: 'Cleared the Simple Mode task draft.',
+      recentStatusSummary: 'Simple Mode task draft cleared.',
     });
-    navigate(`/agents?relayAgent=${simpleRecommendedAgent.key}`);
+  };
+
+  const handleSubmitSimpleTask = () => {
+    queueSimpleModeTaskFlow(simpleFirstWaveRecommendation.key);
+  };
+
+  const handleUseRecommendedAgent = () => {
+    queueSimpleModeTaskFlow(simpleFirstWaveRecommendation.key);
   };
 
   const handleAddUsageReview = () => {
@@ -809,7 +827,8 @@ export function RelayPopoutPage() {
             taskDraft={simpleTaskDraft}
             onTaskDraftChange={setSimpleTaskDraft}
             onSaveFocus={handleSimpleTaskFocus}
-            onClearTask={() => setSimpleTaskDraft('')}
+            onClearTask={handleClearSimpleTask}
+            onSubmitTask={handleSubmitSimpleTask}
             recommendedAgent={simpleRecommendedAgent}
             agentReason={simpleAgentReason}
             agentTaskFit={simpleFirstWaveRecommendation.taskFit}

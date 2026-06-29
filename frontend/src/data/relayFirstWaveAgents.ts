@@ -47,6 +47,13 @@ export interface RelayFirstWaveRecommendation {
   scopeNote: string;
 }
 
+export interface RelayFirstWaveHandoff {
+  agentKey: RelayFirstWaveAgentKey;
+  agentName: string;
+  task: string;
+  message: string;
+}
+
 export function isRelayFirstWaveAgentKey(value: string): value is RelayFirstWaveAgentKey {
   return (RELAY_FIRST_WAVE_AGENT_KEYS as readonly string[]).includes(value);
 }
@@ -211,5 +218,34 @@ export function deriveRelayFirstWaveRecommendation({
     actionLabel: isCurrentAgent ? `Stay with ${agent.name}` : guide.actionLabel,
     taskFit: guide.taskFit,
     scopeNote: guide.scopeNote,
+  };
+}
+
+export function buildRelayFirstWaveHandoff(
+  agentKey: RelayFirstWaveAgentKey,
+  task: string,
+): RelayFirstWaveHandoff {
+  const agent = getRelayFirstWaveAgent(agentKey) ?? relayFirstWaveAgents[0];
+  const cleanTask = task.replace(/\s+/g, ' ').trim();
+
+  const instructions: Record<RelayFirstWaveAgentKey, string> = {
+    dispatch:
+      'Route this clearly. Identify the owner, explain why in short form, and give the immediate next step.',
+    recon:
+      'Handle this as evidence-first research. Start from repo, project, and doc context before drifting to broader activity.',
+    patch:
+      'Handle this as propose-only build/fix help. Prefer the smallest safe fix and validation path. Do not imply anything was already applied.',
+  };
+
+  return {
+    agentKey,
+    agentName: agent.name,
+    task: cleanTask,
+    message: [
+      'Relay first-wave handoff.',
+      `Worker: ${agent.name}`,
+      `Task: ${cleanTask}`,
+      `Instructions: ${instructions[agentKey]}`,
+    ].join('\n'),
   };
 }

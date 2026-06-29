@@ -13,6 +13,7 @@ export interface RelaySimpleModeShellProps {
   onTaskDraftChange: (value: string) => void;
   onSaveFocus: () => void;
   onClearTask: () => void;
+  onSubmitTask: () => void;
   recommendedAgent: RelayAgent;
   agentReason: string;
   agentTaskFit: string;
@@ -31,6 +32,7 @@ export function RelaySimpleModeShell({
   onTaskDraftChange,
   onSaveFocus,
   onClearTask,
+  onSubmitTask,
   recommendedAgent,
   agentReason,
   agentTaskFit,
@@ -109,6 +111,19 @@ export function RelaySimpleModeShell({
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
+                onClick={onSubmitTask}
+                disabled={!hasTaskDraft}
+                className="relay-popout-nav-button justify-center px-3 py-2 text-[10px]"
+                style={{
+                  color: hasTaskDraft ? 'rgb(134, 239, 172)' : 'rgba(148, 163, 184, 0.56)',
+                  borderColor: hasTaskDraft ? 'rgba(74, 222, 128, 0.24)' : 'rgba(148, 163, 184, 0.16)',
+                  opacity: hasTaskDraft ? 1 : 0.6,
+                }}
+              >
+                Send to chat
+              </button>
+              <button
+                type="button"
                 onClick={onSaveFocus}
                 disabled={!hasTaskDraft}
                 className="relay-popout-nav-button justify-center px-3 py-2 text-[10px]"
@@ -182,8 +197,13 @@ export function RelaySimpleModeShell({
           <button
             type="button"
             onClick={onUseRecommendedAgent}
+            disabled={!hasTaskDraft}
             className="relay-popout-nav-button mt-3 w-full justify-center px-3 py-2 text-[10px]"
-            style={{ color: 'rgb(134, 239, 172)', borderColor: 'rgba(74, 222, 128, 0.24)' }}
+            style={{
+              color: hasTaskDraft ? 'rgb(134, 239, 172)' : 'rgba(148, 163, 184, 0.56)',
+              borderColor: hasTaskDraft ? 'rgba(74, 222, 128, 0.24)' : 'rgba(148, 163, 184, 0.16)',
+              opacity: hasTaskDraft ? 1 : 0.6,
+            }}
           >
             {agentActionLabel}
             <ArrowRight size={12} />

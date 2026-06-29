@@ -50,6 +50,14 @@ export interface AgentEvent {
   data: Record<string, unknown>;
 }
 
+export interface RelayPendingTaskFlow {
+  task: string;
+  agentKey: string;
+  agentName: string;
+  message: string;
+  createdAt: number;
+}
+
 // â”€â”€ localStorage persistence â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const CONVERSATIONS_KEY = 'openjarvis-conversations';
@@ -159,6 +167,7 @@ interface AppState {
   relayActivityUntil: number;
   relayMemory: RelayStructuredMemory;
   relayUsageReviews: RelayUsageReviewEntry[];
+  pendingRelayTaskFlow: RelayPendingTaskFlow | null;
 
   // Models & server
   models: ModelInfo[];
@@ -217,6 +226,8 @@ interface AppState {
   addRelayUsageReview: (draft: { tone: RelayUsageReviewTone; area: RelayUsageReviewArea; note: string }) => void;
   removeRelayUsageReview: (id: string) => void;
   clearRelayUsageReviews: () => void;
+  setPendingRelayTaskFlow: (draft: RelayPendingTaskFlow | null) => void;
+  clearPendingRelayTaskFlow: () => void;
 
   // Deep Research toggle
   deepResearch: boolean;
@@ -299,6 +310,7 @@ export const useAppStore = create<AppState>((set, get) => {
     relayActivityUntil: 0,
     relayMemory: initialRelayMemory,
     relayUsageReviews: initialRelayUsageReviews,
+    pendingRelayTaskFlow: null,
 
     models: [],
     modelsLoading: true,
@@ -557,6 +569,14 @@ export const useAppStore = create<AppState>((set, get) => {
       const nextEntries = clearRelayUsageReviews();
       saveRelayUsageReviews(nextEntries);
       set({ relayUsageReviews: nextEntries });
+    },
+
+    setPendingRelayTaskFlow: (draft) => {
+      set({ pendingRelayTaskFlow: draft });
+    },
+
+    clearPendingRelayTaskFlow: () => {
+      set({ pendingRelayTaskFlow: null });
     },
 
     // â”€â”€ Deep Research â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€

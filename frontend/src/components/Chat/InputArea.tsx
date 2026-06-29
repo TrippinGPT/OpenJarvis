@@ -95,6 +95,8 @@ export function InputArea() {
   const resetStream = useAppStore((s) => s.resetStream);
   const holdRelayActivity = useAppStore((s) => s.holdRelayActivity);
   const updateRelayMemory = useAppStore((s) => s.updateRelayMemory);
+  const pendingRelayTaskFlow = useAppStore((s) => s.pendingRelayTaskFlow);
+  const clearPendingRelayTaskFlow = useAppStore((s) => s.clearPendingRelayTaskFlow);
   const modelLoading = useAppStore((s) => s.modelLoading);
   const deepResearch = useAppStore((s) => s.deepResearch);
   const setDeepResearch = useAppStore((s) => s.setDeepResearch);
@@ -156,15 +158,13 @@ export function InputArea() {
     resetStream();
   }, [resetStream]);
 
-  const sendMessage = useCallback(async () => {
-    const content = input.trim();
+  const submitMessage = useCallback(async (rawContent: string) => {
+    const content = rawContent.trim();
     if (!content || streamState.isStreaming) return;
     if (!selectedModel) {
       toast.error('Pick a model first (⌘K)');
       return;
     }
-
-    setInput('');
 
     let convId = activeId;
     if (!convId) {
@@ -524,7 +524,6 @@ export function InputArea() {
       }
     }
   }, [
-    input,
     activeId,
     selectedModel,
     streamState.isStreaming,
@@ -538,6 +537,32 @@ export function InputArea() {
     deepResearch,
     temperature,
     maxTokens,
+  ]);
+
+  const sendMessage = useCallback(async () => {
+    const content = input.trim();
+    if (!content) return;
+    setInput('');
+    await submitMessage(content);
+  }, [input, submitMessage]);
+
+  useEffect(() => {
+    if (!pendingRelayTaskFlow) {
+      return;
+    }
+    if (streamState.isStreaming || modelLoading || !selectedModel) {
+      return;
+    }
+
+    clearPendingRelayTaskFlow();
+    void submitMessage(pendingRelayTaskFlow.message);
+  }, [
+    pendingRelayTaskFlow,
+    streamState.isStreaming,
+    modelLoading,
+    selectedModel,
+    clearPendingRelayTaskFlow,
+    submitMessage,
   ]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
