@@ -223,6 +223,7 @@ The stop and restart scripts target Relay frontend and backend first. Ollama is 
 - v4.2 adds a Simple Mode in the Relay Popout so the cockpit defaults to a clearer task-first flow with one main input, one recommended agent, one next action, and Advanced mode kept behind an explicit toggle.
 - v4.3.1 adds the missing Hermes / Jarvis authority document plus a first-wave config layer for Dispatch, Recon, and Patch, with Hermes kept on shell ownership and Patch kept in propose-only mode.
 - v4.3.2 tunes the first-wave model routing so Hermes and Jarvis stay on `hermes3:8b`, Dispatch and Recon move to `qwen3.5:9b`, and Patch uses `qwen2.5-coder:14b` for faster, sharper, and more bounded behavior.
+- v4.4 adds the full OpenJarvis × Hermes Desktop × Relay fork blueprint so product direction, inheritance map, first-wave scope, phased build order, and success criteria are locked in one place.
 - See [RELAY_VOICE_MILESTONE_SUMMARY.md](RELAY_VOICE_MILESTONE_SUMMARY.md) for the voice-lane timeline, winners, losses, and current stable behavior.
 
 ### Voice/UI freeze note
@@ -237,6 +238,7 @@ The stop and restart scripts target Relay frontend and backend first. Ollama is 
 - Relay Companion is still the only implemented runtime placeholder voice; the other agents now have documented voice direction only.
 - Relay Popout now defaults to Simple Mode for friendlier scanning; Advanced mode still exposes memory, routing, review, and voice internals on demand.
 - Hermes, Jarvis, Dispatch, Recon, and Patch now have a documented first practical split for shell ownership, conversational wrapper ownership, routing, research, and propose-only repo work.
+- The fork blueprint in [OPENJARVIS_HERMES_RELAY_FORK_PLAN.md](OPENJARVIS_HERMES_RELAY_FORK_PLAN.md) is now the product-direction authority for what stays OpenJarvis foundation, what borrows Hermes Desktop UX patterns, and what the Relay twist adds.
 - Future work should start from a deliberate new milestone, not ad hoc polish changes.
 
 ### v2.5 milestone note
@@ -384,3 +386,4 @@ Related references:
 - [Relay Simple Mode](RELAY_SIMPLE_MODE.md)
 - [Hermes / Jarvis Agent Plan](HERMES_JARVIS_AGENT_PLAN.md)
 - [Hermes First-Wave Setup](HERMES_FIRST_WAVE_SETUP.md)
+- [OpenJarvis Hermes Relay Fork Plan](OPENJARVIS_HERMES_RELAY_FORK_PLAN.md)
