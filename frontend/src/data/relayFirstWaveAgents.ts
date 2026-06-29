@@ -50,6 +50,7 @@ export interface RelayFirstWaveRecommendation {
 export interface RelayFirstWaveHandoff {
   agentKey: RelayFirstWaveAgentKey;
   agentName: string;
+  model: string;
   task: string;
   message: string;
 }
@@ -227,23 +228,61 @@ export function buildRelayFirstWaveHandoff(
 ): RelayFirstWaveHandoff {
   const agent = getRelayFirstWaveAgent(agentKey) ?? relayFirstWaveAgents[0];
   const cleanTask = task.replace(/\s+/g, ' ').trim();
+  const modelByAgent: Record<RelayFirstWaveAgentKey, string> = {
+    dispatch: 'qwen3.5:9b',
+    recon: 'qwen3.5:9b',
+    patch: 'qwen2.5-coder:14b',
+  };
 
   const instructions: Record<RelayFirstWaveAgentKey, string> = {
     dispatch:
-      'Route this clearly. Identify the owner, explain why in short form, and give the immediate next step.',
+      [
+        'Stay inside Dispatch.',
+        'Route only.',
+        'Do not answer like a generic assistant.',
+        'Do not invent departments, teams, enterprise roles, or new agents.',
+        'Return exactly:',
+        'Owner: <Dispatch | Recon | Patch>',
+        'Why: <one short sentence>',
+        'Next: <one short next step or 2-3 short ordered steps>',
+      ].join(' '),
     recon:
-      'Handle this as evidence-first research. Start from repo, project, and doc context before drifting to broader activity.',
+      [
+        'Stay inside Recon.',
+        'Use local repo, project, docs, config, scripts, and visible app context first.',
+        'Do not drift to Jira, GitHub activity, workplace history, or unrelated connected context unless the user explicitly asked for it.',
+        'If local evidence is missing, say what is missing instead of padding.',
+        'Keep the answer concise.',
+        'Return in this shape when helpful:',
+        'Known:',
+        'Missing:',
+        'Answer:',
+      ].join(' '),
     patch:
-      'Handle this as propose-only build/fix help. Prefer the smallest safe fix and validation path. Do not imply anything was already applied.',
+      [
+        'Stay inside Patch.',
+        'Propose only.',
+        'Prefer the smallest safe fix first.',
+        'Keep scope narrow unless the user explicitly asks for a broad rewrite.',
+        'Do not imply anything was already changed, applied, shipped, committed, tagged, or pushed.',
+        'Return in this shape:',
+        'Proposed fix:',
+        'Files:',
+        'Validation:',
+        'Risks:',
+      ].join(' '),
   };
 
   return {
     agentKey,
     agentName: agent.name,
+    model: modelByAgent[agentKey],
     task: cleanTask,
     message: [
       'Relay first-wave handoff.',
       `Worker: ${agent.name}`,
+      `Model: ${modelByAgent[agentKey]}`,
+      'Scope: First-wave only. Do not switch to Hermes or later agents unless the operator explicitly asks for that.',
       `Task: ${cleanTask}`,
       `Instructions: ${instructions[agentKey]}`,
     ].join('\n'),

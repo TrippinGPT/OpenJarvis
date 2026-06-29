@@ -54,6 +54,7 @@ export interface RelayPendingTaskFlow {
   task: string;
   agentKey: string;
   agentName: string;
+  model: string;
   message: string;
   createdAt: number;
 }

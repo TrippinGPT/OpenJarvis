@@ -100,6 +100,7 @@ export function InputArea() {
   const modelLoading = useAppStore((s) => s.modelLoading);
   const deepResearch = useAppStore((s) => s.deepResearch);
   const setDeepResearch = useAppStore((s) => s.setDeepResearch);
+  const setSelectedModel = useAppStore((s) => s.setSelectedModel);
   const corpusSync = useResearchCorpusSync(deepResearch);
 
   const { state: speechState, available: speechAvailable, startRecording, stopRecording } = useSpeech();
@@ -554,6 +555,11 @@ export function InputArea() {
       return;
     }
 
+    setDeepResearch(false);
+    if (selectedModel !== pendingRelayTaskFlow.model) {
+      setSelectedModel(pendingRelayTaskFlow.model);
+      return;
+    }
     clearPendingRelayTaskFlow();
     void submitMessage(pendingRelayTaskFlow.message);
   }, [
@@ -561,6 +567,8 @@ export function InputArea() {
     streamState.isStreaming,
     modelLoading,
     selectedModel,
+    setDeepResearch,
+    setSelectedModel,
     clearPendingRelayTaskFlow,
     submitMessage,
   ]);

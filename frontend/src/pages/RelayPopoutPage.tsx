@@ -174,6 +174,7 @@ export function RelayPopoutPage() {
   const clearRelayMemoryTransient = useAppStore((state) => state.clearRelayMemoryTransient);
   const clearRelayMemoryAll = useAppStore((state) => state.clearRelayMemoryAll);
   const setPendingRelayTaskFlow = useAppStore((state) => state.setPendingRelayTaskFlow);
+  const setSelectedModel = useAppStore((state) => state.setSelectedModel);
   const relayUsageReviews = useAppStore((state) => state.relayUsageReviews);
   const addRelayUsageReview = useAppStore((state) => state.addRelayUsageReview);
   const removeRelayUsageReview = useAppStore((state) => state.removeRelayUsageReview);
@@ -489,6 +490,7 @@ export function RelayPopoutPage() {
     }
 
     const handoff = buildRelayFirstWaveHandoff(agentKey, rawTask);
+    setSelectedModel(handoff.model);
     setPendingRelayTaskFlow({
       ...handoff,
       createdAt: Date.now(),

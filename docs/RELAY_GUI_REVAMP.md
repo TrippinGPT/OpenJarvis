@@ -33,6 +33,8 @@ As of v4.4.4, Simple Mode is no longer a dead-end draft shell.
 
 The current implementation keeps the calm front door, then hands off to the existing chat runtime for the actual streamed response path.
 
+As of v4.4.5, that handoff also switches to the mapped first-wave specialist model and passes stricter worker instructions into `/chat`, so the streamed output is less generic and more aligned with Dispatch, Recon, or Patch.
+
 ## First-wave focus
 
 Simple Mode keeps normal work inside the first-wave team:

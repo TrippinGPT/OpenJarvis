@@ -228,6 +228,7 @@ The stop and restart scripts target Relay frontend and backend first. Ollama is 
 - v4.4.2 tightens Simple Mode first-wave behavior so normal task routing prefers Dispatch, Recon, and Patch, explains why the recommended specialist fits, and keeps Hermes or later-phase agents out of the default flow unless advanced shell/readiness context truly warrants them.
 - v4.4.3 revamps the default Relay front door toward a calmer Hermes Desktop-style assistant shell: one main task surface, one recommended first-wave worker, one next action, and deeper cockpit internals behind detail controls or Advanced mode.
 - v4.4.4 fixes Simple Mode task flow so Clear is deterministic, first-wave handoff buttons queue a real task, and `/relay-popout` now feeds the live `/chat` path instead of stopping at draft-only routing copy.
+- v4.4.5 tightens first-wave chat behavior after the new Simple Mode handoff flow so Dispatch, Recon, and Patch each switch the live chat model, carry stricter first-wave instructions into `/chat`, and answer in a more role-shaped format instead of falling back toward generic assistant output.
 - See [RELAY_VOICE_MILESTONE_SUMMARY.md](RELAY_VOICE_MILESTONE_SUMMARY.md) for the voice-lane timeline, winners, losses, and current stable behavior.
 
 ### Voice/UI freeze note
@@ -245,9 +246,11 @@ The stop and restart scripts target Relay frontend and backend first. Ollama is 
 - See [Relay Fork Simple Mode](RELAY_FORK_SIMPLE_MODE.md) for the canonical Phase 2 shell behavior.
 - See [Relay GUI Revamp](RELAY_GUI_REVAMP.md) for the v4.4.3 front-door simplification notes.
 - Simple Mode now acts as a real operator front door: the main task box can hand off directly into the existing chat flow, and first-wave worker buttons queue a live chat request instead of acting as decorative routing labels.
+- First-wave chat handoff now also sets the specialist model before submit and carries stricter worker-specific output rules into the live `/chat` request: Dispatch stays in short owner/why/next routing form, Recon stays evidence-first and local-project-first, and Patch stays propose-only with files, validation, and risks.
 - Hermes, Jarvis, Dispatch, Recon, and Patch now have a documented first practical split for shell ownership, conversational wrapper ownership, routing, research, and propose-only repo work.
 - Simple Mode now treats Dispatch, Recon, and Patch as the active first-wave operator path: Dispatch routes unclear work, Recon handles evidence/project-state work, and Patch handles propose-only build/fix work.
 - The fork blueprint in [OPENJARVIS_HERMES_RELAY_FORK_PLAN.md](OPENJARVIS_HERMES_RELAY_FORK_PLAN.md) is now the product-direction authority for what stays OpenJarvis foundation, what borrows Hermes Desktop UX patterns, and what the Relay twist adds.
+- See [Relay First-Wave Chat Behavior](RELAY_FIRST_WAVE_CHAT_BEHAVIOR.md) for the runtime handoff shape, live model split, and expected Dispatch / Recon / Patch output discipline.
 - Future work should start from a deliberate new milestone, not ad hoc polish changes.
 
 ### v2.5 milestone note
