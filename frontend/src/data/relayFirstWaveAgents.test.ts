@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { deriveRelayFirstWaveRecommendation } from './relayFirstWaveAgents';
+import {
+  buildRelayFirstWaveHandoff,
+  deriveRelayFirstWaveRecommendation,
+  resolveRelayFirstWaveModel,
+} from './relayFirstWaveAgents';
 import type { RelayRoutingGuidanceView, RelayStructuredMemory } from '../lib/relayMemory';
 
 function createMemory(overrides: Partial<RelayStructuredMemory> = {}): RelayStructuredMemory {
@@ -76,5 +80,51 @@ describe('deriveRelayFirstWaveRecommendation', () => {
 
     expect(recommendation.key).toBe('patch');
     expect(recommendation.agent.name).toBe('Patch');
+  });
+});
+
+describe('resolveRelayFirstWaveModel', () => {
+  it('keeps the preferred Patch model when it is installed', () => {
+    const model = resolveRelayFirstWaveModel('patch', [
+      'qwen3.5:9b',
+      'qwen2.5-coder:14b',
+    ]);
+
+    expect(model).toBe('qwen2.5-coder:14b');
+  });
+
+  it('falls back to a compatible installed coder model for Patch', () => {
+    const model = resolveRelayFirstWaveModel('patch', [
+      'qwen3.5:9b',
+      'qwen2.5-coder:latest',
+    ]);
+
+    expect(model).toBe('qwen2.5-coder:latest');
+  });
+
+  it('uses the provided fallback model when no Patch-specific model is installed', () => {
+    const model = resolveRelayFirstWaveModel('patch', ['qwen3.5:9b'], 'qwen3.5:9b');
+
+    expect(model).toBe('qwen3.5:9b');
+  });
+});
+
+describe('buildRelayFirstWaveHandoff', () => {
+  it('keeps Patch handoff propose-only while using the resolved model', () => {
+    const handoff = buildRelayFirstWaveHandoff(
+      'patch',
+      'Propose the smallest safe fix for this startup script.',
+      {
+        models: ['qwen2.5-coder:latest'],
+        fallbackModel: 'qwen3.5:9b',
+      },
+    );
+
+    expect(handoff.model).toBe('qwen2.5-coder:latest');
+    expect(handoff.message).toContain('Worker: Patch');
+    expect(handoff.message).toContain('Model: qwen2.5-coder:latest');
+    expect(handoff.message).toContain('Propose only.');
+    expect(handoff.message).toContain('smallest safe fix');
+    expect(handoff.message).toContain('Do not imply anything was already changed, applied, shipped, committed, tagged, or pushed.');
   });
 });

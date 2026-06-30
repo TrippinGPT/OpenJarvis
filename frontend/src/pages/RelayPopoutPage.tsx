@@ -160,6 +160,7 @@ function StatusRow({
 
 export function RelayPopoutPage() {
   const navigate = useNavigate();
+  const availableModels = useAppStore((state) => state.models);
   const selectedModel = useAppStore((state) => state.selectedModel);
   const localStreamState = useAppStore((state) => state.streamState);
   const settings = useAppStore((state) => state.settings);
@@ -489,7 +490,10 @@ export function RelayPopoutPage() {
       return false;
     }
 
-    const handoff = buildRelayFirstWaveHandoff(agentKey, rawTask);
+    const handoff = buildRelayFirstWaveHandoff(agentKey, rawTask, {
+      models: availableModels,
+      fallbackModel: selectedModel || null,
+    });
     setSelectedModel(handoff.model);
     setPendingRelayTaskFlow({
       ...handoff,

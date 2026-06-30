@@ -1,5 +1,6 @@
 import { relayAgents, type RelayAgent, type RelayAgentKey } from './relayAgents';
 import type { RelayRoutingGuidanceView, RelayStructuredMemory } from '../lib/relayMemory';
+import type { ModelInfo } from '../types';
 
 /** First-wave runtime specialists for the Relay fork shell. */
 export const RELAY_FIRST_WAVE_AGENT_KEYS = ['dispatch', 'recon', 'patch'] as const;
@@ -55,6 +56,12 @@ export interface RelayFirstWaveHandoff {
   message: string;
 }
 
+const FIRST_WAVE_MODEL_PREFERENCES: Record<RelayFirstWaveAgentKey, readonly string[]> = {
+  dispatch: ['qwen3.5:9b', 'qwen3.5', 'qwen'],
+  recon: ['qwen3.5:9b', 'qwen3.5', 'qwen'],
+  patch: ['qwen2.5-coder:14b', 'qwen2.5-coder', 'coder'],
+};
+
 export function isRelayFirstWaveAgentKey(value: string): value is RelayFirstWaveAgentKey {
   return (RELAY_FIRST_WAVE_AGENT_KEYS as readonly string[]).includes(value);
 }
@@ -64,6 +71,15 @@ export function getRelayFirstWaveAgent(key: RelayAgentKey | string): RelayAgent 
     return null;
   }
   return relayAgents.find((agent) => agent.key === key) ?? null;
+}
+
+function normalizeModelIds(models: string[] | ModelInfo[] | undefined): string[] {
+  if (!models || models.length === 0) {
+    return [];
+  }
+  return models
+    .map((model) => (typeof model === 'string' ? model : model.id))
+    .filter((modelId): modelId is string => typeof modelId === 'string' && modelId.length > 0);
 }
 
 function hasAny(text: string, terms: readonly string[]) {
@@ -289,17 +305,46 @@ export function deriveRelayFirstWaveRecommendation({
   };
 }
 
+export function resolveRelayFirstWaveModel(
+  agentKey: RelayFirstWaveAgentKey,
+  models?: string[] | ModelInfo[],
+  fallbackModel?: string | null,
+): string {
+  const availableModels = normalizeModelIds(models);
+  const preferredModels = FIRST_WAVE_MODEL_PREFERENCES[agentKey];
+
+  for (const preferred of preferredModels) {
+    const exactMatch = availableModels.find((modelId) => modelId === preferred);
+    if (exactMatch) {
+      return exactMatch;
+    }
+  }
+
+  for (const preferred of preferredModels) {
+    const partialMatch = availableModels.find((modelId) => modelId.includes(preferred));
+    if (partialMatch) {
+      return partialMatch;
+    }
+  }
+
+  if (fallbackModel) {
+    return fallbackModel;
+  }
+
+  return preferredModels[0];
+}
+
 export function buildRelayFirstWaveHandoff(
   agentKey: RelayFirstWaveAgentKey,
   task: string,
+  options?: {
+    models?: string[] | ModelInfo[];
+    fallbackModel?: string | null;
+  },
 ): RelayFirstWaveHandoff {
   const agent = getRelayFirstWaveAgent(agentKey) ?? relayFirstWaveAgents[0];
   const cleanTask = task.replace(/\s+/g, ' ').trim();
-  const modelByAgent: Record<RelayFirstWaveAgentKey, string> = {
-    dispatch: 'qwen3.5:9b',
-    recon: 'qwen3.5:9b',
-    patch: 'qwen2.5-coder:14b',
-  };
+  const resolvedModel = resolveRelayFirstWaveModel(agentKey, options?.models, options?.fallbackModel);
 
   const instructions: Record<RelayFirstWaveAgentKey, string> = {
     dispatch:
@@ -343,12 +388,12 @@ export function buildRelayFirstWaveHandoff(
   return {
     agentKey,
     agentName: agent.name,
-    model: modelByAgent[agentKey],
+    model: resolvedModel,
     task: cleanTask,
     message: [
       'Relay first-wave handoff.',
       `Worker: ${agent.name}`,
-      `Model: ${modelByAgent[agentKey]}`,
+      `Model: ${resolvedModel}`,
       'Scope: First-wave only. Do not switch to Hermes or later agents unless the operator explicitly asks for that.',
       `Task: ${cleanTask}`,
       `Instructions: ${instructions[agentKey]}`,

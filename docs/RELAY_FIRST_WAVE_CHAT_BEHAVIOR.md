@@ -31,6 +31,8 @@ The current live handoff uses this model split:
 
 Simple Mode sets the selected model before the queued handoff is submitted into `/chat`.
 
+If the exact Patch preference is not installed, the handoff now resolves to the closest available local coder lane before falling back to the current selected model. This keeps Patch from silently dropping back to a non-Patch path just because one exact model ID is missing.
+
 ## Handoff shape
 
 Simple Mode now sends a structured first-wave handoff instead of only decorative routing text.
